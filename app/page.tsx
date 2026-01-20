@@ -1,70 +1,87 @@
-"use client";
+import { auth0 } from '@/lib/auth0';
+import { RoleWrapper } from '@/components/RoleWrapper';
+import { AppRoles } from '@/lib/roles';
+import Link from 'next/link';
 
-import { useUser } from "@auth0/nextjs-auth0/client";
-
-function Profile() {
-  const { user, isLoading } = useUser();
-
-  if (isLoading) {
-    return (
-      <div className="loading-state">
-        <div className="loading-text">Loading user profile...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
-  return (
-    <div className="profile-card action-card">
-      <img
-        src={user.picture || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2363b3ed'/%3E%3Cpath d='M50 45c7.5 0 13.64-6.14 13.64-13.64S57.5 17.72 50 17.72s-13.64 6.14-13.64 13.64S42.5 45 50 45zm0 6.82c-9.09 0-27.28 4.56-27.28 13.64v3.41c0 1.88 1.53 3.41 3.41 3.41h47.74c1.88 0 3.41-1.53 3.41-3.41v-3.41c0-9.08-18.19-13.64-27.28-13.64z' fill='%23fff'/%3E%3C/svg%3E`}
-        alt={user.name || 'User profile'}
-        className="profile-picture"
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2363b3ed'/%3E%3Cpath d='M50 45c7.5 0 13.64-6.14 13.64-13.64S57.5 17.72 50 17.72s-13.64 6.14-13.64 13.64S42.5 45 50 45zm0 6.82c-9.09 0-27.28 4.56-27.28 13.64v3.41c0 1.88 1.53 3.41 3.41 3.41h47.74c1.88 0 3.41-1.53 3.41-3.41v-3.41c0-9.08-18.19-13.64-27.28-13.64z' fill='%23fff'/%3E%3C/svg%3E`;
-        }}
-      />
-      <h2 className="profile-name">{user.name}</h2>
-      <p className="profile-email">{user.email}</p>
-    </div>
-  );
-}
-
-
-function LoginButton() {
-  return (
-    <a
-      href="/auth/login"
-      className="button login"
-    >
-      Log In
-    </a>
-  );
-}
-
-function LogoutButton() {
-  return (
-    <a
-      href="/auth/logout"
-      className="button logout"
-    >
-      Log Out
-    </a>
-  );
-}
-
-export default function Home() {
-  const { user } = useUser();
+export default async function Home() {
+  const session = await auth0.getSession();
+  const user = session?.user;
+  const userRoles = user?.[`${process.env.AUTH0_NAMESPACE}/roles`] as string[] | undefined;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        {!user ? <LoginButton /> : <LogoutButton />}
-        <Profile />
+      <main className="flex min-h-screen w-full max-w-5xl flex-col items-center justify-start py-20 px-8 bg-white dark:bg-black sm:items-start">
+
+        {/* Header / User Info */}
+        <div className="w-full flex justify-between items-center mb-12 border-b pb-6">
+          <h1 className="text-3xl font-bold">IoT Monitor</h1>
+          {user ? (
+            <div className="flex gap-4 items-center">
+              <div className="flex flex-col items-end">
+                <span className="font-bold">{user.name}</span>
+                <span className="text-xs text-muted-foreground">{user.email}</span>
+                <div className="flex gap-1 mt-1">
+                  {userRoles?.map((role) => (
+                    <span key={role} className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-200">
+                      {role}
+                    </span>
+                  ))}
+                  {!userRoles?.length && <span className="text-xs text-gray-500">No Roles Assigned</span>}
+                </div>
+              </div>
+              <Link
+                href="/auth/logout"
+                className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600 transition-colors text-sm"
+              >
+                Logout
+              </Link>
+            </div>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 transition-colors"
+            >
+              Login
+            </Link>
+          )}
+        </div>
+
+        {/* Role Verification Section */}
+        <div className="w-full">
+          <h2 className="text-2xl font-bold mb-6">Role Verification</h2>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Public Content - Visible to everyone */}
+            <div className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm bg-gray-50 dark:bg-gray-800/50">
+              <h3 className="text-lg font-semibold mb-2">Public Content</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Visible to all users (authenticated or not).</p>
+            </div>
+
+            {/* User Role Content */}
+            <RoleWrapper allowedRoles={[AppRoles.USER, AppRoles.ADMIN, AppRoles.SUPER_ADMIN]}>
+              <div className="p-6 border rounded-lg bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+                <h3 className="text-lg font-semibold mb-2 text-green-700 dark:text-green-300">User Access</h3>
+                <p className="text-sm text-green-600 dark:text-green-400">Visible to Users, Admins, and Super Admins.</p>
+              </div>
+            </RoleWrapper>
+
+            {/* Admin Role Content */}
+            <RoleWrapper allowedRoles={[AppRoles.ADMIN, AppRoles.SUPER_ADMIN]}>
+              <div className="p-6 border rounded-lg bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <h3 className="text-lg font-semibold mb-2 text-blue-700 dark:text-blue-300">Admin Access</h3>
+                <p className="text-sm text-blue-600 dark:text-blue-400">Visible to Admins and Super Admins.</p>
+              </div>
+            </RoleWrapper>
+
+            {/* Super Admin Role Content */}
+            <RoleWrapper allowedRoles={[AppRoles.SUPER_ADMIN]}>
+              <div className="p-6 border rounded-lg bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800">
+                <h3 className="text-lg font-semibold mb-2 text-purple-700 dark:text-purple-300">Super Admin Access</h3>
+                <p className="text-sm text-purple-600 dark:text-purple-400">Visible ONLY to Super Admins.</p>
+              </div>
+            </RoleWrapper>
+          </div>
+        </div>
       </main>
     </div>
   );
