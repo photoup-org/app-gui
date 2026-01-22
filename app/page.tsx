@@ -29,20 +29,20 @@ export default async function Home() {
                   {!userRoles?.length && <span className="text-xs text-gray-500">No Roles Assigned</span>}
                 </div>
               </div>
-              <Link
+              <a
                 href="/auth/logout"
                 className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600 transition-colors text-sm"
               >
                 Logout
-              </Link>
+              </a>
             </div>
           ) : (
-            <Link
+            <a
               href="/auth/login"
               className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 transition-colors"
             >
               Login
-            </Link>
+            </a>
           )}
         </div>
 
