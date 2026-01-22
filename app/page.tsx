@@ -1,12 +1,12 @@
-import { auth0 } from '@/lib/auth0';
+'use client';
+
+import { useUser } from '@/contexts/UserContext';
 import { RoleWrapper } from '@/components/RoleWrapper';
 import { AppRoles } from '@/lib/roles';
-import Link from 'next/link';
 
-export default async function Home() {
-  const session = await auth0.getSession();
-  const user = session?.user;
-  const userRoles = user?.[`${process.env.AUTH0_NAMESPACE}/roles`] as string[] | undefined;
+export default function Home() {
+  const { user } = useUser();
+  const userRoles = user?.roles;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">

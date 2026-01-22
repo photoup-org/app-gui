@@ -1,4 +1,6 @@
-import { auth0 } from '@/lib/auth0';
+'use client';
+
+import { useUser } from '@/contexts/UserContext';
 import { AppRole } from '@/lib/roles';
 
 type RoleWrapperProps = {
@@ -6,12 +8,9 @@ type RoleWrapperProps = {
     allowedRoles: AppRole[];
 };
 
-export async function RoleWrapper({ children, allowedRoles }: RoleWrapperProps) {
-    const session = await auth0.getSession();
-    const user = session?.user;
-
-    // Use the namespace to look up roles in the user object
-    const userRoles = user?.[`${process.env.AUTH0_NAMESPACE}/roles`] as string[] | undefined;
+export function RoleWrapper({ children, allowedRoles }: RoleWrapperProps) {
+    const { user } = useUser();
+    const userRoles = user?.roles;
 
     const hasAccess = userRoles?.some((role) => allowedRoles.includes(role as AppRole)) ?? false;
 
