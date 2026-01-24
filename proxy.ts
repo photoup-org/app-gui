@@ -16,7 +16,7 @@ export async function proxy(request: NextRequest) {
     if (session?.user) {
         // Enforce Mandatory Organization
         // If the user does not have an organization, they should not be logged in.
-        const orgSlug = session.user["https://iot-monitor.app/org_name"] || session.user.org_name || session.user.org_slug;
+        const orgSlug = session.user[`${process.env.AUTH0_NAMESPACE}/org_name`] || session.user.org_name || session.user.org_slug;
 
         if (!orgSlug) {
             // Force logout if no organization is found
