@@ -11,6 +11,7 @@ export interface UserProfile {
     updated_at?: string;
     org_id?: string;
     org_name?: string;
+    roles?: string[];
     [key: string]: unknown; // For custom claims like roles
 }
 
