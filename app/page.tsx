@@ -55,6 +55,7 @@ export default function Home() {
             <div className="p-6 border rounded-lg bg-card text-card-foreground shadow-sm bg-gray-50 dark:bg-gray-800/50">
               <h3 className="text-lg font-semibold mb-2">Public Content</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">Visible to all users (authenticated or not).</p>
+              <button className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 transition-colors" onClick={() => window.location.href = '/pricing'}>Pricing</button>
             </div>
 
             {/* User Role Content */}
