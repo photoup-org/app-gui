@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,6 +20,9 @@ export const metadata: Metadata = {
 import { auth0 } from "@/lib/auth0";
 import { UserProvider } from "@/contexts/UserContext";
 
+const nunitoSans = Nunito_Sans({variable:'--font-sans'});
+
+
 // ... imports
 
 export default async function RootLayout({
@@ -34,7 +37,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="en" className={nunitoSans.variable}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

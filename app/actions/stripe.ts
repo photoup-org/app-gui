@@ -39,17 +39,59 @@ export async function getStripeProducts() {
     }
 }
 
-export async function createStripeSubscription(email: string, name: string, priceId: string) {
+export async function createStripeSubscription(
+    email: string,
+    name: string,
+    priceId: string,
+    additionalData?: {
+        nif?: string;
+        address?: {
+            line1: string;
+            city: string;
+            postal_code: string;
+            country: string;
+        };
+        billingAddress?: {
+            line1: string;
+            city: string;
+            postal_code: string;
+            country: string;
+        };
+    }
+) {
     try {
         if (!email || !priceId) {
             throw new Error('Email and Price ID are required');
         }
 
-        // 1. Create a Customer
-        const customer = await stripe.customers.create({
+        // Prepare customer data
+        const customerData: any = {
             email,
             name,
-        });
+        };
+
+        // Map "Address" (Physical/Shipping) to shipping.address
+        if (additionalData?.address) {
+            customerData.shipping = {
+                name: name,
+                address: additionalData.address,
+            };
+        }
+
+        // Map "Billing Address" to customer.address (Primary address in Stripe)
+        if (additionalData?.billingAddress) {
+            customerData.address = additionalData.billingAddress;
+        }
+
+        // Map NIF to metadata
+        if (additionalData?.nif) {
+            customerData.metadata = {
+                tax_id: additionalData.nif,
+            };
+        }
+
+        // 1. Create a Customer
+        const customer = await stripe.customers.create(customerData);
 
         // 2. Create a Subscription
         const subscription = await stripe.subscriptions.create({
