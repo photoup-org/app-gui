@@ -22,7 +22,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     return (
         <div className="border rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow bg-white dark:bg-zinc-900 dark:border-zinc-800 flex flex-col h-full">
             <h3 className="text-xl font-bold mb-2">{name}</h3>
-            {description && <p className="text-gray-500 dark:text-gray-400 mb-4 flex-grow">{description}</p>}
+            {description && <p className="text-gray-500 dark:text-gray-400 mb-4 grow">{description}</p>}
             <div className="mb-6">
                 <span className="text-3xl font-bold">{price}</span>
                 <span className="text-gray-500">/year</span>
