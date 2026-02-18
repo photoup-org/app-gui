@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum PlanTier {
+  STARTER
+  INDUSTRIAL_PRO
+  EXECUTIVE
+}
+
+enum Role {
+  ADMIN
+  TECHNICIAN
+  VIEWER
+}
+
+enum HardwareType {
+  GATEWAY
+  SENSOR_BASE
+  SENSOR_PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum DeviceStatus {
+  ACTIVE
+  OFFLINE
+  MAINTENANCE
+}
+
+// Models
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  auth0OrgId  String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  departments Department[]
+}
+
+model Department {
+  id               String             @id @default(cuid())
+  slug             String             @unique // e.g., "physics-lab"
+  name             String
+  stripeCustomerId String             @unique
+  plan             PlanTier           @default(STARTER)
+  subStatus        SubscriptionStatus @default(ACTIVE)
+  
+  organizationId   String
+  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  users            User[]
+  devices          Device[]
+
+  // Address Relations
+  billingAddressId String
+  billingAddress   Address            @relation("BillingAddress", fields: [billingAddressId], references: [id])
+  
+  shippingAddressId String?
+  shippingAddress   Address?          @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String?
+  auth0UserId  String     @unique
+  role         Role       @default(VIEWER)
+  jobTitle     String?
+  phone        String?
+  
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  street      String
+  city        String
+  zipCode     String
+  country     String
+  nif         String?  // Tax ID
+  contactName String?
+
+  // Inverse relations
+  billingDepartments  Department[] @relation("BillingAddress")
+  shippingDepartments Department[] @relation("ShippingAddress")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model HardwareProduct {
+  id            String       @id @default(cuid())
+  sku           String       @unique
+  name          String
+  type          HardwareType
+  stockQuantity Int          @default(0)
+  price         Decimal      @db.Decimal(10, 2)
+  devices       Device[]
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Device {
+  id                String          @id @default(cuid())
+  serialNumber      String          @unique
+  status            DeviceStatus    @default(ACTIVE)
+  
+  productId         String
+  product           HardwareProduct @relation(fields: [productId], references: [id])
+
+  departmentId      String
+  department        Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}

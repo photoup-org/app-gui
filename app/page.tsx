@@ -1,9 +1,15 @@
-import { NavBar } from "@/components/NavBar";
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+
 
 export default function Page() {
+    const router = useRouter();
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-blue-600">
-            <NavBar />
+        <div className="min-h-screen flex items-center justify-center ">
+            <Button onClick={() => { router.push("/pricing") }}>Pricing</Button>
         </div>
     );
 }
