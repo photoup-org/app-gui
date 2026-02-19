@@ -63,8 +63,6 @@ export default async function Page() {
                         </div>
                     </RoleGate>
 
-                    {/* Optional: Show message if not allowed, though logic can be handled by RoleGate or external check */}
-                    {/* Since RoleGate returns null if false, we can use the same condition to show a fallback if desired */}
                     {(!['ADMIN'].includes(user.role as Role) && user.role !== 'SUPER_ADMIN') && (
                         <div className="bg-gray-50 p-4 rounded-lg text-center border border-dashed">
                             <p className="text-sm text-gray-500">You need to be an Admin to access User Management.</p>
