@@ -1,6 +1,6 @@
 import { auth0 } from "@/lib/auth0";
 import prisma from "@/lib/prisma";
-import { notFound, forbidden } from "next/navigation";
+import { redirect } from "next/navigation";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { PlanGate } from "@/components/auth/PlanGate";
 import { hasRequiredRole } from "@/lib/auth/permissions";
@@ -11,7 +11,7 @@ export default async function Page() {
 
     // Middleware should catch this, but safeguard anyway
     if (!session?.user) {
-        return forbidden();
+        redirect("/");
     }
 
     // Fetch db user using the Auth0 sub as the key
@@ -25,13 +25,12 @@ export default async function Page() {
     // If user not found in DB but is authenticated, handle appropriately
     if (!user) {
         console.log("User not found in DB but is authenticated");
-        return notFound();
+        redirect("/auth/logout");
     }
 
-    // Check valid Role using utility
-    // Requirement: block access if not at least OPERATOR
+    // @ts-ignore
     if (!hasRequiredRole(user.role, Role.OPERATOR)) {
-        return forbidden();
+        redirect("/auth/logout");
     }
 
     return (
@@ -62,7 +61,7 @@ export default async function Page() {
                             </div>
                         </div>
                     </RoleGate>
-
+                    {/* @ts-ignore */}
                     {(!['ADMIN'].includes(user.role as Role) && user.role !== 'SUPER_ADMIN') && (
                         <div className="bg-gray-50 p-4 rounded-lg text-center border border-dashed">
                             <p className="text-sm text-gray-500">You need to be an Admin to access User Management.</p>
