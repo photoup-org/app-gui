@@ -16,7 +16,8 @@ enum PlanTier {
 
 enum Role {
   ADMIN
-  TECHNICIAN
+  OPERATOR
+  SUPER_ADMIN
   VIEWER
 }
 

@@ -34,7 +34,6 @@ export const UserProvider = ({
     user: UserProfile | undefined | null;
     children: React.ReactNode;
 }) => {
-    console.log(user)
     return (
         <UserContext.Provider value={{ user, isLoading: false }}>
             {children}
