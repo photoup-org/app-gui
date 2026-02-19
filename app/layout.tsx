@@ -1,24 +1,19 @@
 import './globals.css';
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
+import { Anek_Latin, Poppins } from "next/font/google";
 import { auth0 } from "@/lib/auth0";
 import { UserProvider } from "@/contexts/UserContext";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
+const brandFont = Anek_Latin({
+    variable: "--font-brand",
     subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
     title: "IoT Monitor APP",
     description: "IoT Monitor APP created by PhotoUP",
 };
-const nunitoSans = Nunito_Sans({ variable: '--font-sans' });
 
 
 export default async function RootLayout({
@@ -33,8 +28,8 @@ export default async function RootLayout({
     }
 
     return (
-        <html className={nunitoSans.variable} lang="pt">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <html lang="pt">
+            <body className={`${brandFont.variable} antialiased`}>
                 <UserProvider user={session?.user}>
                     {children}
                 </UserProvider>
