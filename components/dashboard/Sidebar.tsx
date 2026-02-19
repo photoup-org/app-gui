@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, Users, BarChart } from "lucide-react";
+import { LayoutDashboard, Settings, Users, BarChart, LogOut } from "lucide-react";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> { }
 
@@ -34,6 +34,12 @@ export function Sidebar({ className }: SidebarProps) {
             icon: Users,
             href: "/users",
             active: pathname === "/users",
+        },
+        {
+            label: "Logout",
+            icon: LogOut,
+            href: "/auth/logout",
+            active: false,
         },
     ];
 

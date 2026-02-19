@@ -9,8 +9,7 @@ export default function Page() {
 
     return (
         <div className="min-h-screen flex items-center justify-center ">
-            <Button onClick={() => { router.push("/pricing") }}>Pricing</Button>
-            <Button onClick={() => { router.push("/auth/login") }}>Login</Button>
+            HOME
         </div>
     );
 }
