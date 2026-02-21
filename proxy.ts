@@ -6,24 +6,53 @@ const AUTH_ROUTES_PREFIX = "/auth";
 const DASHBOARD_ROUTES_PREFIX = "/dashboard";
 const MARKETING_ROOT = "/";
 
+/**
+ * Helper to manually wipe the Auth0 appSession cookies and redirect.
+ * Useful when the session cookie is corrupted (e.g. AUTH0_SECRET changed)
+ * and the Auth0 SDK itself fails to process the request over /auth/logout.
+ */
+function clearSessionAndRedirect(request: NextRequest, redirectTo: string = MARKETING_ROOT) {
+    // If we're already trying to go to the redirect target (like MARKETING_ROOT),
+    // and we still have a bad cookie, we need to strip the cookie and ALLOW the request 
+    // to pass through to Next.js natively, otherwise we get ERR_TOO_MANY_REDIRECTS.
+    const targetUrl = new URL(redirectTo, request.url);
+    const isAlreadyOnTarget = request.nextUrl.pathname === targetUrl.pathname;
+
+    let response;
+    if (isAlreadyOnTarget) {
+        response = NextResponse.next();
+    } else {
+        response = NextResponse.redirect(targetUrl);
+    }
+
+    // Explicitly delete all known Auth0 session cookies from the upcoming response
+    // and forcefully remove them from the incoming request so downstream code doesn't see them
+    request.cookies.getAll().forEach(cookie => {
+        if (cookie.name.startsWith("appSession") || cookie.name.startsWith("__session") || cookie.name.startsWith("__txn")) {
+            response.cookies.delete(cookie.name);
+            request.cookies.delete(cookie.name);
+        }
+    });
+
+    return response;
+}
+
 export default async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // 1. Skip middleware logic for Auth0 routes to prevent interference
-    // Auth0 v4 defaults to /auth/* routes, so we skip those.
-    if (pathname.startsWith(AUTH_ROUTES_PREFIX)) {
-        return await auth0.middleware(request);
-    }
-
-    // 2. Safely retrieve session using centralized helper
+    // 1. Safely retrieve session using centralized helper first.
+    // If the cookie is corrupted, this will THROW.
     let session;
     try {
         session = await getAppSession(request);
     } catch (error) {
-        // If decryption failed, getAppSession throws in middleware context
-        const logoutUrl = request.nextUrl.clone();
-        logoutUrl.pathname = `${AUTH_ROUTES_PREFIX}/logout`;
-        return NextResponse.redirect(logoutUrl);
+        console.warn("[Proxy] Session decryption failed. Manually clearing cookies and redirecting to root.");
+        return clearSessionAndRedirect(request);
+    }
+
+    // 2. Auth0 Routes (/auth/*)
+    if (pathname.startsWith(AUTH_ROUTES_PREFIX)) {
+        return await auth0.middleware(request);
     }
 
     // 3. Mandatory Organization Check (only applicable for logged-in users)
