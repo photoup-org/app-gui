@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { headers } from 'next/headers';
 import prisma from '@/lib/prisma'; // Use existing Prisma client
 import Stripe from 'stripe';
+import { createOrg, inviteAdminToOrg } from '@/lib/auth0-management';
 
 export async function POST(req: Request) {
     const body = await req.text();
@@ -116,13 +117,31 @@ async function provisionWorkspace(metadata: Record<string, string>, customerId: 
             shippingAddressId = shippingAddress.id;
         }
 
-        // 2. Optimistic Organization Creation
-        const tempAuth0OrgId = `pending_org_${customerId}_${Date.now()}`;
+        // 2. Auth0 Organization Creation
+        // We need a unique slug. 
+        const orgSlug = (metadata.organizationName || 'org')
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '') + `-${Date.now().toString().slice(-6)}`;
+
+        console.log(`[Webhook] Creating Auth0 Organization: ${orgSlug}`);
+
+        let auth0OrgId = '';
+        try {
+            // Call the Auth0 Management API
+            const auth0Org = await createOrg(orgSlug, metadata.organizationName || 'New Organization');
+            auth0OrgId = auth0Org.id;
+        } catch (authErr: any) {
+            console.error(`[Webhook] Failed to create Auth0 Organization:`, authErr);
+            // Fallback so the DB transaction doesn't crater if Auth0 fails
+            // (You'd realistically want a dead-letter queue here in production)
+            auth0OrgId = `pending_org_${customerId}_${Date.now()}`;
+        }
 
         const organization = await tx.organization.create({
             data: {
                 name: metadata.organizationName || 'New Organization',
-                auth0OrgId: tempAuth0OrgId,
+                auth0OrgId: auth0OrgId,
             }
         });
 
@@ -144,5 +163,15 @@ async function provisionWorkspace(metadata: Record<string, string>, customerId: 
         });
 
         console.log(`[Webhook] Optimistically provisioned Org and Dept for customer ${customerId}`);
+
+        // 4. Invite the Admin User
+        if (metadata.adminEmail && auth0OrgId && !auth0OrgId.startsWith('pending_org_')) {
+            try {
+                console.log(`[Webhook] Sending Auth0 Invite to ${metadata.adminEmail} for Org ${auth0OrgId}`);
+                await inviteAdminToOrg(auth0OrgId, metadata.adminEmail);
+            } catch (inviteErr: any) {
+                console.error(`[Webhook] Failed to invite user ${metadata.adminEmail}:`, inviteErr);
+            }
+        }
     });
 }
