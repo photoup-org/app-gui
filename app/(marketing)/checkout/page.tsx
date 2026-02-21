@@ -2,279 +2,301 @@
 
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
-import { CheckoutForm } from '@/components/CheckoutForm';
-import { createStripeSubscription } from '@/app/actions/stripe';
+import { createCheckoutSession, CheckoutFormData } from '@/app/actions/stripe';
+import { validateEmail, isValidNIF } from '@/lib/utils';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
-if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-    throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is missing');
-}
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
-
 export default function CheckoutPage() {
-    const [clientSecret, setClientSecret] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const searchParams = useSearchParams();
     const planId = searchParams.get('plan_id');
 
-    // Guest User State
-    const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
+    // Admin Details
+    const [adminFullName, setAdminFullName] = useState('');
+    const [adminEmail, setAdminEmail] = useState('');
+    const [jobTitle, setJobTitle] = useState('');
+    const [phone, setPhone] = useState('');
+
+    // Company & Workspace
+    const [organizationName, setOrganizationName] = useState('');
+    const [departmentName, setDepartmentName] = useState('');
     const [nif, setNif] = useState('');
-    const [address, setAddress] = useState({ line1: '', city: '', postal_code: '', country: '' });
-    const [billingAddress, setBillingAddress] = useState({ line1: '', city: '', postal_code: '', country: '' });
-    const [sameAsAddress, setSameAsAddress] = useState(true);
+    const [internalReference, setInternalReference] = useState('');
+
+    // Addresses
+    const [billingAddress, setBillingAddress] = useState({ streetAddress: '', city: '', postalCode: '', country: '' });
+    const [shippingAddress, setShippingAddress] = useState({ streetAddress: '', city: '', postalCode: '', country: '' });
+    const [hasDifferentShippingAddress, setHasDifferentShippingAddress] = useState(false);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     if (!planId) {
-        return <div className="text-center p-12">No plan selected.</div>;
+        return <div className="text-center p-12">No software plan selected.</div>;
     }
 
-    const validateEmail = (email: string) => {
-        return String(email)
-            .toLowerCase()
-            .match(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            );
-    };
-
-    const handleCreateSubscription = async (e: React.FormEvent) => {
+    const handleCheckout = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
         setError(null);
 
-        if (!validateEmail(email)) {
-            setError('Please enter a valid email address.');
+        if (!validateEmail(adminEmail)) {
+            setError('Please enter a valid admin email address.');
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (!isValidNIF(nif)) {
+            setError('Please enter a valid Portuguese NIF (9 digits).');
             setIsSubmitting(false);
             return;
         }
 
         try {
-            const finalBillingAddress = sameAsAddress ? address : billingAddress;
-
-            const result = await createStripeSubscription(email, name, planId, {
+            const formData: CheckoutFormData = {
+                organizationName,
+                departmentName,
                 nif,
-                address,
-                billingAddress: finalBillingAddress,
-            });
+                internalReference,
+                adminFullName,
+                adminEmail,
+                jobTitle,
+                phone,
+                billingAddress,
+                shippingAddress: hasDifferentShippingAddress ? shippingAddress : undefined,
+            };
 
-            if (result.clientSecret) {
-                setClientSecret(result.clientSecret);
+            // In a real flow, you'd pull lineItems from a cart context.
+            // For now, we assume planId is the first item.
+            const lineItems = [
+                { price: planId, quantity: 1 }
+                // Example of adding hardware (would come from cart context):
+                // { price: 'price_XXXXXX', quantity: 2 }
+            ];
+
+            const result = await createCheckoutSession(formData, lineItems);
+
+            if (result.url) {
+                // Redirect user to Stripe Checkout (supports SEPA async payment)
+                window.location.href = result.url;
             }
         } catch (err: any) {
-            setError(err.message || 'Failed to start subscription.');
-        } finally {
+            setError(err.message || 'Failed to initialize checkout.');
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-                    Complete your subscription
-                </h2>
-            </div>
+        <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto">
+                <div className="bg-white dark:bg-zinc-900 shadow sm:rounded-lg p-6 sm:p-10">
+                    <div className="mb-8 border-b border-gray-200 dark:border-zinc-700 pb-5">
+                        <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
+                            Setup your Workspace
+                        </h2>
+                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            Provide your company information. Only one admin is required to create the workspace;
+                            passwords and team invitations will be handled after checkout.
+                        </p>
+                    </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white dark:bg-zinc-900 py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    {/* Step 1: Guest Information */}
-                    {!clientSecret && (
-                        <form onSubmit={handleCreateSubscription} className="space-y-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Full Name</Label>
-                                <Input
-                                    id="name"
-                                    name="name"
-                                    type="text"
+                    <form onSubmit={handleCheckout} className="space-y-8">
+
+                        {/* Company Details */}
+                        <div>
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">1. Company Details</h3>
+                            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                                <FormField
+                                    label="Organization Name"
+                                    placeholder="e.g. Acme Corp"
                                     required
-                                    value={name}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-                                    className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+                                    value={organizationName}
+                                    onChange={setOrganizationName}
                                 />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="workEmail">Work Email</Label>
-                                <Input
-                                    id="workEmail"
-                                    name="workEmail"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    value={email}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                                    className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="nif">NIF/VAT Number</Label>
-                                <Input
-                                    id="nif"
-                                    name="nif"
-                                    type="text"
+                                <FormField
+                                    label="NIF / VAT Number"
                                     required
                                     value={nif}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNif(e.target.value)}
-                                    className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+                                    onChange={setNif}
+                                />
+                                <FormField
+                                    label="Department / Workspace Name"
+                                    placeholder="e.g. Science Lab 1"
+                                    required
+                                    value={departmentName}
+                                    onChange={setDepartmentName}
+                                    className="space-y-2 sm:col-span-2"
                                 />
                             </div>
+                        </div>
 
-                            <div className="border-t border-gray-200 dark:border-zinc-700 pt-4">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">Address</h3>
-                                <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                                    <div className="sm:col-span-6 space-y-2">
-                                        <Label htmlFor="address-line1">Street Address</Label>
-                                        <Input
-                                            type="text"
-                                            id="address-line1"
-                                            name="address-line1"
-                                            required
-                                            value={address.line1}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress({ ...address, line1: e.target.value })}
-                                            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                        />
-                                    </div>
-
-                                    <div className="sm:col-span-3 space-y-2">
-                                        <Label htmlFor="address-city">City</Label>
-                                        <Input
-                                            type="text"
-                                            id="address-city"
-                                            name="address-city"
-                                            required
-                                            value={address.city}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress({ ...address, city: e.target.value })}
-                                            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                        />
-                                    </div>
-
-                                    <div className="sm:col-span-3 space-y-2">
-                                        <Label htmlFor="address-postal-code">Postal Code</Label>
-                                        <Input
-                                            type="text"
-                                            id="address-postal-code"
-                                            name="address-postal-code"
-                                            required
-                                            value={address.postal_code}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress({ ...address, postal_code: e.target.value })}
-                                            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                        />
-                                    </div>
-
-                                    <div className="sm:col-span-6 space-y-2">
-                                        <Label htmlFor="address-country">Country</Label>
-                                        <Input
-                                            type="text"
-                                            id="address-country"
-                                            name="address-country"
-                                            required
-                                            value={address.country}
-                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress({ ...address, country: e.target.value })}
-                                            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                        />
-                                    </div>
-                                </div>
+                        {/* Admin Details */}
+                        <div className="mt-8 border-t border-gray-200 dark:border-zinc-700 pt-8">
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">2. Admin Details</h3>
+                            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                                <FormField
+                                    label="Full Name"
+                                    required
+                                    value={adminFullName}
+                                    onChange={setAdminFullName}
+                                />
+                                <FormField
+                                    label="Work Email"
+                                    type="email"
+                                    required
+                                    value={adminEmail}
+                                    onChange={setAdminEmail}
+                                />
+                                <FormField
+                                    label="Job Title"
+                                    required
+                                    value={jobTitle}
+                                    onChange={setJobTitle}
+                                />
+                                <FormField
+                                    label="Phone Number"
+                                    type="tel"
+                                    required
+                                    value={phone}
+                                    onChange={setPhone}
+                                />
                             </div>
+                        </div>
 
-                            <div className="flex items-center space-x-2">
+                        {/* Billing */}
+                        <div className="mt-8 border-t border-gray-200 dark:border-zinc-700 pt-8">
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">3. Billing & Logistic Information</h3>
+
+                            <FormField
+                                label="Internal Reference / PO Number (Optional)"
+                                value={internalReference}
+                                onChange={setInternalReference}
+                                className="space-y-2 mb-6"
+                            />
+
+                            <AddressForm
+                                title="Billing Address"
+                                address={billingAddress}
+                                setAddress={setBillingAddress}
+                                required={true}
+                            />
+
+                            <div className="flex items-center space-x-2 mt-6 py-4">
                                 <Checkbox
-                                    id="same-as-address"
-                                    checked={sameAsAddress}
-                                    onCheckedChange={(checked: boolean) => setSameAsAddress(checked)}
+                                    id="different-shipping"
+                                    checked={hasDifferentShippingAddress}
+                                    onCheckedChange={(checked: boolean) => setHasDifferentShippingAddress(checked)}
                                 />
-                                <Label htmlFor="same-as-address">Billing address is the same as above</Label>
+                                <Label htmlFor="different-shipping">Use a different address for Shipping</Label>
                             </div>
 
-                            {!sameAsAddress && (
-                                <div className="border-t border-gray-200 dark:border-zinc-700 pt-4">
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">Billing Address</h3>
-                                    <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                                        <div className="sm:col-span-6 space-y-2">
-                                            <Label htmlFor="billing-address-line1">Street Address</Label>
-                                            <Input
-                                                type="text"
-                                                id="billing-address-line1"
-                                                name="billing-address-line1"
-                                                required={!sameAsAddress}
-                                                value={billingAddress.line1}
-                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBillingAddress({ ...billingAddress, line1: e.target.value })}
-                                                className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                            />
-                                        </div>
-
-                                        <div className="sm:col-span-3 space-y-2">
-                                            <Label htmlFor="billing-address-city">City</Label>
-                                            <Input
-                                                type="text"
-                                                id="billing-address-city"
-                                                name="billing-address-city"
-                                                required={!sameAsAddress}
-                                                value={billingAddress.city}
-                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBillingAddress({ ...billingAddress, city: e.target.value })}
-                                                className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                            />
-                                        </div>
-
-                                        <div className="sm:col-span-3 space-y-2">
-                                            <Label htmlFor="billing-address-postal-code">Postal Code</Label>
-                                            <Input
-                                                type="text"
-                                                id="billing-address-postal-code"
-                                                name="billing-address-postal-code"
-                                                required={!sameAsAddress}
-                                                value={billingAddress.postal_code}
-                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBillingAddress({ ...billingAddress, postal_code: e.target.value })}
-                                                className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                            />
-                                        </div>
-
-                                        <div className="sm:col-span-6 space-y-2">
-                                            <Label htmlFor="billing-address-country">Country</Label>
-                                            <Input
-                                                type="text"
-                                                id="billing-address-country"
-                                                name="billing-address-country"
-                                                required={!sameAsAddress}
-                                                value={billingAddress.country}
-                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBillingAddress({ ...billingAddress, country: e.target.value })}
-                                                className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                            {hasDifferentShippingAddress && (
+                                <AddressForm
+                                    title="Shipping Address"
+                                    address={shippingAddress}
+                                    setAddress={setShippingAddress}
+                                    required={hasDifferentShippingAddress}
+                                />
                             )}
+                        </div>
 
-                            {error && <div className="text-red-500 text-sm">{error}</div>}
+                        {error && <div className="text-red-500 text-sm p-4 bg-red-50 dark:bg-red-900/20 rounded-md">{error}</div>}
 
-                            <div>
-                                <Button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full"
-                                >
-                                    {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
-                                </Button>
-                            </div>
-                        </form>
-                    )}
-
-                    {/* Step 2: Payment */}
-                    {clientSecret && (
-                        <Elements options={{ clientSecret, appearance: { theme: 'stripe' } }} stripe={stripePromise}>
-                            <CheckoutForm />
-                        </Elements>
-                    )}
+                        <div className="pt-6">
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full text-lg py-6"
+                            >
+                                {isSubmitting ? 'Loading Secure Checkout...' : 'Proceed to Secure Checkout'}
+                            </Button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     );
 }
+
+// Reusable Address Form Component
+const AddressForm = ({
+    title,
+    address,
+    setAddress,
+    required
+}: {
+    title: string,
+    address: any,
+    setAddress: any,
+    required: boolean
+}) => (
+    <div className="border-t border-gray-200 dark:border-zinc-700 pt-4 mt-6">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">{title}</h3>
+        <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <FormField
+                label="Street Address"
+                required={required}
+                value={address.streetAddress}
+                onChange={(val) => setAddress({ ...address, streetAddress: val })}
+                className="sm:col-span-6 space-y-2"
+            />
+            <FormField
+                label="City"
+                required={required}
+                value={address.city}
+                onChange={(val) => setAddress({ ...address, city: val })}
+                className="sm:col-span-3 space-y-2"
+            />
+            <FormField
+                label="Postal Code"
+                required={required}
+                value={address.postalCode}
+                onChange={(val) => setAddress({ ...address, postalCode: val })}
+                className="sm:col-span-3 space-y-2"
+            />
+            <FormField
+                label="Country"
+                required={required}
+                value={address.country}
+                onChange={(val) => setAddress({ ...address, country: val })}
+                className="sm:col-span-6 space-y-2"
+            />
+        </div>
+    </div>
+);
+
+// Reusable Form Field Component
+const FormField = ({
+    id,
+    label,
+    value,
+    onChange,
+    required = false,
+    type = "text",
+    placeholder,
+    className = "space-y-2",
+}: {
+    id?: string;
+    label: string;
+    value: string;
+    onChange: (val: string) => void;
+    required?: boolean;
+    type?: string;
+    placeholder?: string;
+    className?: string; // For the wrapper div
+}) => (
+    <div className={className}>
+        <Label htmlFor={id}>{label}</Label>
+        <Input
+            id={id}
+            type={type}
+            placeholder={placeholder}
+            required={required}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+        />
+    </div>
+);

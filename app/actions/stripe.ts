@@ -1,6 +1,7 @@
 'use server';
 
 import { stripe } from '@/lib/stripe';
+import { isValidNIF } from '@/lib/utils';
 
 export async function getStripeProducts() {
     try {
@@ -11,6 +12,7 @@ export async function getStripeProducts() {
 
         const prices = await stripe.prices.list({
             active: true,
+            type: 'recurring',
             limit: 100,
         });
 
@@ -39,78 +41,102 @@ export async function getStripeProducts() {
     }
 }
 
-export async function createStripeSubscription(
-    email: string,
-    name: string,
-    priceId: string,
-    additionalData?: {
-        nif?: string;
-        address?: {
-            line1: string;
-            city: string;
-            postal_code: string;
-            country: string;
-        };
-        billingAddress?: {
-            line1: string;
-            city: string;
-            postal_code: string;
-            country: string;
-        };
-    }
+export interface CheckoutFormData {
+    organizationName: string;
+    departmentName: string;
+    nif: string;
+    internalReference?: string;
+    adminFullName: string;
+    adminEmail: string;
+    jobTitle: string;
+    phone: string;
+    billingAddress: {
+        streetAddress: string;
+        postalCode: string;
+        city: string;
+        country: string;
+    };
+    shippingAddress?: {
+        streetAddress: string;
+        postalCode: string;
+        city: string;
+        country: string;
+    };
+}
+
+export async function createCheckoutSession(
+    formData: CheckoutFormData,
+    lineItems: { price: string; quantity?: number }[]
 ) {
     try {
-        if (!email || !priceId) {
-            throw new Error('Email and Price ID are required');
+        if (!formData.adminEmail || lineItems.length === 0) {
+            throw new Error('Email and line items are required.');
         }
 
-        // Prepare customer data
-        const customerData: any = {
-            email,
-            name,
+        if (!isValidNIF(formData.nif)) {
+            throw new Error('Invalid Portuguese NIF provided.');
+        }
+
+        // Flatten nested form data safely into Stripe metadata constraints (string values, max 500 chars)
+        const metadata: Record<string, string> = {
+            organizationName: formData.organizationName.substring(0, 500),
+            departmentName: formData.departmentName.substring(0, 500),
+            nif: formData.nif.substring(0, 500),
+            adminFullName: formData.adminFullName.substring(0, 500),
+            adminEmail: formData.adminEmail.substring(0, 500),
+            jobTitle: formData.jobTitle.substring(0, 500),
+            phone: formData.phone.substring(0, 500),
+            billing_street: formData.billingAddress.streetAddress.substring(0, 500),
+            billing_city: formData.billingAddress.city.substring(0, 500),
+            billing_postal: formData.billingAddress.postalCode.substring(0, 500),
+            billing_country: formData.billingAddress.country.substring(0, 500),
         };
 
-        // Map "Address" (Physical/Shipping) to shipping.address
-        if (additionalData?.address) {
-            customerData.shipping = {
-                name: name,
-                address: additionalData.address,
-            };
+        if (formData.internalReference) {
+            metadata.internalReference = formData.internalReference.substring(0, 500);
         }
 
-        // Map "Billing Address" to customer.address (Primary address in Stripe)
-        if (additionalData?.billingAddress) {
-            customerData.address = additionalData.billingAddress;
+        if (formData.shippingAddress) {
+            metadata.shipping_street = formData.shippingAddress.streetAddress.substring(0, 500);
+            metadata.shipping_city = formData.shippingAddress.city.substring(0, 500);
+            metadata.shipping_postal = formData.shippingAddress.postalCode.substring(0, 500);
+            metadata.shipping_country = formData.shippingAddress.country.substring(0, 500);
+            metadata.hasDifferentShipping = 'true';
+        } else {
+            metadata.hasDifferentShipping = 'false';
         }
 
-        // Map NIF to metadata
-        if (additionalData?.nif) {
-            customerData.metadata = {
-                tax_id: additionalData.nif,
-            };
+        // Dynamically determine the correct checkout mode by checking the prices in Stripe
+        let hasRecurring = false;
+        for (const item of lineItems) {
+            const price = await stripe.prices.retrieve(item.price);
+            if (price.type === 'recurring') {
+                hasRecurring = true;
+                break;
+            }
         }
+        const checkoutMode = hasRecurring ? 'subscription' : 'payment';
 
-        // 1. Create a Customer
-        const customer = await stripe.customers.create(customerData);
-
-        // 2. Create a Subscription
-        const subscription = await stripe.subscriptions.create({
-            customer: customer.id,
-            items: [{ price: priceId }],
-            payment_behavior: 'default_incomplete',
-            payment_settings: { save_default_payment_method: 'on_subscription' },
-            expand: ['latest_invoice.payment_intent'],
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card', 'sepa_debit'],
+            line_items: lineItems.map((item) => ({
+                price: item.price,
+                quantity: item.quantity || 1,
+            })),
+            mode: checkoutMode,
+            success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/checkout`,
+            customer_email: formData.adminEmail,
+            metadata: metadata,
         });
 
-        const invoice = subscription.latest_invoice as any;
-        const paymentIntent = invoice.payment_intent;
+        if (!session.url) {
+            throw new Error('Failed to create Stripe Checkout session URL.');
+        }
 
-        return {
-            subscriptionId: subscription.id,
-            clientSecret: paymentIntent.client_secret,
-        };
+        return { url: session.url };
     } catch (error: any) {
-        console.error('Error creating subscription:', error);
-        throw new Error(error.message || 'Failed to create subscription');
+        console.error('Error creating checkout session:', error);
+        throw new Error(error.message || 'Failed to create checkout session.');
     }
 }
