@@ -55,6 +55,7 @@ model Department {
   slug             String             @unique // e.g., "physics-lab"
   name             String
   stripeCustomerId String             @unique
+  stripeSubscriptionId String?            @unique // NOVO: Vital para o Webhook de renovação/cancelamento
   plan             PlanTier           @default(STARTER)
   subStatus        SubscriptionStatus @default(ACTIVE)
   
@@ -109,16 +110,19 @@ model Address {
 }
 
 model HardwareProduct {
-  id            String       @id @default(cuid())
-  sku           String       @unique
-  name          String
-  type          HardwareType
-  stockQuantity Int          @default(0)
-  price         Decimal      @db.Decimal(10, 2)
-  devices       Device[]
+  id              String       @id @default(cuid())
+  sku             String       @unique
+  name            String
+  description     String?      // NOVO: Para o UI do catálogo
+  imageUrl        String?      // NOVO: Para o UI do catálogo
+  stripeProductId String?      @unique // NOVO: Ligação direta ao Stripe
+  type            HardwareType
+  stockQuantity   Int          @default(0)
+  price           Decimal      @db.Decimal(10, 2)
+  devices         Device[]
   
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 model Device {
