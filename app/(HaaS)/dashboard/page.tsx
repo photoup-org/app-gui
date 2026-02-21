@@ -1,4 +1,4 @@
-import { auth0 } from "@/lib/auth0";
+import { getAppSession } from "@/lib/session";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { RoleGate } from "@/components/auth/RoleGate";
@@ -7,7 +7,7 @@ import { hasRequiredRole } from "@/lib/auth/permissions";
 import { Role } from "@prisma/client";
 
 export default async function Page() {
-    const session = await auth0.getSession();
+    const session = await getAppSession();
 
     // Middleware should catch this, but safeguard anyway
     if (!session?.user) {
@@ -28,7 +28,6 @@ export default async function Page() {
         redirect("/auth/logout");
     }
 
-    // @ts-ignore
     if (!hasRequiredRole(user.role, Role.OPERATOR)) {
         redirect("/auth/logout");
     }

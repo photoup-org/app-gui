@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata } from "next";
-import { Anek_Latin, Poppins } from "next/font/google";
-import { auth0 } from "@/lib/auth0";
+import { Anek_Latin } from "next/font/google";
+import { getAppSession } from "@/lib/session";
 import { UserProvider } from "@/contexts/UserContext";
 
 const brandFont = Anek_Latin({
@@ -21,11 +21,7 @@ export default async function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const session = await auth0.getSession();
-
-    if (session?.user) {
-        session.user.roles = session.user[`${process.env.AUTH0_NAMESPACE}/roles`] as string[];
-    }
+    const session = await getAppSession();
 
     return (
         <html lang="pt">
