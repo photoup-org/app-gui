@@ -116,7 +116,7 @@ export async function enableOrgConnection(orgId: string) {
 
 export async function inviteAdminToOrg(orgId: string, email: string) {
     const token = await getManagementToken();
-
+    const connectionId = process.env.AUTH0_DB_CONNECTION_ID;
     const clientId = process.env.AUTH0_CLIENT_ID;
     if (!clientId) {
         throw new Error('AUTH0_CLIENT_ID is not defined. It is required to generate the invitation link.');
@@ -131,7 +131,9 @@ export async function inviteAdminToOrg(orgId: string, email: string) {
         body: JSON.stringify({
             invitee: { email },
             inviter: { name: 'System Admin' },
-            client_id: clientId
+            client_id: clientId,
+            connection_id: connectionId,
+            send_invitation_email: true
         }),
     });
 
