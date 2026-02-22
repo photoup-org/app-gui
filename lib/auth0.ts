@@ -10,5 +10,9 @@ export const auth0 = new Auth0Client({
         cookie: {
             domain: process.env.AUTH0_COOKIE_DOMAIN === '.localhost' ? undefined : process.env.AUTH0_COOKIE_DOMAIN
         }
+    },
+    routes: {
+        login: '/auth/login',
+        callback: '/auth/callback'
     }
 });

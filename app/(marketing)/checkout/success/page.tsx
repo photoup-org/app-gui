@@ -2,11 +2,10 @@ import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function CheckoutSuccessPage({
-    searchParams,
-}: {
-    searchParams: { [key: string]: string | string[] | undefined };
+export default async function CheckoutSuccessPage(props: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+    const searchParams = await props.searchParams;
     const paymentIntent = searchParams.payment_intent as string | undefined;
     const setupIntent = searchParams.setup_intent as string | undefined;
     const redirectStatus = searchParams.redirect_status as string | undefined;

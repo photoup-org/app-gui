@@ -52,6 +52,16 @@ export default async function proxy(request: NextRequest) {
 
     // 2. Auth0 Routes (/auth/*)
     if (pathname.startsWith(AUTH_ROUTES_PREFIX)) {
+        if (pathname === `${AUTH_ROUTES_PREFIX}/login`) {
+            const organization = request.nextUrl.searchParams.get("organization");
+            if (organization) {
+                return await auth0.startInteractiveLogin({
+                    authorizationParameters: {
+                        organization
+                    }
+                });
+            }
+        }
         return await auth0.middleware(request);
     }
 

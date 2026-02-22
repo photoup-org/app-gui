@@ -86,6 +86,34 @@ export async function createOrg(slug: string, displayName: string, metadata?: an
     return await response.json();
 }
 
+export async function enableOrgConnection(orgId: string) {
+    const token = await getManagementToken();
+    const connectionId = process.env.AUTH0_DB_CONNECTION_ID;
+
+    if (!connectionId) {
+        throw new Error('AUTH0_DB_CONNECTION_ID is not defined in environment variables.');
+    }
+
+    const response = await fetch(`${getBaseUrl()}/api/v2/organizations/${orgId}/enabled_connections`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            connection_id: connectionId,
+            assign_membership_on_login: false
+        }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to enable connection for org ${orgId}: ${error.message || response.statusText}`);
+    }
+
+    return await response.json();
+}
+
 export async function inviteAdminToOrg(orgId: string, email: string) {
     const token = await getManagementToken();
 
