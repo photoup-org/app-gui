@@ -35,27 +35,17 @@ export async function syncUserToDatabase(session: any) {
         throw new Error('User must belong to an organization.');
     }
 
-    // 1. Find the parent Organization
-    const organization = await prisma.organization.findUnique({
-        where: { auth0OrgId: org_id },
-        include: {
-            // Include departments so we can pick one to link the user to
-            departments: {
-                take: 1, // Grab the primary department (you could expand logic here for multi-dept orgs)
-            }
-        }
+    // 1. Find the parent Workspace (Department)
+    const department = await prisma.department.findUnique({
+        where: { auth0OrgId: org_id }
     });
 
-    if (!organization) {
-        console.warn(`[SyncUser] Organization not found in DB for Auth0 org_id: ${org_id}`);
+    if (!department) {
+        console.warn(`[SyncUser] Workspace (Department) not found in DB for Auth0 org_id: ${org_id}`);
         throw new Error(`Workspace configuration error. Please contact support. (org_id: ${org_id})`);
     }
 
-    if (organization.departments.length === 0) {
-        throw new Error(`Organization ${organization.name} has no provisioned departments.`);
-    }
-
-    const primaryDepartmentId = organization.departments[0].id;
+    const primaryDepartmentId = department.id;
 
     // 2. Safely Upsert the User
     const user = await prisma.user.upsert({

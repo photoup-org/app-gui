@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { checkOrgExists, createOrg, inviteAdminToOrg } from '@/lib/auth0-management';
+import { checkOrgExists, createOrg, generateAuth0InviteTicket } from '@/lib/auth0-management';
+import { sendInvitationEmail } from '@/lib/services/email';
 
 const slugify = (text: string) =>
     text
@@ -58,7 +59,12 @@ export async function POST(req: Request) {
 
         // 3. Invite Admin
         try {
-            await inviteAdminToOrg(newOrg.id, adminEmail);
+            const ticket = await generateAuth0InviteTicket(newOrg.id, adminEmail);
+            if (ticket) {
+                const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+                const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${newOrg.id}&screen_hint=signup`;
+                await sendInvitationEmail(adminEmail, customLink);
+            }
         } catch (e: any) {
             console.error('Error inviting admin:', e);
             // Org created but invite failed. Return success with warning?

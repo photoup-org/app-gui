@@ -8,6 +8,13 @@ datasource db {
 }
 
 // Enums
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID_UNSHIPPED
+  SHIPPED
+  CANCELED
+}
+
 enum PlanTier {
   STARTER
   INDUSTRIAL_PRO
@@ -44,7 +51,7 @@ enum DeviceStatus {
 model Organization {
   id          String       @id @default(cuid())
   name        String
-  auth0OrgId  String       @unique
+  nif         String       @unique // NIPC/VAT
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   departments Department[]
@@ -54,6 +61,7 @@ model Department {
   id               String             @id @default(cuid())
   slug             String             @unique // e.g., "physics-lab"
   name             String
+  auth0OrgId       String             @unique // Webhooks sync off this for the workspace
   stripeCustomerId String             @unique
   stripeSubscriptionId String?            @unique // NOVO: Vital para o Webhook de renovação/cancelamento
   plan             PlanTier           @default(STARTER)
@@ -74,6 +82,8 @@ model Department {
 
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+
+  orders           Order[]
 }
 
 model User {
@@ -120,6 +130,7 @@ model HardwareProduct {
   stockQuantity   Int          @default(0)
   price           Decimal      @db.Decimal(10, 2)
   devices         Device[]
+  orderItems      OrderItem[]
   
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
@@ -138,4 +149,31 @@ model Device {
 
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+}
+
+model Order {
+  id            String       @id @default(cuid())
+  status        OrderStatus  @default(PENDING_PAYMENT)
+  
+  departmentId  String
+  department    Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  
+  items         OrderItem[]
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model OrderItem {
+  id            String          @id @default(cuid())
+  quantity      Int
+  
+  orderId       String
+  order         Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId     String
+  product       HardwareProduct @relation(fields: [productId], references: [id])
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }

@@ -18,24 +18,17 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // 2. Look up the corresponding organization and its departments
-        const organization = await prisma.organization.findUnique({
-            where: { auth0OrgId },
-            include: { departments: true }
+        // 2. Look up the corresponding department
+        const department = await prisma.department.findUnique({
+            where: { auth0OrgId }
         });
 
-        if (!organization) {
-            console.error(`[Auth0 Webhook] Organization not found for auth0OrgId: ${auth0OrgId}`);
-            return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+        if (!department) {
+            console.error(`[Auth0 Webhook] Department not found for auth0OrgId: ${auth0OrgId}`);
+            return NextResponse.json({ error: "Department not found" }, { status: 404 });
         }
 
-        if (organization.departments.length === 0) {
-            console.error(`[Auth0 Webhook] No departments found for organization: ${organization.id}`);
-            return NextResponse.json({ error: "No departments found" }, { status: 400 });
-        }
-
-        // Use the primary department (or you could enhance logic to find a specific one later)
-        const primaryDepartmentId = organization.departments[0].id;
+        const primaryDepartmentId = department.id;
 
         // 3. Upsert the User
         await prisma.user.upsert({

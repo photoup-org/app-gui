@@ -21,7 +21,7 @@ async function main() {
     const org = await prisma.organization.create({
         data: {
             name: 'Universidade do Minho',
-            auth0OrgId: 'org_uminho_demo',
+            nif: '502011378',
         }
     })
     console.log(`✅ Organização criada: ${org.id}`)
@@ -32,6 +32,7 @@ async function main() {
             name: "Departamento de Física (Lab 3)",
             slug: "uminho-fisica",
             stripeCustomerId: "cus_T9x8y7z6",
+            auth0OrgId: 'org_uminho_demo',
 
             plan: PlanTier.INDUSTRIAL_PRO,
 

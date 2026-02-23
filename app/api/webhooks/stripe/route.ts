@@ -40,6 +40,10 @@ export async function POST(req: Request) {
                 await handlers.handlePaymentIntent(event.data.object as any);
                 break;
 
+            case 'invoice.paid':
+                await handlers.handleInvoicePaid(event.data.object as any);
+                break;
+
             case 'invoice.payment_failed':
                 await handlers.handleInvoicePaymentFailed(event.data.object);
                 break;

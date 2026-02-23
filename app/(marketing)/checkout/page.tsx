@@ -60,7 +60,7 @@ function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: string; o
             <PaymentElement />
             {errorMessage && <div className="text-red-500 text-sm mt-2">{errorMessage}</div>}
 
-            <div className="flex gap-4 pt-4 border-t border-gray-200 dark:border-zinc-700">
+            <div className="flex flex-col gap-4 pt-4 border-t border-gray-200 dark:border-zinc-700">
                 <Button
                     type="button"
                     variant="outline"

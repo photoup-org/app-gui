@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
-import { createOrg, inviteAdminToOrg, enableOrgConnection } from '@/lib/auth0-management';
+import { createOrg, generateAuth0InviteTicket, enableOrgConnection } from '@/lib/auth0-management';
+import { sendInvitationEmail } from '@/lib/services/email';
 
 /**
  * Reusable service to provision the workspace atomically via Stripe metadata.
@@ -65,15 +66,17 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
                 await enableOrgConnection(auth0OrgId);
             } catch (authErr: any) {
                 console.error(`[Webhook] Failed to create or configure Auth0 Organization:`, authErr);
-                // Fallback so the DB transaction doesn't crater if Auth0 fails
-                auth0OrgId = `pending_org_${customerId}_${Date.now()}`;
+                throw new Error(`Failed to create Auth0 Organization: ${authErr.message}`);
             }
 
-            const organization = await tx.organization.create({
-                data: {
+            const nif = metadata.nif || `UNKNOWN-${Date.now()}`;
+            const organization = await tx.organization.upsert({
+                where: { nif },
+                create: {
                     name: metadata.organizationName || 'New Organization',
-                    auth0OrgId: auth0OrgId,
-                }
+                    nif,
+                },
+                update: {}
             });
 
             // 3. Create Department
@@ -83,6 +86,7 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
                 data: {
                     name: metadata.departmentName || 'Main Workspace',
                     slug: `${departmentSlug}-${Date.now().toString().slice(-4)}`, // Ensure uniqueness
+                    auth0OrgId: auth0OrgId, // <--- Moved here
                     stripeCustomerId: customerId,
                     stripeSubscriptionId: subscriptionId,
                     organizationId: organization.id,
@@ -95,12 +99,17 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
             console.log(`[Webhook] Optimistically provisioned Org and Dept for customer ${customerId}`);
 
             // 4. Invite the Admin User
-            if (metadata.adminEmail && auth0OrgId && !auth0OrgId.startsWith('pending_org_')) {
+            if (metadata.adminEmail && auth0OrgId) {
                 try {
-                    console.log(`[Webhook] Sending Auth0 Invite to ${metadata.adminEmail} for Org ${auth0OrgId}`);
-                    await inviteAdminToOrg(auth0OrgId, metadata.adminEmail);
+                    console.log(`[Webhook] Generating Auth0 Invite ticket for ${metadata.adminEmail} for Org ${auth0OrgId}`);
+                    const ticket = await generateAuth0InviteTicket(auth0OrgId, metadata.adminEmail);
+                    if (ticket) {
+                        const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+                        const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${auth0OrgId}&screen_hint=signup`;
+                        await sendInvitationEmail(metadata.adminEmail, customLink);
+                    }
                 } catch (inviteErr: any) {
-                    console.error(`[Webhook] Failed to invite user ${metadata.adminEmail}:`, inviteErr);
+                    console.error(`[Webhook] Failed to generate invite ticket for user ${metadata.adminEmail}:`, inviteErr);
                 }
             }
         });

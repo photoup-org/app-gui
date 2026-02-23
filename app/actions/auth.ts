@@ -12,15 +12,15 @@ export async function getLoginUrlByEmail(formData: FormData) {
     try {
         const user = await prisma.user.findUnique({
             where: { email },
-            include: { department: { include: { organization: true } } }
+            include: { department: true }
         });
 
-        if (!user || !user.department?.organization?.auth0OrgId) {
+        if (!user || !user.department?.auth0OrgId) {
             return { error: "Invalid email or account not found" };
         }
 
         // Since proxy.ts uses /auth/login, we use that path here.
-        return { redirectUrl: `/auth/login?organization=${user.department.organization.auth0OrgId}` };
+        return { redirectUrl: `/auth/login?organization=${user.department.auth0OrgId}` };
     } catch (error) {
         console.error("[AuthAction] Error looking up user by email:", error);
         return { error: "An unexpected error occurred. Please try again later." };

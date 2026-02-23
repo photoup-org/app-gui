@@ -114,7 +114,7 @@ export async function enableOrgConnection(orgId: string) {
     return await response.json();
 }
 
-export async function inviteAdminToOrg(orgId: string, email: string) {
+export async function generateAuth0InviteTicket(orgId: string, email: string) {
     const token = await getManagementToken();
     const connectionId = process.env.AUTH0_DB_CONNECTION_ID;
     const clientId = process.env.AUTH0_CLIENT_ID;
@@ -133,14 +133,23 @@ export async function inviteAdminToOrg(orgId: string, email: string) {
             inviter: { name: 'System Admin' },
             client_id: clientId,
             connection_id: connectionId,
-            send_invitation_email: true
+            send_invitation_email: false // STRICT RULE: Auth0 is strictly forbidden from sending emails.
         }),
     });
 
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(`Failed to invite user: ${error.message || response.statusText}`);
+        throw new Error(`Failed to generate invite ticket: ${error.message || response.statusText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+
+    // Extract simply the ticket string from invitation_url
+    const urlStr = data.invitation_url || data.ticket;
+    if (urlStr) {
+        const urlObj = new URL(urlStr);
+        return urlObj.searchParams.get('invitation') || urlObj.searchParams.get('ticket');
+    }
+
+    return null;
 }
