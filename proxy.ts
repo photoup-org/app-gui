@@ -3,30 +3,21 @@ import { auth0 } from "@/lib/auth0";
 import { getAppSession } from "@/lib/session";
 
 const AUTH_ROUTES_PREFIX = "/auth";
-const DASHBOARD_ROUTES_PREFIX = "/dashboard";
 const MARKETING_ROOT = "/";
+const CUSTOM_LOGIN_PAGE = "/login";
+const NO_ORG_FALLBACK = "/no-workspace";
+const PROTECTED_ROUTES = [
+    "/dashboard",
+    "/settings",
+    "/devices",
+];
 
-/**
- * Helper to manually wipe the Auth0 appSession cookies and redirect.
- * Useful when the session cookie is corrupted (e.g. AUTH0_SECRET changed)
- * and the Auth0 SDK itself fails to process the request over /auth/logout.
- */
 function clearSessionAndRedirect(request: NextRequest, redirectTo: string = MARKETING_ROOT) {
-    // If we're already trying to go to the redirect target (like MARKETING_ROOT),
-    // and we still have a bad cookie, we need to strip the cookie and ALLOW the request 
-    // to pass through to Next.js natively, otherwise we get ERR_TOO_MANY_REDIRECTS.
     const targetUrl = new URL(redirectTo, request.url);
     const isAlreadyOnTarget = request.nextUrl.pathname === targetUrl.pathname;
 
-    let response;
-    if (isAlreadyOnTarget) {
-        response = NextResponse.next();
-    } else {
-        response = NextResponse.redirect(targetUrl);
-    }
+    let response = isAlreadyOnTarget ? NextResponse.next() : NextResponse.redirect(targetUrl);
 
-    // Explicitly delete all known Auth0 session cookies from the upcoming response
-    // and forcefully remove them from the incoming request so downstream code doesn't see them
     request.cookies.getAll().forEach(cookie => {
         if (cookie.name.startsWith("appSession") || cookie.name.startsWith("__session") || cookie.name.startsWith("__txn")) {
             response.cookies.delete(cookie.name);
@@ -39,9 +30,7 @@ function clearSessionAndRedirect(request: NextRequest, redirectTo: string = MARK
 
 export default async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
-
-    // 1. Safely retrieve session using centralized helper first.
-    // If the cookie is corrupted, this will THROW.
+    const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
     let session;
     try {
         session = await getAppSession(request);
@@ -50,14 +39,19 @@ export default async function proxy(request: NextRequest) {
         return clearSessionAndRedirect(request);
     }
 
-    // 2. Auth0 Routes (/auth/*)
     if (pathname.startsWith(AUTH_ROUTES_PREFIX)) {
         if (pathname === `${AUTH_ROUTES_PREFIX}/login`) {
-            const organization = request.nextUrl.searchParams.get("organization");
-            if (organization) {
+            console.log("[Login] Trying to login");
+            const searchParams = request.nextUrl.searchParams;
+            const organization = searchParams.get("organization");
+            const invitation = searchParams.get("invitation");
+            const screen_hint = searchParams.get("screen_hint");
+            if (organization || invitation || screen_hint) {
                 return await auth0.startInteractiveLogin({
                     authorizationParameters: {
-                        organization
+                        organization: organization || undefined,
+                        invitation: invitation || undefined,
+                        screen_hint: screen_hint || undefined,
                     }
                 });
             }
@@ -65,38 +59,31 @@ export default async function proxy(request: NextRequest) {
         return await auth0.middleware(request);
     }
 
-    // 3. Mandatory Organization Check (only applicable for logged-in users)
-    if (session?.user) {
-        if (!session.user.org_slug) {
-            console.warn(`[Proxy] User ${session.user.sub} logged in but has no associated organization. Forcing logout.`);
-            // Force logout if no organization is found
-            const logoutUrl = request.nextUrl.clone();
-            logoutUrl.pathname = `${AUTH_ROUTES_PREFIX}/logout`;
-            return NextResponse.redirect(logoutUrl);
-        }
-    }
+    if (isProtectedRoute) {
 
-    // 4. Protect all /dashboard/* routes
-    if (pathname.startsWith(DASHBOARD_ROUTES_PREFIX)) {
         if (!session) {
-            console.log(`[Proxy] Blocked unauthenticated access to ${pathname}. Redirecting to login.`);
+            console.log(`[Proxy] Blocked unauthenticated access. Redirecting to custom login.`);
             const loginUrl = request.nextUrl.clone();
-            loginUrl.pathname = `${AUTH_ROUTES_PREFIX}/login`;
+            loginUrl.pathname = CUSTOM_LOGIN_PAGE;
             loginUrl.searchParams.set("returnTo", pathname);
             return NextResponse.redirect(loginUrl);
+        } else if (!session.user.org_id) {
+            console.warn(`[Proxy] User ${session.user.sub} accessed dashboard without org_id. Redirecting to fallback.`);
+            const fallbackUrl = request.nextUrl.clone();
+            fallbackUrl.pathname = NO_ORG_FALLBACK;
+            return NextResponse.redirect(fallbackUrl);
         }
     }
 
-    // 5. Redirect authenticated users from marketing root (/) to /dashboard
-    if (pathname === MARKETING_ROOT) {
-        if (session) {
-            const dashboardUrl = request.nextUrl.clone();
-            dashboardUrl.pathname = DASHBOARD_ROUTES_PREFIX;
-            return NextResponse.redirect(dashboardUrl);
-        }
-    }
+    // if (pathname === MARKETING_ROOT) {
+    //     if (session) {
+    //         const target = session.user.org_id ? DASHBOARD_ROUTES_PREFIX : NO_ORG_FALLBACK;
+    //         const dashboardUrl = request.nextUrl.clone();
+    //         dashboardUrl.pathname = target;
+    //         return NextResponse.redirect(dashboardUrl);
+    //     }
+    // }
 
-    // 6. Final delegation to Auth0
     return await auth0.middleware(request);
 }
 
