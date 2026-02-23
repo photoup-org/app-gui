@@ -11,6 +11,8 @@ const PROTECTED_ROUTES = [
     "/settings",
     "/devices",
 ];
+const NAMESPACE = "https://app.photoup.pt";
+
 
 function clearSessionAndRedirect(request: NextRequest, redirectTo: string = MARKETING_ROOT) {
     const targetUrl = new URL(redirectTo, request.url);
@@ -31,6 +33,9 @@ function clearSessionAndRedirect(request: NextRequest, redirectTo: string = MARK
 export default async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = CUSTOM_LOGIN_PAGE;
+
     let session;
     try {
         session = await getAppSession(request);
@@ -39,15 +44,17 @@ export default async function proxy(request: NextRequest) {
         return clearSessionAndRedirect(request);
     }
 
+
     if (pathname.startsWith(AUTH_ROUTES_PREFIX)) {
         if (pathname === `${AUTH_ROUTES_PREFIX}/login`) {
-            console.log("[Login] Trying to login");
             const searchParams = request.nextUrl.searchParams;
             const organization = searchParams.get("organization");
             const invitation = searchParams.get("invitation");
             const screen_hint = searchParams.get("screen_hint");
+            const returnTo = searchParams.get("returnTo");
             if (organization || invitation || screen_hint) {
                 return await auth0.startInteractiveLogin({
+                    returnTo: returnTo || "/dashboard",
                     authorizationParameters: {
                         organization: organization || undefined,
                         invitation: invitation || undefined,
@@ -56,6 +63,7 @@ export default async function proxy(request: NextRequest) {
                 });
             }
         }
+
         return await auth0.middleware(request);
     }
 
@@ -63,8 +71,6 @@ export default async function proxy(request: NextRequest) {
 
         if (!session) {
             console.log(`[Proxy] Blocked unauthenticated access. Redirecting to custom login.`);
-            const loginUrl = request.nextUrl.clone();
-            loginUrl.pathname = CUSTOM_LOGIN_PAGE;
             loginUrl.searchParams.set("returnTo", pathname);
             return NextResponse.redirect(loginUrl);
         } else if (!session.user.org_id) {

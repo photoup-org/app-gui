@@ -31,7 +31,7 @@ export function Navbar() {
 
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" asChild className="hidden md:inline-flex">
-                        <Link href="/auth/login">
+                        <Link href="/login">
                             Login
                         </Link>
                     </Button>

@@ -19,8 +19,7 @@ export async function getLoginUrlByEmail(formData: FormData) {
             return { error: "Invalid email or account not found" };
         }
 
-        // Since proxy.ts uses /auth/login, we use that path here.
-        return { redirectUrl: `/auth/login?organization=${user.department.auth0OrgId}` };
+        return { redirectUrl: `/auth/login?organization=${user.department.auth0OrgId}&returnTo=/dashboard` };
     } catch (error) {
         console.error("[AuthAction] Error looking up user by email:", error);
         return { error: "An unexpected error occurred. Please try again later." };
