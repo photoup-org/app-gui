@@ -8,7 +8,7 @@ vi.mock('@/lib/session', () => ({
 
 // Dummy Server Action to test
 async function dummyProtectedAction(targetOrgId: string) {
-    const session = await getAppSession(); // In a real Server Action, we pass `request` or rely on Next.js headers
+    const session = await getAppSession();
 
     if (!session) {
         throw new Error('Unauthorized');
