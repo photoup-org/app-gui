@@ -97,3 +97,7 @@ To learn more about the technologies used:
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Auth0 Next.js SDK](https://github.com/auth0/nextjs-auth0)
 - [Tailwind CSS](https://tailwindcss.com/)
+
+
+## Stripe Webhooks
+stripe listen --forward-to localhost:3000/api/webhooks/stripe

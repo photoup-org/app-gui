@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { provisionWorkspace } from './workspace';
 import { createOrg, enableOrgConnection, generateAuth0InviteTicket } from '@/lib/auth0-management';
 import { sendInvitationEmail } from '@/lib/services/email';
+import { upsertOrganizationTx, createDepartmentTx, createAdminUserTx, createHardwareOrderTx } from './db-ops/workspace';
 
 export async function handleSubscriptionUpdated(subscription: Stripe.Subscription, previousAttributes: any) {
     if (
@@ -187,3 +188,99 @@ export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {
         throw error;
     }
 }
+
+export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+    if (!session || !session.metadata) return;
+
+    try {
+        const metadata = session.metadata;
+        const nif = metadata.nif || `UNKNOWN-${Date.now()}`;
+        const adminEmail = metadata.adminEmail || session.customer_details?.email;
+        const departmentName = metadata.departmentName || 'Main Workspace';
+        const plan = (metadata.plan as any) || 'STARTER';
+        const organizationName = metadata.organizationName || 'New Organization';
+
+        if (!adminEmail) {
+            console.error('[Webhook] checkout.session.completed failed: Missing adminEmail in metadata or session');
+            return;
+        }
+
+        // Fetch line items for hardware (logistics)
+        const lineItemsDesc = await stripe.checkout.sessions.listLineItems(session.id);
+        const cartItems = lineItemsDesc.data;
+
+        // Ensure we parse out the hardware items (vs subscription items)
+        // Usually, the subscription is handled globally via `session.subscription`.
+        // The hardware items are part of the checkout lines.
+
+        // Begin Transaction
+        const txResult = await prisma.$transaction(async (tx) => {
+            // 1. Organization Upsert
+            const organization = await upsertOrganizationTx(tx, {
+                nif: nif,
+                name: organizationName
+            });
+
+            // 2. Department Link (generates address inside)
+            const department = await createDepartmentTx(tx, {
+                name: departmentName,
+                organizationId: organization.id,
+                stripeCustomerId: (session.customer as string) || `cus_PENDING_${Date.now()}`,
+                stripeSubscriptionId: (session.subscription as string) || undefined,
+                plan: plan,
+                billingAddressData: {
+                    street: metadata.billing_street,
+                    city: metadata.billing_city,
+                    zipCode: metadata.billing_postal,
+                    country: metadata.billing_country
+                }
+            });
+
+            const auth0OrgSlug = organizationName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') + `-${Date.now().toString().slice(-6)}`;
+
+            // 3. Admin User Creation
+            await createAdminUserTx(tx, {
+                email: adminEmail,
+                departmentId: department.id
+            });
+
+            // 4. Hardware Order Generation 
+            await createHardwareOrderTx(tx, department.id, cartItems);
+
+            return { department, organizationName, auth0OrgSlug, adminEmail };
+        });
+
+        // 5. External Services (Post-Transaction)
+        try {
+            console.log(`[Webhook] Prisma transaction succeeded hook. Creating Auth0 Organization: ${txResult.auth0OrgSlug}`);
+            const auth0Org = await createOrg(txResult.auth0OrgSlug, txResult.organizationName);
+            const auth0OrgId = auth0Org.id;
+
+            // Update Department with real Auth0 Org ID
+            await prisma.department.update({
+                where: { id: txResult.department.id },
+                data: { auth0OrgId: auth0OrgId }
+            });
+
+            await enableOrgConnection(auth0OrgId as string);
+
+            console.log(`[Webhook] Generating Auth0 Invite for ${txResult.adminEmail} (Org: ${auth0OrgId})`);
+            const ticket = await generateAuth0InviteTicket(auth0OrgId as string, txResult.adminEmail);
+
+            if (ticket) {
+                const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+                const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${auth0OrgId}&screen_hint=signup`;
+                await sendInvitationEmail(txResult.adminEmail, customLink);
+            }
+        } catch (postTxError: any) {
+            console.error(`[Webhook] Post-Transaction Error (Auth0/Email):`, postTxError);
+            // We do NOT rollback Prisma here; the business logic is recorded.
+            // Further reconciliation (e.g. background job) should retry Auth0 config.
+        }
+
+    } catch (error: any) {
+        console.error(`[Webhook] Transaction Aborted in handleCheckoutSessionCompleted:`, error);
+        throw error; // Re-throw to allow Stripe to retry if needed, though idempotent safety must be maintained
+    }
+}
+

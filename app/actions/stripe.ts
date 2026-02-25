@@ -9,6 +9,7 @@ export async function getStripeProducts() {
         const products = await stripe.products.list({
             active: true,
             expand: ['data.default_price'],
+            limit: 100,
         });
 
         const prices = await stripe.prices.list({
@@ -127,8 +128,12 @@ export async function createSubscriptionIntent(
         let customerId;
         if (customers.data.length > 0) {
             customerId = customers.data[0].id;
-            // Optionally update customer metadata
+            // Optionally update customer metadata and address for SEPA
             await stripe.customers.update(customerId, {
+                name: formData.adminFullName, // Ensure name is up to date for mandates
+                address: {
+                    country: formData.billingAddress.country
+                },
                 metadata: {
                     nif: formData.nif,
                     organizationName: formData.organizationName
@@ -138,6 +143,9 @@ export async function createSubscriptionIntent(
             const customer = await stripe.customers.create({
                 email: formData.adminEmail,
                 name: formData.adminFullName,
+                address: {
+                    country: formData.billingAddress.country
+                },
                 metadata: {
                     nif: formData.nif,
                     organizationName: formData.organizationName
@@ -148,21 +156,19 @@ export async function createSubscriptionIntent(
 
         // 2. Create Intent (Subscription or PaymentIntent)
         if (recurringItems.length > 0) {
-            // Subscription Flow
-            const subscriptionParams: any = {
+            // Subscription Flow: Using modern automatic payment methods (controlled via Stripe Dashboard)
+            const subscriptionParams: Stripe.SubscriptionCreateParams = {
                 customer: customerId,
                 items: recurringItems.map(item => ({ price: item.price, quantity: item.quantity || 1 })),
                 payment_behavior: 'default_incomplete',
-                payment_settings: { save_default_payment_method: 'on_subscription' },
+                payment_settings: {
+                    save_default_payment_method: 'on_subscription',
+                },
                 expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
-                metadata: metadata,
-            };
-
-            // Force Stripe to generate a setup intent if there is a free trial
-            // or a 0 amount invoice so we can still collect payment details using Stripe Elements
-            subscriptionParams.payment_settings = {
-                save_default_payment_method: 'on_subscription',
-                payment_method_types: ['card', 'sepa_debit']
+                metadata: {
+                    ...metadata,
+                    plan: recurringItems[0].price
+                },
             };
 
             // Include one-time hardware items on the first invoice of the subscription
@@ -180,32 +186,32 @@ export async function createSubscriptionIntent(
             console.log("\n--- STRIPE SUBSCRIPTION RESP ---");
             console.log("Invoice ID:", invoice?.id);
             console.log("Payment Intent object:", !!invoice?.payment_intent);
-            if (invoice?.payment_intent) {
-                console.log("PI Client Secret:", invoice.payment_intent.client_secret);
-            }
             console.log("Setup Intent object:", !!subscription.pending_setup_intent);
 
             let clientSecret = null;
-            if (invoice && invoice.payment_intent && invoice.payment_intent.client_secret) {
+            if (invoice?.payment_intent) {
+                console.log("PI Client Secret Generated SUCCESSFULLY:", invoice.payment_intent.id);
                 clientSecret = invoice.payment_intent.client_secret;
             } else if (subscription.pending_setup_intent) {
-                clientSecret = (subscription.pending_setup_intent as Stripe.SetupIntent).client_secret;
-            } else {
-                // If it STILL didn't generate one, we force a manual SetupIntent creation
-                // so that we can render the Stripe Element and save the card to the customer
-                const setupIntent = await stripe.setupIntents.create({
-                    customer: customerId,
-                    payment_method_types: ['card', 'sepa_debit'],
-                    metadata: {
-                        subscription_id: subscription.id
-                    }
-                });
+                const setupIntent = subscription.pending_setup_intent as any;
+                console.log("Setup Intent Client Secret Generated SUCCESSFULLY:", setupIntent.id);
                 clientSecret = setupIntent.client_secret;
+            } else if (invoice?.id) {
+                console.log("Payment Intent not on invoice natively (Stripe API 2026 behavior). Fetching latest PI...");
+                const pis = await stripe.paymentIntents.list({ customer: customerId, limit: 1 });
+                if (pis.data.length > 0) {
+                    const latestPi = pis.data[0] as any;
+                    if (latestPi.payment_details?.order_reference === invoice.id || latestPi.description === "Subscription creation") {
+                        console.log("PI Client Secret Fetched via order_reference:", latestPi.id);
+                        clientSecret = latestPi.client_secret;
+                    }
+                }
             }
 
             if (!clientSecret) {
-                console.error("No client secret found! This usually means the price was 0 but no setup intent was asked for, or expansion failed.");
-                throw new Error('Failed to generate payment or setup intent for subscription.');
+                console.error("No client secret found! Ensure 'SEPA Direct Debit' and 'Cards' are enabled in Stripe Dashboard -> Settings -> Payment Methods.");
+                console.error("Invoice dump:", JSON.stringify(invoice, null, 2));
+                throw new Error('Failed to generate payment intent for subscription. Check Stripe Dashboard configuration.');
             }
 
             return {
