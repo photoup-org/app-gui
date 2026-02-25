@@ -85,6 +85,7 @@ function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: string; o
 export default function CheckoutPage() {
     const searchParams = useSearchParams();
     const planId = searchParams.get('plan_id');
+    const extraSensors = parseInt(searchParams.get('extra_sensors') || '0', 10);
 
     // Admin Details
     const [adminFullName, setAdminFullName] = useState('');
@@ -132,10 +133,9 @@ export default function CheckoutPage() {
 
             const lineItems = [
                 { price: planId, quantity: 1 }
-                // { price: 'price_XXXXXX', quantity: 2 } // Example hardware injection
             ];
 
-            const result = await createSubscriptionIntent(formData, lineItems);
+            const result = await createSubscriptionIntent(formData, lineItems, extraSensors);
 
             if (result.clientSecret) {
                 setClientSecret(result.clientSecret);

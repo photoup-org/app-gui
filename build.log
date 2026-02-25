@@ -1,0 +1,50 @@
+
+> app-gui@0.1.0 build
+> npx prisma generate && next build
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+✔ Generated Prisma Client (v5.10.2) to .\node_modules\@prisma\client in 64ms
+
+Start using Prisma Client in Node.js (See: https://pris.ly/d/client)
+```
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
+```
+or start using Prisma Client at the edge (See: https://pris.ly/d/accelerate)
+```
+import { PrismaClient } from '@prisma/client/edge'
+const prisma = new PrismaClient()
+```
+
+See other ways of importing Prisma Client: http://pris.ly/d/importing-client
+
+┌─────────────────────────────────────────────────────────────┐
+│  Deploying your app to serverless or edge functions?        │
+│  Try Prisma Accelerate for connection pooling and caching.  │
+│  https://pris.ly/cli/accelerate                             │
+└─────────────────────────────────────────────────────────────┘
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local, .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1576.9ms
+  Running TypeScript ...
+Failed to compile.
+
+./prisma/seed.ts:34:13
+Type error: Type '{ id: string; sku: string; name: string; type: string; stockQuantity: number; price: number; stripeProductId: string; }' is not assignable to type '(Without<HardwareProductUpdateInput, HardwareProductUncheckedUpdateInput> & HardwareProductUncheckedUpdateInput) | (Without<...> & HardwareProductUpdateInput)'.
+  Type '{ id: string; sku: string; name: string; type: string; stockQuantity: number; price: number; stripeProductId: string; }' is not assignable to type 'Without<HardwareProductUncheckedUpdateInput, HardwareProductUpdateInput> & HardwareProductUpdateInput'.
+    Types of property 'type' are incompatible.
+      Type 'string' is not assignable to type 'HardwareType | EnumHardwareTypeFieldUpdateOperationsInput | undefined'.
+
+[0m [90m 32 |[39m         [36mawait[39m prisma[33m.[39mhardwareProduct[33m.[39mupsert({
+ [90m 33 |[39m             where[33m:[39m { id[33m:[39m product[33m.[39mid }[33m,[39m
+[31m[1m>[22m[39m[90m 34 |[39m             update[33m:[39m product[33m,[39m
+ [90m    |[39m             [31m[1m^[22m[39m
+ [90m 35 |[39m             create[33m:[39m product[33m,[39m
+ [90m 36 |[39m         })[33m;[39m
+ [90m 37 |[39m     }[0m
+Next.js build worker exited with code: 1 and signal: null

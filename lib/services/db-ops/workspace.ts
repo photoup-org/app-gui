@@ -22,7 +22,7 @@ export const DepartmentSchema = z.object({
     organizationId: z.string().min(1),
     stripeCustomerId: z.string().min(1),
     stripeSubscriptionId: z.string().optional(),
-    plan: z.enum(['STARTER', 'INDUSTRIAL_PRO', 'EXECUTIVE']).default('STARTER'),
+    planId: z.string().optional(),
     billingAddressData: AddressSchema.optional(),
 });
 
@@ -97,7 +97,7 @@ export async function createDepartmentTx(tx: TxClient, input: z.infer<typeof Dep
             organizationId: validated.organizationId,
             billingAddressId: dummyAddress.id,
             subStatus: 'ACTIVE',
-            plan: validated.plan,
+            planId: validated.planId,
         },
     });
 }
@@ -124,23 +124,28 @@ export async function createAdminUserTx(tx: TxClient, input: z.infer<typeof Admi
 export async function createHardwareOrderTx(
     tx: TxClient,
     departmentId: string,
-    cartItemsStr: string | any[] // Accepts line_items desc array from Stripe
+    logisticsCartStr: string
 ) {
-    const cartItems = typeof cartItemsStr === 'string' ? JSON.parse(cartItemsStr) : cartItemsStr;
+    const cartItems = JSON.parse(logisticsCartStr);
 
     const orderItemsInput = [];
     for (const item of cartItems) {
-        if (item.price?.product) {
-            const productIdStripe = typeof item.price.product === 'string' ? item.price.product : item.price.product.id;
-            const hardwareProduct = await tx.hardwareProduct.findUnique({
-                where: { stripeProductId: productIdStripe },
-            });
+        if (item.type && item.quantity > 0) {
+            let typeEnum: any = null;
+            if (item.type === 'gateway') typeEnum = 'GATEWAY';
+            if (item.type === 'sensor') typeEnum = 'SENSOR_BASE';
 
-            if (hardwareProduct) {
-                orderItemsInput.push({
-                    productId: hardwareProduct.id,
-                    quantity: item.quantity || 1,
+            if (typeEnum) {
+                const hardwareProduct = await tx.hardwareProduct.findFirst({
+                    where: { type: typeEnum },
                 });
+
+                if (hardwareProduct) {
+                    orderItemsInput.push({
+                        productId: hardwareProduct.id,
+                        quantity: item.quantity,
+                    });
+                }
             }
         }
     }

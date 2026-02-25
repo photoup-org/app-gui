@@ -15,10 +15,16 @@ enum OrderStatus {
   CANCELED
 }
 
-enum PlanTier {
-  STARTER
-  INDUSTRIAL_PRO
-  EXECUTIVE
+model PlanTier {
+  id                        String       @id @default(cuid())
+  name                      String
+  stripePlanPriceId         String       @unique
+  includedGateways          Int          @default(1)
+  includedSensors           Int
+  maxSensors                Int?
+  extraSensorStripePriceId  String?
+  
+  departments               Department[]
 }
 
 enum Role {
@@ -58,13 +64,16 @@ model Organization {
 }
 
 model Department {
-  id               String             @id @default(cuid())
+  id               String             @id @default(uuid())
   slug             String             @unique // e.g., "physics-lab"
   name             String
   auth0OrgId       String             @unique // Webhooks sync off this for the workspace
   stripeCustomerId String             @unique
   stripeSubscriptionId String?            @unique // NOVO: Vital para o Webhook de renovação/cancelamento
-  plan             PlanTier           @default(STARTER)
+
+  planId           String?
+  plan             PlanTier?          @relation(fields: [planId], references: [id])
+  
   subStatus        SubscriptionStatus @default(ACTIVE)
   
   organizationId   String
@@ -90,7 +99,7 @@ model User {
   id           String     @id @default(cuid())
   email        String     @unique
   name         String?
-  auth0UserId  String     @unique
+  auth0UserId  String?    @unique
   role         Role       @default(VIEWER)
   jobTitle     String?
   phone        String?

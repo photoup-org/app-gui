@@ -3,6 +3,7 @@
 import { stripe } from '@/lib/stripe';
 import { isValidNIF } from '@/lib/utils';
 import Stripe from 'stripe';
+import prisma from '@/lib/prisma';
 
 export async function getStripeProducts() {
     try {
@@ -68,7 +69,8 @@ export interface CheckoutFormData {
 
 export async function createSubscriptionIntent(
     formData: CheckoutFormData,
-    lineItems: { price: string; quantity?: number }[]
+    lineItems: { price: string; quantity?: number }[],
+    extraSensorsCount: number = 0
 ) {
     try {
         if (!formData.adminEmail || lineItems.length === 0) {
@@ -123,6 +125,27 @@ export async function createSubscriptionIntent(
             }
         }
 
+        let logisticsCartParsed = '[]';
+        const planId = recurringItems.length > 0 ? recurringItems[0].price : undefined;
+
+        if (planId) {
+            const tier = await prisma.planTier.findUnique({ where: { stripePlanPriceId: planId } });
+            if (tier) {
+                if (extraSensorsCount > 0 && tier.extraSensorStripePriceId) {
+                    addInvoiceItems.push({ price: tier.extraSensorStripePriceId, quantity: extraSensorsCount });
+                    // Retrieve price to accurately update total one-time amount
+                    const extraSensorsPrice = await stripe.prices.retrieve(tier.extraSensorStripePriceId);
+                    totalOneTimeAmount += (extraSensorsPrice.unit_amount || 0) * extraSensorsCount;
+                }
+
+                const logisticsCart = [
+                    { type: 'gateway', quantity: tier.includedGateways },
+                    { type: 'sensor', quantity: tier.includedSensors + extraSensorsCount }
+                ];
+                logisticsCartParsed = JSON.stringify(logisticsCart);
+            }
+        }
+
         // 1. Get or Create Customer
         const customers = await stripe.customers.list({ email: formData.adminEmail, limit: 1 });
         let customerId;
@@ -167,7 +190,8 @@ export async function createSubscriptionIntent(
                 expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
                 metadata: {
                     ...metadata,
-                    plan: recurringItems[0].price
+                    planId: planId!, // ensure Plan ID is logged using the unified DB system
+                    logisticsCart: logisticsCartParsed
                 },
             };
 

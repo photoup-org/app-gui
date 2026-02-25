@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { PlanTier, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { hasRequiredPlan } from "@/lib/auth/permissions";
 import { Button } from "@/components/ui/button"; // Assuming we have shadcn UI button, else standard button
 import Link from "next/link";
@@ -7,8 +7,8 @@ import { Lock } from "lucide-react";
 
 interface PlanGateProps {
     children: ReactNode;
-    minimumPlan: PlanTier;
-    currentPlan?: PlanTier | string | null;
+    minimumPlan: string;
+    currentPlan?: string | null;
     userRole?: Role | string | null; // Needed for God Mode bypass
 }
 
@@ -27,7 +27,7 @@ export const PlanGate = ({
     return <FallbackUpgradeUI minimumPlan={minimumPlan} />;
 };
 
-const FallbackUpgradeUI = ({ minimumPlan }: { minimumPlan: PlanTier }) => {
+const FallbackUpgradeUI = ({ minimumPlan }: { minimumPlan: string }) => {
     return (
         <div className="flex flex-col items-center justify-center p-8 border border-dashed border-gray-300 rounded-lg bg-gray-50/50 text-center space-y-4">
             <div className="p-3 bg-gray-100 rounded-full">

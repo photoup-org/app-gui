@@ -38,7 +38,7 @@ export const SubscriptionPlan = () => {
 
     const handleSelectPlan = (priceId: string) => {
         // Direct redirect to checkout with plan_id
-        router.push(`/checkout?plan_id=${priceId}`);
+        router.push(`/checkout/hardware?plan_id=${priceId}`);
     };
 
     if (loading) {

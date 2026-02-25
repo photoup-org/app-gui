@@ -18,7 +18,11 @@ export default async function Page() {
     const user = await prisma.user.findUnique({
         where: { auth0UserId: session.user.sub },
         include: {
-            department: true,
+            department: {
+                include: {
+                    plan: true,
+                },
+            },
         },
     });
 
@@ -39,7 +43,7 @@ export default async function Page() {
                 <p className="text-gray-500 mt-2">Manage your organization settings and preferences.</p>
                 <div className="mt-4 flex gap-4 text-sm text-gray-500">
                     <span className="bg-gray-100 px-2 py-1 rounded">Role: <span className="font-semibold text-gray-900">{user.role}</span></span>
-                    <span className="bg-gray-100 px-2 py-1 rounded">Plan: <span className="font-semibold text-gray-900">{user.department.plan}</span></span>
+                    <span className="bg-gray-100 px-2 py-1 rounded">Plan: <span className="font-semibold text-gray-900">{user.department.plan?.name || "STARTER"}</span></span>
                 </div>
             </div>
 
@@ -75,8 +79,8 @@ export default async function Page() {
                         Access real-time telemetry graphs and export historic data to CSV.
                     </p>
                     <PlanGate
-                        minimumPlan="INDUSTRIAL_PRO"
-                        currentPlan={user.department.plan}
+                        minimumPlan="Industrial Pro"
+                        currentPlan={user.department.plan?.name}
                         userRole={user.role}
                     >
                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">

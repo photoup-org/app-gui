@@ -1,4 +1,4 @@
-import { Role, PlanTier } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 // Define hierarchy levels for comparison
 const ROLE_HIERARCHY: Record<Role, number> = {
@@ -8,10 +8,13 @@ const ROLE_HIERARCHY: Record<Role, number> = {
     SUPER_ADMIN: 3,
 };
 
-const PLAN_HIERARCHY: Record<PlanTier, number> = {
-    STARTER: 0,
-    INDUSTRIAL_PRO: 1,
-    EXECUTIVE: 2,
+const PLAN_HIERARCHY: Record<string, number> = {
+    "Starter": 0,
+    "STARTER": 0,
+    "Industrial Pro": 1,
+    "INDUSTRIAL_PRO": 1,
+    "Enterprise": 2,
+    "EXECUTIVE": 2,
 };
 
 /**
@@ -34,16 +37,15 @@ export function hasRequiredRole(userRole: Role | undefined | null | string, requ
  * SUPER_ADMIN user role bypasses this check and always returns true.
  */
 export function hasRequiredPlan(
-    orgPlan: PlanTier | undefined | null | string,
-    requiredPlan: PlanTier,
+    orgPlan: string | undefined | null,
+    requiredPlan: string,
     userRole?: Role | null | string // Optional for God Mode bypass
 ): boolean {
     if (userRole === "SUPER_ADMIN") return true;
 
     if (!orgPlan) return false;
 
-    const planEnum = orgPlan as PlanTier;
-    const currentLevel = PLAN_HIERARCHY[planEnum] ?? -1;
+    const currentLevel = PLAN_HIERARCHY[orgPlan] ?? -1;
     const requiredLevel = PLAN_HIERARCHY[requiredPlan] ?? 999;
 
     return currentLevel >= requiredLevel;

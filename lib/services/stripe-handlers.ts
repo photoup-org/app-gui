@@ -143,22 +143,29 @@ export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {
                 }
             });
 
-            for (const item of invoice.lines.data) {
-                const price = item.price;
-                if (price && price.product) {
-                    const productIdStripe = typeof price.product === 'string' ? price.product : price.product.id;
-                    const hardware = await tx.hardwareProduct.findUnique({
-                        where: { stripeProductId: productIdStripe }
-                    });
+            const logisticsCartStr = metadata.logisticsCart || '[]';
+            const logisticsCart = JSON.parse(logisticsCartStr);
 
-                    if (hardware) {
-                        await tx.orderItem.create({
-                            data: {
-                                orderId: order.id,
-                                productId: hardware.id,
-                                quantity: item.quantity || 1
-                            }
+            for (const item of logisticsCart) {
+                if (item.type && item.quantity > 0) {
+                    let typeEnum: any = null;
+                    if (item.type === 'gateway') typeEnum = 'GATEWAY';
+                    if (item.type === 'sensor') typeEnum = 'SENSOR_BASE';
+
+                    if (typeEnum) {
+                        const hardware = await tx.hardwareProduct.findFirst({
+                            where: { type: typeEnum }
                         });
+
+                        if (hardware) {
+                            await tx.orderItem.create({
+                                data: {
+                                    orderId: order.id,
+                                    productId: hardware.id,
+                                    quantity: item.quantity
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -197,7 +204,7 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
         const nif = metadata.nif || `UNKNOWN-${Date.now()}`;
         const adminEmail = metadata.adminEmail || session.customer_details?.email;
         const departmentName = metadata.departmentName || 'Main Workspace';
-        const plan = (metadata.plan as any) || 'STARTER';
+        const planId = (metadata.planId as any) || undefined;
         const organizationName = metadata.organizationName || 'New Organization';
 
         if (!adminEmail) {
@@ -227,7 +234,7 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
                 organizationId: organization.id,
                 stripeCustomerId: (session.customer as string) || `cus_PENDING_${Date.now()}`,
                 stripeSubscriptionId: (session.subscription as string) || undefined,
-                plan: plan,
+                planId: planId,
                 billingAddressData: {
                     street: metadata.billing_street,
                     city: metadata.billing_city,
@@ -245,7 +252,8 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
             });
 
             // 4. Hardware Order Generation 
-            await createHardwareOrderTx(tx, department.id, cartItems);
+            const logisticsCartStr = metadata.logisticsCart || '[]';
+            await createHardwareOrderTx(tx, department.id, logisticsCartStr);
 
             return { department, organizationName, auth0OrgSlug, adminEmail };
         });

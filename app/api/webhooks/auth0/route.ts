@@ -32,15 +32,17 @@ export async function POST(req: NextRequest) {
 
         // 3. Upsert the User
         await prisma.user.upsert({
-            where: { auth0UserId },
+            where: { email },
             update: {
-                email // Update email in case it changed in Auth0
+                // The Admin from Stripe is found! Link their new Auth0 ID.
+                auth0UserId
             },
             create: {
+                // An invited employee logging in for the first time. Create them.
                 email,
                 auth0UserId,
                 departmentId: primaryDepartmentId,
-                role: 'ADMIN' // Default new organizational joined users to ADMIN per requirements
+                role: 'VIEWER' // Default employee role
             }
         });
 
