@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Home, Search, Heart, Bell, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDebounceCallback } from "@/hooks/use-debounce";
 
 const items = [
     { name: "Home", icon: Home },
@@ -25,24 +26,35 @@ export function NavBar() {
         }
     }, []);
 
+    // Debounced resize handler using our custom hook
+    const debouncedResize = useDebounceCallback(() => {
+        const activeTab = tabsRef.current[active];
+        if (activeTab && containerRef.current) {
+            const { offsetLeft, offsetWidth } = activeTab;
+            setContainerWidth(containerRef.current.offsetWidth);
+            setIndicatorStyle({
+                left: offsetLeft,
+                width: offsetWidth,
+            });
+        }
+    }, 100);
+
     // Update indicator and container width on resize/active change
     useEffect(() => {
-        const updatePosition = () => {
-            const activeTab = tabsRef.current[active];
-            if (activeTab && containerRef.current) {
-                const { offsetLeft, offsetWidth } = activeTab;
-                setContainerWidth(containerRef.current.offsetWidth);
-                setIndicatorStyle({
-                    left: offsetLeft,
-                    width: offsetWidth,
-                });
-            }
-        };
+        // Initial setup/update when 'active' changes
+        const activeTab = tabsRef.current[active];
+        if (activeTab && containerRef.current) {
+            const { offsetLeft, offsetWidth } = activeTab;
+            setContainerWidth(containerRef.current.offsetWidth);
+            setIndicatorStyle({
+                left: offsetLeft,
+                width: offsetWidth,
+            });
+        }
 
-        updatePosition();
-        window.addEventListener("resize", updatePosition);
-        return () => window.removeEventListener("resize", updatePosition);
-    }, [active]);
+        window.addEventListener("resize", debouncedResize);
+        return () => window.removeEventListener("resize", debouncedResize);
+    }, [active, debouncedResize]);
 
     // Path generation
     // Path generation

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { SubscriptionPlan } from '@/components/SubscriptionPlan';
 
 export default function PricingPage() {
@@ -13,7 +14,9 @@ export default function PricingPage() {
                     </p>
                 </div>
                 <div className="mt-12">
-                    <SubscriptionPlan />
+                    <Suspense fallback={<div className="text-center p-8">Loading plans...</div>}>
+                        <SubscriptionPlan />
+                    </Suspense>
                 </div>
             </div>
         </div>

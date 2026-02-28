@@ -4,8 +4,11 @@ import { stripe } from '@/lib/stripe';
 import { isValidNIF } from '@/lib/utils';
 import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
+import { CheckoutFormData } from '@/types/checkout';
+import { Product } from '@/types/stripe';
+import { getStripeLineItemsConfig } from '@/lib/services/stripe';
 
-export async function getStripeProducts() {
+export async function getStripeProducts(): Promise<Product[]> {
     try {
         const products = await stripe.products.list({
             active: true,
@@ -44,33 +47,12 @@ export async function getStripeProducts() {
     }
 }
 
-export interface CheckoutFormData {
-    organizationName: string;
-    departmentName: string;
-    nif: string;
-    internalReference?: string;
-    adminFullName: string;
-    adminEmail: string;
-    jobTitle: string;
-    phone: string;
-    billingAddress: {
-        streetAddress: string;
-        postalCode: string;
-        city: string;
-        country: string;
-    };
-    shippingAddress?: {
-        streetAddress: string;
-        postalCode: string;
-        city: string;
-        country: string;
-    };
-}
 
 export async function createSubscriptionIntent(
     formData: CheckoutFormData,
     lineItems: { price: string; quantity?: number }[],
-    extraSensorsCount: number = 0
+    totalSensorsInCart: number = 0,
+    selectedHardware: { productId: string; quantity: number; stripePriceId?: string; type?: string }[] = []
 ) {
     try {
         if (!formData.adminEmail || lineItems.length === 0) {
@@ -110,40 +92,29 @@ export async function createSubscriptionIntent(
             metadata.hasDifferentShipping = 'false';
         }
 
-        // Separate recurring and one-time items
-        const recurringItems: { price: string; quantity?: number }[] = [];
-        const addInvoiceItems: { price: string; quantity?: number }[] = [];
-        let totalOneTimeAmount = 0;
+        const planIdCandidate = lineItems[0]?.price;
+        const tier = planIdCandidate ? await prisma.planTier.findUnique({ where: { stripePlanPriceId: planIdCandidate } }) : null;
 
-        for (const item of lineItems) {
-            const price = await stripe.prices.retrieve(item.price);
-            if (price.type === 'recurring') {
-                recurringItems.push(item);
-            } else {
-                addInvoiceItems.push(item);
-                totalOneTimeAmount += (price.unit_amount || 0) * (item.quantity || 1);
-            }
-        }
+        const extraSensorsCount = tier ? Math.max(0, totalSensorsInCart - tier.includedSensors) : 0;
+        const tierExtraSensorStripePriceId = tier ? tier.extraSensorStripePriceId : null;
+
+        const { recurringItems, addInvoiceItems, totalOneTimeAmount } = await getStripeLineItemsConfig(
+            lineItems,
+            tierExtraSensorStripePriceId,
+            extraSensorsCount,
+            selectedHardware
+        );
 
         let logisticsCartParsed = '[]';
-        const planId = recurringItems.length > 0 ? recurringItems[0].price : undefined;
+        if (tier) {
+            const mandatoryGateway = await prisma.hardwareProduct.findUnique({ where: { sku: 'GW-TRB142' } });
+            const mandatoryGatewayId = mandatoryGateway?.id || "cmlsocydi0003ecbgy59cs8ow";
 
-        if (planId) {
-            const tier = await prisma.planTier.findUnique({ where: { stripePlanPriceId: planId } });
-            if (tier) {
-                if (extraSensorsCount > 0 && tier.extraSensorStripePriceId) {
-                    addInvoiceItems.push({ price: tier.extraSensorStripePriceId, quantity: extraSensorsCount });
-                    // Retrieve price to accurately update total one-time amount
-                    const extraSensorsPrice = await stripe.prices.retrieve(tier.extraSensorStripePriceId);
-                    totalOneTimeAmount += (extraSensorsPrice.unit_amount || 0) * extraSensorsCount;
-                }
-
-                const logisticsCart = [
-                    { type: 'gateway', quantity: tier.includedGateways },
-                    { type: 'sensor', quantity: tier.includedSensors + extraSensorsCount }
-                ];
-                logisticsCartParsed = JSON.stringify(logisticsCart);
-            }
+            const logisticsCart = [
+                { productId: mandatoryGatewayId, quantity: 1 },
+                ...selectedHardware.map(hw => ({ productId: hw.productId, quantity: hw.quantity }))
+            ];
+            logisticsCartParsed = JSON.stringify(logisticsCart);
         }
 
         // 1. Get or Create Customer
@@ -190,7 +161,7 @@ export async function createSubscriptionIntent(
                 expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
                 metadata: {
                     ...metadata,
-                    planId: planId!, // ensure Plan ID is logged using the unified DB system
+                    planId: planIdCandidate!, // ensure Plan ID is logged using the unified DB system
                     logisticsCart: logisticsCartParsed
                 },
             };

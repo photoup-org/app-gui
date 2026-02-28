@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import * as departmentService from '@/lib/services/department';
 
 /**
  * Synchronizes the Auth0 session user with the Prisma database on first login.
@@ -36,9 +37,7 @@ export async function syncUserToDatabase(session: any) {
     }
 
     // 1. Find the parent Workspace (Department)
-    const department = await prisma.department.findUnique({
-        where: { auth0OrgId: org_id }
-    });
+    const department = await departmentService.findDepartmentByAuth0OrgId(org_id);
 
     if (!department) {
         console.warn(`[SyncUser] Workspace (Department) not found in DB for Auth0 org_id: ${org_id}`);

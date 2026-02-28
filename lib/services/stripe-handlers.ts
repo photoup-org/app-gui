@@ -5,6 +5,7 @@ import { provisionWorkspace } from './workspace';
 import { createOrg, enableOrgConnection, generateAuth0InviteTicket } from '@/lib/auth0-management';
 import { sendInvitationEmail } from '@/lib/services/email';
 import { upsertOrganizationTx, createDepartmentTx, createAdminUserTx, createHardwareOrderTx } from './db-ops/workspace';
+import * as departmentService from './department';
 
 export async function handleSubscriptionUpdated(subscription: Stripe.Subscription, previousAttributes: any) {
     if (
@@ -26,10 +27,7 @@ export async function handlePaymentIntent(paymentIntent: Stripe.PaymentIntent) {
 export async function handleInvoicePaymentFailed(invoice: any) {
     if (invoice.subscription) {
         console.log(`[Webhook] Async recurring payment failed for subscription: ${invoice.subscription}`);
-        await prisma.department.updateMany({
-            where: { stripeSubscriptionId: invoice.subscription as string },
-            data: { subStatus: 'PAST_DUE' } // Suspend access
-        });
+        await departmentService.updateDepartmentStatusByStripeSubscriptionId(invoice.subscription as string, 'PAST_DUE');
         // TODO: Block Auth0 access via Management API
     }
 }
@@ -265,10 +263,7 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
             const auth0OrgId = auth0Org.id;
 
             // Update Department with real Auth0 Org ID
-            await prisma.department.update({
-                where: { id: txResult.department.id },
-                data: { auth0OrgId: auth0OrgId }
-            });
+            await departmentService.updateDepartmentAuth0OrgId(txResult.department.id, auth0OrgId as string);
 
             await enableOrgConnection(auth0OrgId as string);
 
@@ -292,3 +287,21 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
     }
 }
 
+export async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+    try {
+        const department = await departmentService.findDepartmentByStripeSubscriptionId(subscription.id);
+
+        if (!department) {
+            console.warn(`[Stripe Webhook] Subscription deleted, but no Department found for ID: ${subscription.id}`);
+            return;
+        }
+
+        await departmentService.updateDepartmentStatus(department.id, 'CANCELED');
+
+        console.log(`[Stripe Webhook] Department ${department.id} subscription canceled.`);
+
+    } catch (error) {
+        console.error('[Stripe Webhook] Error in handleSubscriptionDeleted:', error);
+        throw error;
+    }
+}

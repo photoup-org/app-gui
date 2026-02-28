@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import * as handlers from "@/lib/services/auth0-handlers";
 
 export async function POST(req: NextRequest) {
     // 1. Authenticate the Webhook
@@ -14,40 +14,18 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { email, auth0UserId, auth0OrgId } = body;
 
-        if (!email || !auth0UserId || !auth0OrgId) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-        }
-
-        // 2. Look up the corresponding department
-        const department = await prisma.department.findUnique({
-            where: { auth0OrgId }
-        });
-
-        if (!department) {
-            console.error(`[Auth0 Webhook] Department not found for auth0OrgId: ${auth0OrgId}`);
-            return NextResponse.json({ error: "Department not found" }, { status: 404 });
-        }
-
-        const primaryDepartmentId = department.id;
-
-        // 3. Upsert the User
-        await prisma.user.upsert({
-            where: { email },
-            update: {
-                // The Admin from Stripe is found! Link their new Auth0 ID.
-                auth0UserId
-            },
-            create: {
-                // An invited employee logging in for the first time. Create them.
-                email,
-                auth0UserId,
-                departmentId: primaryDepartmentId,
-                role: 'VIEWER' // Default employee role
+        try {
+            await handlers.handlePostLoginSync(email, auth0UserId, auth0OrgId);
+            return NextResponse.json({ success: true });
+        } catch (handlerError: any) {
+            if (handlerError.message === "Missing required fields") {
+                return NextResponse.json({ error: handlerError.message }, { status: 400 });
             }
-        });
-
-        console.log(`[Auth0 Webhook] Successfully synced user ${email} to department ${primaryDepartmentId}`);
-        return NextResponse.json({ success: true });
+            if (handlerError.message === "Department not found") {
+                return NextResponse.json({ error: handlerError.message }, { status: 404 });
+            }
+            throw handlerError; // Rethrow to outer catch
+        }
 
     } catch (error: any) {
         console.error("[Auth0 Webhook] Error processing post-login sync:", error.message);

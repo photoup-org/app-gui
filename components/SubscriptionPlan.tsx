@@ -1,48 +1,14 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { PricingCard } from './PricingCard';
 import { getStripeProducts } from '@/app/actions/stripe';
-import { useRouter } from 'next/navigation';
+import { Product } from '@/types/stripe';
 
-interface Product {
-    id: string;
-    name: string;
-    description: string | null;
-    prices: {
-        id: string;
-        unit_amount: number | null;
-        currency: string;
-    }[];
-}
-
-export const SubscriptionPlan = () => {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
-    const router = useRouter();
-
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const data = await getStripeProducts();
-                setProducts(data);
-            } catch (error) {
-                console.error('Failed to load products', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProducts();
-    }, []);
-
-    const handleSelectPlan = (priceId: string) => {
-        // Direct redirect to checkout with plan_id
-        router.push(`/checkout/hardware?plan_id=${priceId}`);
-    };
-
-    if (loading) {
-        return <div className="text-center p-8">Loading plans...</div>;
+export const SubscriptionPlan = async () => {
+    let products: Product[] = [];
+    try {
+        products = await getStripeProducts();
+    } catch (error) {
+        console.error('Failed to load products', error);
     }
 
     if (products.length === 0) {
@@ -63,10 +29,11 @@ export const SubscriptionPlan = () => {
                 return (
                     <PricingCard
                         key={product.id}
+                        id={price.id}
                         name={product.name}
                         description={product.description || ''}
                         price={formattedPrice}
-                        onSelect={() => handleSelectPlan(price.id)}
+                        href={`/checkout/hardware?plan_id=${price.id}`}
                     />
                 );
             })}

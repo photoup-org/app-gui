@@ -7,7 +7,6 @@ export async function POST(req: Request) {
     const body = await req.text();
     const headersList = await headers();
     const signature = headersList.get('Stripe-Signature') as string;
-    console.log("------------- Stripe Webhook received ------------- ")
 
     let event;
 
@@ -34,6 +33,11 @@ export async function POST(req: Request) {
                     event.data.previous_attributes
                 );
                 break;
+
+            case 'customer.subscription.deleted':
+                await handlers.handleSubscriptionDeleted(event.data.object as any);
+                break;
+
 
             case 'payment_intent.succeeded':
             case 'payment_intent.processing':

@@ -2,90 +2,28 @@
 
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { createSubscriptionIntent, CheckoutFormData } from '@/app/actions/stripe';
+import { createSubscriptionIntent } from '@/app/actions/stripe';
+import { CheckoutFormData } from '@/types/checkout';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import { StripePaymentForm } from '@/components/checkout/StripePaymentForm';
+import { AddressForm } from '@/components/checkout/AddressForm';
+import { FormField } from '@/components/checkout/FormField';
 
 // Ensure NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set in your .env.local
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
-function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: string; onCancel: () => void }) {
-    const stripe = useStripe();
-    const elements = useElements();
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!stripe || !elements) {
-            return;
-        }
-
-        setIsProcessing(true);
-        setErrorMessage('');
-
-        let resultError;
-        if (clientSecret.startsWith('seti_')) {
-            const { error } = await stripe.confirmSetup({
-                elements,
-                confirmParams: {
-                    return_url: `${window.location.origin}/checkout/success`,
-                },
-            });
-            resultError = error;
-        } else {
-            const { error } = await stripe.confirmPayment({
-                elements,
-                confirmParams: {
-                    return_url: `${window.location.origin}/checkout/success`,
-                },
-            });
-            resultError = error;
-        }
-
-        if (resultError) {
-            setErrorMessage(resultError.message || 'An unexpected error occurred.');
-            setIsProcessing(false);
-        }
-    };
-
-    return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">Complete Payment</h3>
-            <PaymentElement />
-            {errorMessage && <div className="text-red-500 text-sm mt-2">{errorMessage}</div>}
-
-            <div className="flex flex-col gap-4 pt-4 border-t border-gray-200 dark:border-zinc-700">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onCancel}
-                    disabled={isProcessing}
-                    className="w-full"
-                >
-                    Back
-                </Button>
-                <Button
-                    type="submit"
-                    disabled={!stripe || isProcessing}
-                    className="w-full"
-                >
-                    {isProcessing ? 'Processing...' : 'Pay Now'}
-                </Button>
-            </div>
-        </form>
-    );
-}
 
 export default function CheckoutPage() {
     const searchParams = useSearchParams();
     const planId = searchParams.get('plan_id');
-    const extraSensors = parseInt(searchParams.get('extra_sensors') || '0', 10);
+    const totalSensors = parseInt(searchParams.get('totalSensors') || '0', 10);
+    const hardwareParam = searchParams.get('hardware');
+    const selectedHardware = hardwareParam ? JSON.parse(decodeURIComponent(hardwareParam)) : [];
 
     // Admin Details
     const [adminFullName, setAdminFullName] = useState('');
@@ -135,7 +73,7 @@ export default function CheckoutPage() {
                 { price: planId, quantity: 1 }
             ];
 
-            const result = await createSubscriptionIntent(formData, lineItems, extraSensors);
+            const result = await createSubscriptionIntent(formData, lineItems, totalSensors, selectedHardware);
 
             if (result.clientSecret) {
                 setClientSecret(result.clientSecret);
@@ -287,83 +225,3 @@ export default function CheckoutPage() {
     );
 }
 
-// Reusable Address Form Component
-const AddressForm = ({
-    title,
-    address,
-    setAddress,
-    required
-}: {
-    title: string,
-    address: any,
-    setAddress: any,
-    required: boolean
-}) => (
-    <div className="border-t border-gray-200 dark:border-zinc-700 pt-4 mt-6">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">{title}</h3>
-        <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <FormField
-                label="Street Address"
-                required={required}
-                value={address.streetAddress}
-                onChange={(val) => setAddress({ ...address, streetAddress: val })}
-                className="sm:col-span-6 space-y-2"
-            />
-            <FormField
-                label="City"
-                required={required}
-                value={address.city}
-                onChange={(val) => setAddress({ ...address, city: val })}
-                className="sm:col-span-3 space-y-2"
-            />
-            <FormField
-                label="Postal Code"
-                required={required}
-                value={address.postalCode}
-                onChange={(val) => setAddress({ ...address, postalCode: val })}
-                className="sm:col-span-3 space-y-2"
-            />
-            <FormField
-                label="Country"
-                required={required}
-                value={address.country}
-                onChange={(val) => setAddress({ ...address, country: val })}
-                className="sm:col-span-6 space-y-2"
-            />
-        </div>
-    </div>
-);
-
-// Reusable Form Field Component
-const FormField = ({
-    id,
-    label,
-    value,
-    onChange,
-    required = false,
-    type = "text",
-    placeholder,
-    className = "space-y-2",
-}: {
-    id?: string;
-    label: string;
-    value: string;
-    onChange: (val: string) => void;
-    required?: boolean;
-    type?: string;
-    placeholder?: string;
-    className?: string; // For the wrapper div
-}) => (
-    <div className={className}>
-        <Label htmlFor={id}>{label}</Label>
-        <Input
-            id={id}
-            type={type}
-            placeholder={placeholder}
-            required={required}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-        />
-    </div>
-);

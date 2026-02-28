@@ -1,22 +1,27 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 interface PricingCardProps {
+    id: string;
     name: string;
     description?: string;
     price: string;
     features?: string[];
-    onSelect: () => void;
+    onSelect?: (id: string) => void;
+    href?: string;
     buttonText?: string;
 }
 
-export const PricingCard: React.FC<PricingCardProps> = ({
+export const PricingCard: React.FC<PricingCardProps> = React.memo(({
+    id,
     name,
     description,
     price,
     features = [],
     onSelect,
+    href,
     buttonText = 'Select Plan',
 }) => {
     return (
@@ -41,12 +46,23 @@ export const PricingCard: React.FC<PricingCardProps> = ({
                 </ul>
             )}
 
-            <button
-                onClick={onSelect}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors mt-auto"
-            >
-                {buttonText}
-            </button>
+            {href ? (
+                <Link
+                    href={href}
+                    className="w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors mt-auto block"
+                >
+                    {buttonText}
+                </Link>
+            ) : (
+                <button
+                    onClick={() => onSelect?.(id)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors mt-auto"
+                >
+                    {buttonText}
+                </button>
+            )}
         </div>
     );
-};
+});
+
+PricingCard.displayName = 'PricingCard';
