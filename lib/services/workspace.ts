@@ -23,27 +23,35 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
             }
 
             // 1. Create Addresses
+            let parsedBilling = null;
+            if (metadata.billingAddress) {
+                try { parsedBilling = JSON.parse(metadata.billingAddress); } catch (e) { }
+            }
             const billingAddress = await tx.address.create({
                 data: {
-                    street: metadata.billing_street || '',
-                    city: metadata.billing_city || '',
-                    zipCode: metadata.billing_postal || '',
-                    country: metadata.billing_country || '',
+                    street: parsedBilling?.streetAddress || '',
+                    city: parsedBilling?.city || '',
+                    zipCode: parsedBilling?.postalCode || '',
+                    country: parsedBilling?.country || '',
                     nif: metadata.nif || null,
                 }
             });
 
-            let shippingAddressId = billingAddress.id;
-            if (metadata.hasDifferentShipping === 'true') {
-                const shippingAddress = await tx.address.create({
-                    data: {
-                        street: metadata.shipping_street || '',
-                        city: metadata.shipping_city || '',
-                        zipCode: metadata.shipping_postal || '',
-                        country: metadata.shipping_country || '',
-                    }
-                });
-                shippingAddressId = shippingAddress.id;
+            let shippingAddressId: string | null = null;
+            if (metadata.shippingAddress) {
+                let parsedShipping = null;
+                try { parsedShipping = JSON.parse(metadata.shippingAddress); } catch (e) { }
+                if (parsedShipping) {
+                    const shippingAddress = await tx.address.create({
+                        data: {
+                            street: parsedShipping?.streetAddress || '',
+                            city: parsedShipping?.city || '',
+                            zipCode: parsedShipping?.postalCode || '',
+                            country: parsedShipping?.country || '',
+                        }
+                    });
+                    shippingAddressId = shippingAddress.id;
+                }
             }
 
             // 2. Auth0 Organization Creation
@@ -82,7 +90,7 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
             // 3. Create Department
             const departmentSlug = (metadata.departmentName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-            await tx.department.create({
+            const department = await tx.department.create({
                 data: {
                     name: metadata.departmentName || 'Main Workspace',
                     slug: `${departmentSlug}-${Date.now().toString().slice(-4)}`, // Ensure uniqueness
@@ -96,20 +104,32 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
                 }
             });
 
+            if (metadata.userEmail) {
+                const userName = metadata.userName || 'Admin';
+                await tx.user.create({
+                    data: {
+                        email: metadata.userEmail,
+                        name: userName,
+                        role: 'ADMIN',
+                        departmentId: department.id,
+                    }
+                });
+            }
+
             console.log(`[Webhook] Optimistically provisioned Org and Dept for customer ${customerId}`);
 
             // 4. Invite the Admin User
-            if (metadata.adminEmail && auth0OrgId) {
+            if (metadata.userEmail && auth0OrgId) {
                 try {
-                    console.log(`[Webhook] Generating Auth0 Invite ticket for ${metadata.adminEmail} for Org ${auth0OrgId}`);
-                    const ticket = await generateAuth0InviteTicket(auth0OrgId, metadata.adminEmail);
+                    console.log(`[Webhook] Generating Auth0 Invite ticket for ${metadata.userEmail} for Org ${auth0OrgId}`);
+                    const ticket = await generateAuth0InviteTicket(auth0OrgId, metadata.userEmail);
                     if (ticket) {
                         const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
                         const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${auth0OrgId}&screen_hint=signup`;
-                        await sendInvitationEmail(metadata.adminEmail, customLink);
+                        await sendInvitationEmail(metadata.userEmail, customLink);
                     }
                 } catch (inviteErr: any) {
-                    console.error(`[Webhook] Failed to generate invite ticket for user ${metadata.adminEmail}:`, inviteErr);
+                    console.error(`[Webhook] Failed to generate invite ticket for user ${metadata.userEmail}:`, inviteErr);
                 }
             }
         });

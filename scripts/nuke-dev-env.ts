@@ -85,8 +85,8 @@ async function main() {
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    // await nukeDatabase();
-    // await nukeAuth0();
+    await nukeDatabase();
+    await nukeAuth0();
     await nukeStripe();
 }
 

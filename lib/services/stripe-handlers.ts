@@ -74,7 +74,7 @@ export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {
     const nif = metadata.nif || `UNKNOWN-${Date.now()}`;
     const orgName = metadata.organizationName || 'New Organization';
     const deptName = metadata.departmentName || 'Main Workspace';
-    const adminEmail = metadata.userEmail || invoice.customer_email;
+    const userEmail = metadata.userEmail || invoice.customer_email;
 
     try {
         await prisma.$transaction(async (tx) => {
@@ -108,15 +108,38 @@ export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {
                     throw new Error(`Failed to create Auth0 Organization: ${authErr.message}`);
                 }
 
+                let parsedBilling = null;
+                if (metadata.billingAddress) {
+                    try { parsedBilling = JSON.parse(metadata.billingAddress); } catch (e) { }
+                }
+
                 const billingAddress = await tx.address.create({
                     data: {
-                        street: metadata.billing_street || '',
-                        city: metadata.billing_city || '',
-                        zipCode: metadata.billing_postal || '',
-                        country: metadata.billing_country || '',
+                        street: parsedBilling?.streetAddress || '',
+                        city: parsedBilling?.city || '',
+                        zipCode: parsedBilling?.postalCode || '',
+                        country: parsedBilling?.country || '',
                         nif: nif,
                     }
                 });
+
+                let shippingAddressId: string | null = null;
+                if (metadata.shippingAddress) {
+                    let parsedShipping = null;
+                    try { parsedShipping = JSON.parse(metadata.shippingAddress); } catch (e) { }
+                    if (parsedShipping) {
+                        const sAddr = await tx.address.create({
+                            data: {
+                                street: parsedShipping?.streetAddress || '',
+                                city: parsedShipping?.city || '',
+                                zipCode: parsedShipping?.postalCode || '',
+                                country: parsedShipping?.country || '',
+                                nif: nif,
+                            }
+                        });
+                        shippingAddressId = sAddr.id;
+                    }
+                }
 
                 const deptSlug = deptName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
@@ -129,9 +152,22 @@ export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {
                         auth0OrgId: auth0OrgId!,
                         organizationId: organization.id,
                         billingAddressId: billingAddress.id,
+                        shippingAddressId: shippingAddressId,
                         subStatus: 'ACTIVE',
                     }
                 });
+
+                if (userEmail) {
+                    const userName = metadata.userName || 'Admin';
+                    await tx.user.create({
+                        data: {
+                            email: userEmail,
+                            name: userName,
+                            role: 'ADMIN',
+                            departmentId: department.id,
+                        }
+                    });
+                }
             }
 
             const order = await tx.order.create({
@@ -141,47 +177,45 @@ export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {
                 }
             });
 
-            const logisticsCartStr = metadata.logisticsCart || '[]';
-            const logisticsCart = JSON.parse(logisticsCartStr);
 
-            for (const item of logisticsCart) {
-                if (item.type && item.quantity > 0) {
-                    let typeEnum: any = null;
-                    if (item.type === 'gateway') typeEnum = 'GATEWAY';
-                    if (item.type === 'sensor') typeEnum = 'SENSOR_BASE';
+            const expandedInvoice = await stripe.invoices.retrieve(invoice.id, { expand: ['lines.data.price.product'] });
 
-                    if (typeEnum) {
-                        const hardware = await tx.hardwareProduct.findFirst({
-                            where: { type: typeEnum }
-                        });
+            for (const item of expandedInvoice.lines.data as any[]) {
+                const stripeProductId = typeof item.price?.product === 'string'
+                    ? item.price.product
+                    : item.price?.product?.id;
 
-                        if (hardware) {
-                            await tx.orderItem.create({
-                                data: {
-                                    orderId: order.id,
-                                    productId: hardware.id,
-                                    quantity: item.quantity
-                                }
-                            });
+                if (!stripeProductId) continue;
+
+                const hardware = await tx.hardwareProduct.findUnique({
+                    where: { stripeProductId }
+                });
+
+                if (hardware) {
+                    await tx.orderItem.create({
+                        data: {
+                            orderId: order.id,
+                            productId: hardware.id,
+                            quantity: item.quantity || 1
                         }
-                    }
+                    });
                 }
             }
 
-            if (isNewDept && adminEmail && auth0OrgId) {
+            if (isNewDept && userEmail && auth0OrgId) {
                 try {
-                    console.log(`[Webhook] Generating Auth0 Invite for ${adminEmail} (Org: ${auth0OrgId})`);
-                    const ticket = await generateAuth0InviteTicket(auth0OrgId, adminEmail);
+                    console.log(`[Webhook] Generating Auth0 Invite for ${userEmail} (Org: ${auth0OrgId})`);
+                    const ticket = await generateAuth0InviteTicket(auth0OrgId, userEmail);
 
                     if (ticket) {
                         const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
                         const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${auth0OrgId}&screen_hint=signup`;
-                        await sendInvitationEmail(adminEmail, customLink);
+                        await sendInvitationEmail(userEmail, customLink);
                     } else {
                         console.error(`[Webhook] Could not parse ticket from Auth0 response.`);
                     }
                 } catch (inviteErr: any) {
-                    console.error(`[Webhook] Failed to securely generate invite ticket for ${adminEmail}:`, inviteErr);
+                    console.error(`[Webhook] Failed to securely generate invite ticket for ${userEmail}:`, inviteErr);
                 }
             }
         });
@@ -200,19 +234,20 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
     try {
         const metadata = session.metadata;
         const nif = metadata.nif || `UNKNOWN-${Date.now()}`;
-        const adminEmail = metadata.adminEmail || session.customer_details?.email;
+        const userEmail = metadata.userEmail || session.customer_details?.email;
+        const userName = metadata.userName || 'Admin';
         const departmentName = metadata.departmentName || 'Main Workspace';
         const planId = (metadata.planId as any) || undefined;
         const organizationName = metadata.organizationName || 'New Organization';
 
-        if (!adminEmail) {
-            console.error('[Webhook] checkout.session.completed failed: Missing adminEmail in metadata or session');
+        if (!userEmail) {
+            console.error('[Webhook] checkout.session.completed failed: Missing userEmail in metadata or session');
             return;
         }
 
         // Fetch line items for hardware (logistics)
         const lineItemsDesc = await stripe.checkout.sessions.listLineItems(session.id);
-        const cartItems = lineItemsDesc.data;
+        const stripeCartItems = lineItemsDesc.data;
 
         // Ensure we parse out the hardware items (vs subscription items)
         // Usually, the subscription is handled globally via `session.subscription`.
@@ -233,27 +268,24 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
                 stripeCustomerId: (session.customer as string) || `cus_PENDING_${Date.now()}`,
                 stripeSubscriptionId: (session.subscription as string) || undefined,
                 planId: planId,
-                billingAddressData: {
-                    street: metadata.billing_street,
-                    city: metadata.billing_city,
-                    zipCode: metadata.billing_postal,
-                    country: metadata.billing_country
-                }
+                billingAddressData: metadata.billingAddress,
+                shippingAddressData: metadata.shippingAddress
             });
 
             const auth0OrgSlug = organizationName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') + `-${Date.now().toString().slice(-6)}`;
 
             // 3. Admin User Creation
             await createAdminUserTx(tx, {
-                email: adminEmail,
+                email: userEmail,
+                name: userName,
                 departmentId: department.id
             });
 
             // 4. Hardware Order Generation 
-            const logisticsCartStr = metadata.logisticsCart || '[]';
-            await createHardwareOrderTx(tx, department.id, logisticsCartStr);
+            // We pass the deeply nested stripeCartItems which contains the product ID
+            await createHardwareOrderTx(tx, department.id, stripeCartItems);
 
-            return { department, organizationName, auth0OrgSlug, adminEmail };
+            return { department, organizationName, auth0OrgSlug, userEmail };
         });
 
         // 5. External Services (Post-Transaction)
@@ -267,13 +299,13 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
 
             await enableOrgConnection(auth0OrgId as string);
 
-            console.log(`[Webhook] Generating Auth0 Invite for ${txResult.adminEmail} (Org: ${auth0OrgId})`);
-            const ticket = await generateAuth0InviteTicket(auth0OrgId as string, txResult.adminEmail);
+            console.log(`[Webhook] Generating Auth0 Invite for ${txResult.userEmail} (Org: ${auth0OrgId})`);
+            const ticket = await generateAuth0InviteTicket(auth0OrgId as string, txResult.userEmail);
 
             if (ticket) {
                 const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
                 const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${auth0OrgId}&screen_hint=signup`;
-                await sendInvitationEmail(txResult.adminEmail, customLink);
+                await sendInvitationEmail(txResult.userEmail, customLink);
             }
         } catch (postTxError: any) {
             console.error(`[Webhook] Post-Transaction Error (Auth0/Email):`, postTxError);

@@ -68,14 +68,11 @@ export async function createSubscriptionIntent(
             organizationName: formData.organizationName.substring(0, 500),
             departmentName: formData.departmentName.substring(0, 500),
             nif: formData.nif.substring(0, 500),
-            adminFullName: formData.adminFullName.substring(0, 500),
-            adminEmail: formData.adminEmail.substring(0, 500),
+            userName: formData.adminFullName.substring(0, 500),
+            userEmail: formData.adminEmail.substring(0, 500),
             jobTitle: formData.jobTitle.substring(0, 500),
             phone: formData.phone.substring(0, 500),
-            billing_street: formData.billingAddress.streetAddress.substring(0, 500),
-            billing_city: formData.billingAddress.city.substring(0, 500),
-            billing_postal: formData.billingAddress.postalCode.substring(0, 500),
-            billing_country: formData.billingAddress.country.substring(0, 500),
+            billingAddress: JSON.stringify(formData.billingAddress).substring(0, 500),
         };
 
         if (formData.internalReference) {
@@ -83,10 +80,7 @@ export async function createSubscriptionIntent(
         }
 
         if (formData.shippingAddress) {
-            metadata.shipping_street = formData.shippingAddress.streetAddress.substring(0, 500);
-            metadata.shipping_city = formData.shippingAddress.city.substring(0, 500);
-            metadata.shipping_postal = formData.shippingAddress.postalCode.substring(0, 500);
-            metadata.shipping_country = formData.shippingAddress.country.substring(0, 500);
+            metadata.shippingAddress = JSON.stringify(formData.shippingAddress).substring(0, 500);
             metadata.hasDifferentShipping = 'true';
         } else {
             metadata.hasDifferentShipping = 'false';
@@ -117,16 +111,16 @@ export async function createSubscriptionIntent(
             selectedHardware
         );
 
-        let logisticsCartParsed = '[]';
+        let cartItemsParsed = '[]';
         if (tier) {
             const mandatoryGateway = await prisma.hardwareProduct.findUnique({ where: { sku: 'GW-TRB142' } });
             const mandatoryGatewayId = mandatoryGateway?.id || "cmlsocydi0003ecbgy59cs8ow";
 
-            const logisticsCart = [
-                { productId: mandatoryGatewayId, quantity: 1 },
-                ...selectedHardware.map(hw => ({ productId: hw.productId, quantity: hw.quantity }))
+            const cartItems = [
+                { productId: mandatoryGatewayId, quantity: 1, type: 'gateway' },
+                ...selectedHardware.map(hw => ({ productId: hw.productId, quantity: hw.quantity, type: hw.type }))
             ];
-            logisticsCartParsed = JSON.stringify(logisticsCart);
+            cartItemsParsed = JSON.stringify(cartItems);
         }
 
         // 1. Get or Create Customer
@@ -174,7 +168,7 @@ export async function createSubscriptionIntent(
                 metadata: {
                     ...metadata,
                     planId: planIdCandidate!, // ensure Plan ID is logged using the unified DB system
-                    logisticsCart: logisticsCartParsed
+                    cartItems: cartItemsParsed
                 },
             };
 

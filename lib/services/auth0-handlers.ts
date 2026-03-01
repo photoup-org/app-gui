@@ -16,21 +16,31 @@ export async function handlePostLoginSync(email: string, auth0UserId: string, au
 
     const primaryDepartmentId = department.id;
 
-    // 2. Upsert the User
-    await prisma.user.upsert({
-        where: { email },
-        update: {
-            // The Admin from Stripe is found! Link their new Auth0 ID.
-            auth0UserId
-        },
-        create: {
-            // An invited employee logging in for the first time. Create them.
-            email,
-            auth0UserId,
-            departmentId: primaryDepartmentId,
-            role: 'VIEWER' // Default employee role
-        }
+    // 2. Synchronize the User
+    const existingUser = await prisma.user.findUnique({
+        where: { email }
     });
 
-    console.log(`[Auth0 Webhook] Successfully synced user ${email} to department ${primaryDepartmentId}`);
+    if (existingUser) {
+        // The user was provisioned via Stripe webhook! Link their Auth0 ID.
+        await prisma.user.update({
+            where: { email },
+            data: { auth0UserId }
+        });
+        console.log(`[Auth0 Webhook] Successfully synced existing user ${email} to department ${primaryDepartmentId}`);
+    } else {
+        // Fallback: an invited employee logging in for the first time
+        // (or a rogue login bypassing Stripe).
+        console.error(`[CRITICAL ALERT] User bypassed Stripe provisioning! Creating fallback user for email: ${email}`);
+
+        await prisma.user.create({
+            data: {
+                email,
+                auth0UserId,
+                departmentId: primaryDepartmentId,
+                role: 'VIEWER' // Default employee role
+            }
+        });
+        console.log(`[Auth0 Webhook] Created and synced fallback user ${email} to department ${primaryDepartmentId}`);
+    }
 }

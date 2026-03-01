@@ -109,3 +109,4 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
    - Make sure the user gets the correct role (Admin, User, etc.)s
 - Fix the hardware choice limitations bugs; 
 - Discus the structure of the DB regarding the plan limits;
+- Implement the ui on the marketing page

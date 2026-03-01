@@ -16,6 +16,7 @@ export const AddressForm = ({
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">{title}</h3>
         <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <FormField
+                id={`${title.toLowerCase().replace(' ', '-')}-street`}
                 label="Street Address"
                 required={required}
                 value={address.streetAddress}
@@ -23,6 +24,7 @@ export const AddressForm = ({
                 className="sm:col-span-6 space-y-2"
             />
             <FormField
+                id={`${title.toLowerCase().replace(' ', '-')}-city`}
                 label="City"
                 required={required}
                 value={address.city}
@@ -30,6 +32,7 @@ export const AddressForm = ({
                 className="sm:col-span-3 space-y-2"
             />
             <FormField
+                id={`${title.toLowerCase().replace(' ', '-')}-postal`}
                 label="Postal Code"
                 required={required}
                 value={address.postalCode}
@@ -37,6 +40,7 @@ export const AddressForm = ({
                 className="sm:col-span-3 space-y-2"
             />
             <FormField
+                id={`${title.toLowerCase().replace(' ', '-')}-country`}
                 label="Country"
                 required={required}
                 value={address.country}

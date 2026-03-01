@@ -20,17 +20,20 @@ export const FormField = ({
     type?: string;
     placeholder?: string;
     className?: string; // For the wrapper div
-}) => (
-    <div className={className}>
-        <Label htmlFor={id}>{label}</Label>
-        <Input
-            id={id}
-            type={type}
-            placeholder={placeholder}
-            required={required}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
-        />
-    </div>
-);
+}) => {
+    const generatedId = id || `input-${label.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`;
+    return (
+        <div className={className}>
+            <Label htmlFor={generatedId}>{label}</Label>
+            <Input
+                id={generatedId}
+                type={type}
+                placeholder={placeholder}
+                required={required}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+            />
+        </div>
+    );
+};
