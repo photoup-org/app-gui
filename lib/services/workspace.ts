@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { createOrg, generateAuth0InviteTicket, enableOrgConnection } from '@/lib/auth/auth0-management';
 import { sendInvitationEmail } from '@/lib/services/email';
+import { createHardwareOrderTx } from '@/lib/repositories/workspace';
 
 /**
  * Reusable service to provision the workspace atomically via Stripe metadata.
@@ -117,6 +118,19 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
             }
 
             console.log(`[Webhook] Optimistically provisioned Org and Dept for customer ${customerId}`);
+
+            let cart: any[] = [];
+            try {
+                if (metadata.cartItems) {
+                    cart = JSON.parse(metadata.cartItems);
+                }
+            } catch (e) {
+                console.error('[CRITICAL] Failed to parse cartItems metadata:', e);
+            }
+
+            if (cart.length > 0) {
+                await createHardwareOrderTx(tx, department.id, cart);
+            }
 
             // 4. Invite the Admin User
             if (metadata.userEmail && auth0OrgId) {

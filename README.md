@@ -99,6 +99,9 @@ To learn more about the technologies used:
 - [Tailwind CSS](https://tailwindcss.com/)
 
 
+## Reset Command
+npx tsx --env-file=.env.local scripts/nuke-dev-env.ts
+
 ## Stripe Webhooks
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
 

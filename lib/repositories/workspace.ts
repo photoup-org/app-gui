@@ -40,14 +40,7 @@ export const OrderItemsSchema = z.array(
     })
 );
 
-export const StripeLineItemSchema = z.array(
-    z.object({
-        price: z.object({
-            product: z.union([z.string(), z.object({ id: z.string() })]).optional()
-        }).optional(),
-        quantity: z.number().nullable().optional()
-    }).passthrough()
-);
+
 
 // ==========================================
 // TRANSACTIONAL SERVICE FUNCTIONS
@@ -151,49 +144,16 @@ export async function createAdminUserTx(tx: TxClient, input: z.infer<typeof Admi
 }
 
 /**
- * Takes Stripe line items, matches them to HardwareProducts via their stripeProductId, and issues an Order.
+ * Takes a parsed cart array from Stripe metadata, matches items to HardwareProducts via their ID, and issues an Order.
  */
 export async function createHardwareOrderTx(
     tx: TxClient,
     departmentId: string,
-    stripeLineItemsRaw: any[]
+    cartItemsRaw: any[]
 ) {
-    const stripeLineItems = StripeLineItemSchema.parse(stripeLineItemsRaw);
+    const cartItems = OrderItemsSchema.parse(cartItemsRaw);
 
-    const orderItemsInput = [];
-    for (const item of stripeLineItems) {
-        if (item.quantity && item.quantity > 0) {
-            const stripeProductId = typeof item.price?.product === 'string'
-                ? item.price.product
-                : typeof item.price?.product === 'object'
-                    ? item.price.product.id
-                    : null;
-
-            if (stripeProductId) {
-                try {
-                    const hardwareProduct = await tx.hardwareProduct.findUnique({
-                        where: { stripeProductId: stripeProductId },
-                    });
-
-                    if (hardwareProduct) {
-                        orderItemsInput.push({
-                            productId: hardwareProduct.id,
-                            quantity: item.quantity,
-                        });
-                    } else {
-                        console.warn(`[HardwareOrder] Stripe Product ID ${stripeProductId} not found in HardwareProduct table. Skipping item mapping.`);
-                    }
-                } catch (dbErr) {
-                    console.error(`[HardwareOrder] DB lookup failed for Stripe Product ID ${stripeProductId}:`, dbErr);
-                }
-            }
-        }
-    }
-
-    // Validate mapping output to make sure it respects basic limits
-    const validatedItems = OrderItemsSchema.parse(orderItemsInput);
-
-    if (validatedItems.length > 0) {
+    if (cartItems.length > 0) {
         const order = await tx.order.create({
             data: {
                 departmentId: departmentId,
@@ -201,14 +161,27 @@ export async function createHardwareOrderTx(
             },
         });
 
-        for (const input of validatedItems) {
-            await tx.orderItem.create({
-                data: {
-                    orderId: order.id,
-                    productId: input.productId,
-                    quantity: input.quantity,
-                },
-            });
+        for (const item of cartItems) {
+            try {
+                const hardwareProduct = await tx.hardwareProduct.findUnique({
+                    where: { id: item.productId },
+                });
+
+                if (!hardwareProduct) {
+                    console.error(`[CRITICAL] Order creation failed mapping: Product ID ${item.productId} not found in DB. Skipping item.`);
+                    continue;
+                }
+
+                await tx.orderItem.create({
+                    data: {
+                        orderId: order.id,
+                        productId: hardwareProduct.id,
+                        quantity: item.quantity,
+                    },
+                });
+            } catch (dbErr) {
+                console.error(`[CRITICAL] Order creation DB query failed for Product ID ${item.productId}:`, dbErr);
+            }
         }
 
         return order;
