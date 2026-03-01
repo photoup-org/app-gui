@@ -5,10 +5,20 @@ const getBaseUrl = () => {
     return domain.startsWith('http') ? domain : `https://${domain}`;
 };
 
+let cachedToken: string | null = null;
+let tokenExpirationTime: number = 0;
+
 async function getManagementToken(): Promise<string> {
+    const now = Date.now();
+
+    // If we have a token and it is valid for at least another 5 minutes, return it
+    if (cachedToken && tokenExpirationTime > now + 300000) {
+        return cachedToken;
+    }
     const domain = process.env.AUTH0_DOMAIN;
     const clientId = process.env.AUTH0_M2M_CLIENT_ID;
     const clientSecret = process.env.AUTH0_M2M_CLIENT_SECRET;
+
     if (!domain || !clientId || !clientSecret) {
         throw new Error(
             'Missing Auth0 M2M credentials. Please check AUTH0_DOMAIN, AUTH0_M2M_CLIENT_ID, and AUTH0_M2M_CLIENT_SECRET in .env.local'
@@ -32,7 +42,11 @@ async function getManagementToken(): Promise<string> {
     }
 
     const data = await response.json();
-    return data.access_token;
+    // Save token and calculate expiration (data.expires_in is in seconds)
+    cachedToken = data.access_token;
+    tokenExpirationTime = now + (data.expires_in * 1000);
+
+    return cachedToken as string;
 }
 
 export async function checkOrgExists(slug: string): Promise<boolean> {
@@ -152,4 +166,66 @@ export async function generateAuth0InviteTicket(orgId: string, email: string) {
     }
 
     return null;
+}
+
+export async function deleteAllOrganizations() {
+    const token = await getManagementToken();
+    const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+    };
+
+    console.log('   Fetching Auth0 Organizations...');
+    const response = await fetch(`${getBaseUrl()}/api/v2/organizations`, { headers });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch orgs: ${response.statusText}`);
+    }
+
+    const orgs = await response.json();
+
+    if (Array.isArray(orgs)) {
+        for (const org of orgs) {
+            const delRes = await fetch(`${getBaseUrl()}/api/v2/organizations/${org.id}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (delRes.ok) {
+                console.log(`   ✅ Auth0 Organization deleted: ${org.name}`);
+            } else {
+                console.error(`   ❌ Failed to delete Org ${org.name}:`, await delRes.text());
+            }
+        }
+    }
+}
+
+export async function deleteAllUsers() {
+    const token = await getManagementToken();
+    const headers = {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+    };
+
+    console.log('   Fetching Auth0 Users...');
+    const response = await fetch(`${getBaseUrl()}/api/v2/users`, { headers });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch users: ${response.statusText}`);
+    }
+
+    const users = await response.json();
+
+    if (Array.isArray(users)) {
+        for (const user of users) {
+            const delRes = await fetch(`${getBaseUrl()}/api/v2/users/${user.user_id}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (delRes.ok) {
+                console.log(`   ✅ Auth0 User deleted: ${user.email}`);
+            } else {
+                console.error(`   ❌ Failed to delete User ${user.email}:`, await delRes.text());
+            }
+        }
+    }
 }

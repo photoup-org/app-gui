@@ -93,7 +93,19 @@ export async function createSubscriptionIntent(
         }
 
         const planIdCandidate = lineItems[0]?.price;
-        const tier = planIdCandidate ? await prisma.planTier.findUnique({ where: { stripePlanPriceId: planIdCandidate } }) : null;
+        const tier = planIdCandidate ? await prisma.planTier.findUnique({ where: { stripeProductId: planIdCandidate } }) : null;
+
+        if (tier && planIdCandidate?.startsWith('prod_')) {
+            const product = await stripe.products.retrieve(planIdCandidate);
+            const defaultPriceId = typeof product.default_price === 'string'
+                ? product.default_price
+                : (product.default_price as any)?.id;
+
+            if (!defaultPriceId) {
+                throw new Error(`No default price found for product ${planIdCandidate}`);
+            }
+            lineItems[0].price = defaultPriceId;
+        }
 
         const extraSensorsCount = tier ? Math.max(0, totalSensorsInCart - tier.includedSensors) : 0;
         const tierExtraSensorStripePriceId = tier ? tier.extraSensorStripePriceId : null;

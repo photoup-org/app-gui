@@ -30,8 +30,16 @@ export async function getStripeLineItemsConfig(
 
     // 2. Extra sensors
     if (extraSensorsCount > 0 && tierExtraSensorStripePriceId) {
-        addInvoiceItems.push({ price: tierExtraSensorStripePriceId, quantity: extraSensorsCount });
-        const extraSensorsPrice = await stripe.prices.retrieve(tierExtraSensorStripePriceId);
+        let actualPriceId = tierExtraSensorStripePriceId;
+        if (tierExtraSensorStripePriceId.startsWith('prod_')) {
+            const product = await stripe.products.retrieve(tierExtraSensorStripePriceId);
+            actualPriceId = typeof product.default_price === 'string'
+                ? product.default_price
+                : ((product.default_price as any)?.id || tierExtraSensorStripePriceId);
+        }
+
+        addInvoiceItems.push({ price: actualPriceId, quantity: extraSensorsCount });
+        const extraSensorsPrice = await stripe.prices.retrieve(actualPriceId);
         totalOneTimeAmount += (extraSensorsPrice.unit_amount || 0) * extraSensorsCount;
     }
 

@@ -44,6 +44,7 @@ async function main() {
             name: "Starter",
             priceAmount: 99999,
             currency: "eur",
+            orderIndex: 0,
             marketingDesc: "Para pequenas unidades com sede de mudança",
             stripeProductId: "prod_TtpBDLh7dQoq1z", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
             includedGateways: 1,
@@ -85,8 +86,9 @@ async function main() {
         },
         {
             name: "Industrial Pro", // Também referido como Premium na UI
-            priceAmount: 1499999,
+            priceAmount: 149999,
             currency: "eur",
+            orderIndex: 1,
             marketingDesc: "Para linhas de produção e fábricas em crescimento",
             stripeProductId: "prod_TtpC4VinryxEMF", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
             includedGateways: 1,
@@ -130,6 +132,7 @@ async function main() {
             name: "Enterprise", // Também referido como Executivo na matriz
             priceAmount: 499999,
             currency: "eur",
+            orderIndex: 2,
             marketingDesc: "Para operações multi-site e grandes volumes de dados",
             stripeProductId: "prod_TtpD08s9icFmyV", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
             includedGateways: 1,

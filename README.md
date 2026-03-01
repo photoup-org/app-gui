@@ -103,7 +103,6 @@ To learn more about the technologies used:
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 ## TODO: 
-- Fetch Hardware list and present them in the Choose hardware page;
-- Discuss if the plans should be fetched from stripe or DB;
+
 - Fix the hardware choice limitations bugs; 
 - Discus the structure of the DB regarding the plan limits;

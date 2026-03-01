@@ -25,7 +25,6 @@ model PlanTier {
   priceAmount     Int          @default(0)
   currency        String       @default("eur")
   marketingDesc   String?
-  features        Json?
   isPopular       Boolean      @default(false)
   orderIndex      Int          @default(0)
   stripeProductId String       @unique @default(cuid())

@@ -10,13 +10,30 @@ export async function getHardwareCatalog(tierExtraSensorStripePriceId: string | 
         prisma.hardwareProduct.findMany()
     ]);
 
-    const mandatoryGateway = dbProducts.find(p => p.sku === 'GW-TRB142');
+    const mandatoryGatewayData = dbProducts.find(p => p.sku === 'GW-TRB142');
+    const mandatoryGateway = mandatoryGatewayData ? {
+        id: mandatoryGatewayData.id,
+        sku: mandatoryGatewayData.sku,
+        name: mandatoryGatewayData.name,
+    } : null;
 
     let extraSensorPriceAmount = 0;
     if (tierExtraSensorStripePriceId) {
         try {
-            const priceObj = await stripe.prices.retrieve(tierExtraSensorStripePriceId);
-            extraSensorPriceAmount = (priceObj.unit_amount || 0) / 100;
+            if (tierExtraSensorStripePriceId.startsWith('prod_')) {
+                const product = await stripe.products.retrieve(tierExtraSensorStripePriceId);
+                const priceId = typeof product.default_price === 'string'
+                    ? product.default_price
+                    : (product.default_price as any)?.id;
+
+                if (priceId) {
+                    const priceObj = await stripe.prices.retrieve(priceId);
+                    extraSensorPriceAmount = (priceObj.unit_amount || 0) / 100;
+                }
+            } else {
+                const priceObj = await stripe.prices.retrieve(tierExtraSensorStripePriceId);
+                extraSensorPriceAmount = (priceObj.unit_amount || 0) / 100;
+            }
         } catch (e) {
             console.error("Failed to fetch extra sensor price", e);
         }
