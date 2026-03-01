@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { createSubscriptionIntent } from '@/app/actions/stripe';
+import { createSubscriptionIntent } from '@/actions/stripe';
 import { CheckoutFormData } from '@/types/checkout';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

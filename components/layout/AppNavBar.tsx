@@ -13,7 +13,7 @@ const items = [
     { name: "Profile", icon: User },
 ];
 
-export function NavBar() {
+export function AppNavBar() {
     const [active, setActive] = useState(3);
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
     const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);

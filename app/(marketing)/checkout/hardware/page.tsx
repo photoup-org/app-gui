@@ -4,16 +4,16 @@ import prisma from '@/lib/prisma';
 import HardwareForm from './HardwareForm';
 import { getHardwareCatalog } from '@/lib/services/hardware';
 
-export default async function HardwareSelectionPage(props: { searchParams: Promise<{ plan_id?: string }> }) {
+export default async function HardwareSelectionPage(props: { searchParams: Promise<{ product_id?: string }> }) {
     const searchParams = await props.searchParams;
-    const planId = searchParams.plan_id;
+    const productId = searchParams.product_id;
 
-    if (!planId) {
+    if (!productId) {
         redirect('/pricing');
     }
 
     const tier = await prisma.planTier.findUnique({
-        where: { stripePlanPriceId: planId }
+        where: { stripeProductId: productId }
     });
 
     if (!tier) {
@@ -27,7 +27,7 @@ export default async function HardwareSelectionPage(props: { searchParams: Promi
             <div className="max-w-4xl mx-auto">
                 <HardwareForm
                     tier={tier}
-                    planId={planId}
+                    planId={productId}
                     availableHardware={availableHardware}
                     mandatoryGateway={mandatoryGateway}
                     extraSensorPriceAmount={extraSensorPriceAmount}

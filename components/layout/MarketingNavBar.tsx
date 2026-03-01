@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/resources/logos";
 import { Button } from "@/components/ui/button";
 
-export function Navbar() {
+export function MarketingNavBar() {
     return (
         <header className="sticky top-0 z-50 w-full bg-white">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">

@@ -38,6 +38,11 @@ export async function POST(req: Request) {
                 await handlers.handleSubscriptionDeleted(event.data.object as any);
                 break;
 
+            case 'price.created':
+            case 'price.updated':
+                await handlers.handlePriceUpdated(event.data.object as any);
+                break;
+
 
             case 'payment_intent.succeeded':
             case 'payment_intent.processing':

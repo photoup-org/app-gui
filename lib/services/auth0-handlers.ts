@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import * as departmentService from '@/lib/services/department';
+import * as departmentService from '@/lib/repositories/department';
 
 export async function handlePostLoginSync(email: string, auth0UserId: string, auth0OrgId: string) {
     if (!email || !auth0UserId || !auth0OrgId) {

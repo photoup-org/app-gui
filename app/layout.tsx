@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata } from "next";
 import { Anek_Latin } from "next/font/google";
-import { getAppSession } from "@/lib/session";
+import { getAppSession } from "@/lib/auth/session";
 import { UserProvider } from "@/contexts/UserContext";
 
 const brandFont = Anek_Latin({

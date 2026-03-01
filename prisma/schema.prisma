@@ -7,24 +7,145 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enums
+model PlanTier {
+  id                       String  @id @default(cuid())
+  name                     String
+  includedGateways         Int     @default(1)
+  includedSensors          Int
+  maxSensors               Int?
+  extraSensorStripePriceId String?
+
+  // --- BACKEND LIMITS (Strict Logic) ---
+  maxUsers            Int? // Limit team members (e.g., 3 or null for unlimited)
+  dataRetentionMonths Int  @default(6) // e.g., 6, 12, 84
+
+  // --- UI MATRIX (Flexible Rendering) ---
+  uiFeatureMatrix Json? // Stores the categorized feature list for the UI table
+
+  priceAmount     Int          @default(0)
+  currency        String       @default("eur")
+  marketingDesc   String?
+  features        Json?
+  isPopular       Boolean      @default(false)
+  orderIndex      Int          @default(0)
+  stripeProductId String       @unique @default(cuid())
+  departments     Department[]
+}
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  nif         String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  departments Department[]
+}
+
+model Department {
+  id                   String             @id @default(uuid())
+  slug                 String             @unique
+  name                 String
+  auth0OrgId           String             @unique
+  stripeCustomerId     String             @unique
+  stripeSubscriptionId String?            @unique
+  planId               String?
+  subStatus            SubscriptionStatus @default(ACTIVE)
+  organizationId       String
+  billingAddressId     String
+  shippingAddressId    String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  billingAddress       Address            @relation("BillingAddress", fields: [billingAddressId], references: [id])
+  organization         Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan                 PlanTier?          @relation(fields: [planId], references: [id])
+  shippingAddress      Address?           @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  devices              Device[]
+  orders               Order[]
+  users                User[]
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String?
+  auth0UserId  String?    @unique
+  role         Role       @default(VIEWER)
+  jobTitle     String?
+  phone        String?
+  departmentId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+}
+
+model Address {
+  id                  String       @id @default(cuid())
+  street              String
+  city                String
+  zipCode             String
+  country             String
+  nif                 String?
+  contactName         String?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  billingDepartments  Department[] @relation("BillingAddress")
+  shippingDepartments Department[] @relation("ShippingAddress")
+}
+
+model HardwareProduct {
+  id              String       @id @default(cuid())
+  sku             String       @unique
+  name            String
+  description     String?
+  imageUrl        String?
+  stripeProductId String?      @unique
+  type            HardwareType
+  stockQuantity   Int          @default(0)
+  price           Decimal      @db.Decimal(10, 2)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  devices         Device[]
+  orderItems      OrderItem[]
+}
+
+model Device {
+  id           String          @id @default(cuid())
+  serialNumber String          @unique
+  status       DeviceStatus    @default(ACTIVE)
+  productId    String
+  departmentId String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  department   Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  product      HardwareProduct @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  status       OrderStatus @default(PENDING_PAYMENT)
+  departmentId String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  department   Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  items        OrderItem[]
+}
+
+model OrderItem {
+  id        String          @id @default(cuid())
+  quantity  Int
+  orderId   String
+  productId String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   HardwareProduct @relation(fields: [productId], references: [id])
+}
+
 enum OrderStatus {
   PENDING_PAYMENT
   PAID_UNSHIPPED
   SHIPPED
   CANCELED
-}
-
-model PlanTier {
-  id                        String       @id @default(cuid())
-  name                      String
-  stripePlanPriceId         String       @unique
-  includedGateways          Int          @default(1)
-  includedSensors           Int
-  maxSensors                Int?
-  extraSensorStripePriceId  String?
-  
-  departments               Department[]
 }
 
 enum Role {
@@ -50,139 +171,4 @@ enum DeviceStatus {
   ACTIVE
   OFFLINE
   MAINTENANCE
-}
-
-// Models
-
-model Organization {
-  id          String       @id @default(cuid())
-  name        String
-  nif         String       @unique // NIPC/VAT
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  departments Department[]
-}
-
-model Department {
-  id               String             @id @default(uuid())
-  slug             String             @unique // e.g., "physics-lab"
-  name             String
-  auth0OrgId       String             @unique // Webhooks sync off this for the workspace
-  stripeCustomerId String             @unique
-  stripeSubscriptionId String?            @unique // NOVO: Vital para o Webhook de renovação/cancelamento
-
-  planId           String?
-  plan             PlanTier?          @relation(fields: [planId], references: [id])
-  
-  subStatus        SubscriptionStatus @default(ACTIVE)
-  
-  organizationId   String
-  organization     Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  users            User[]
-  devices          Device[]
-
-  // Address Relations
-  billingAddressId String
-  billingAddress   Address            @relation("BillingAddress", fields: [billingAddressId], references: [id])
-  
-  shippingAddressId String?
-  shippingAddress   Address?          @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
-
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-
-  orders           Order[]
-}
-
-model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
-  name         String?
-  auth0UserId  String?    @unique
-  role         Role       @default(VIEWER)
-  jobTitle     String?
-  phone        String?
-  
-  departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-}
-
-model Address {
-  id          String   @id @default(cuid())
-  street      String
-  city        String
-  zipCode     String
-  country     String
-  nif         String?  // Tax ID
-  contactName String?
-
-  // Inverse relations
-  billingDepartments  Department[] @relation("BillingAddress")
-  shippingDepartments Department[] @relation("ShippingAddress")
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model HardwareProduct {
-  id              String       @id @default(cuid())
-  sku             String       @unique
-  name            String
-  description     String?      // NOVO: Para o UI do catálogo
-  imageUrl        String?      // NOVO: Para o UI do catálogo
-  stripeProductId String?      @unique // NOVO: Ligação direta ao Stripe
-  type            HardwareType
-  stockQuantity   Int          @default(0)
-  price           Decimal      @db.Decimal(10, 2)
-  devices         Device[]
-  orderItems      OrderItem[]
-  
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-}
-
-model Device {
-  id                String          @id @default(cuid())
-  serialNumber      String          @unique
-  status            DeviceStatus    @default(ACTIVE)
-  
-  productId         String
-  product           HardwareProduct @relation(fields: [productId], references: [id])
-
-  departmentId      String
-  department        Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-}
-
-model Order {
-  id            String       @id @default(cuid())
-  status        OrderStatus  @default(PENDING_PAYMENT)
-  
-  departmentId  String
-  department    Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  
-  items         OrderItem[]
-  
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-}
-
-model OrderItem {
-  id            String          @id @default(cuid())
-  quantity      Int
-  
-  orderId       String
-  order         Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
-  productId     String
-  product       HardwareProduct @relation(fields: [productId], references: [id])
-  
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
 }

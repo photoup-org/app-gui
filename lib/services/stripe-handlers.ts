@@ -2,10 +2,10 @@ import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 import prisma from '@/lib/prisma';
 import { provisionWorkspace } from './workspace';
-import { createOrg, enableOrgConnection, generateAuth0InviteTicket } from '@/lib/auth0-management';
+import { createOrg, enableOrgConnection, generateAuth0InviteTicket } from '@/lib/auth/auth0-management';
 import { sendInvitationEmail } from '@/lib/services/email';
-import { upsertOrganizationTx, createDepartmentTx, createAdminUserTx, createHardwareOrderTx } from './db-ops/workspace';
-import * as departmentService from './department';
+import { upsertOrganizationTx, createDepartmentTx, createAdminUserTx, createHardwareOrderTx } from '@/lib/repositories/workspace';
+import * as departmentService from '@/lib/repositories/department';
 
 export async function handleSubscriptionUpdated(subscription: Stripe.Subscription, previousAttributes: any) {
     if (
@@ -303,5 +303,27 @@ export async function handleSubscriptionDeleted(subscription: Stripe.Subscriptio
     } catch (error) {
         console.error('[Stripe Webhook] Error in handleSubscriptionDeleted:', error);
         throw error;
+    }
+}
+
+export async function handlePriceUpdated(price: Stripe.Price) {
+    if (!price.unit_amount) return;
+
+    const productId = typeof price.product === 'string' ? price.product : price.product.id;
+
+    try {
+        await prisma.planTier.update({
+            where: { stripeProductId: productId },
+            data: {
+                priceAmount: price.unit_amount,
+                currency: price.currency,
+            }
+        });
+
+        console.log(`[Webhook] Updated PlanTier pricing for Product ${productId} with new Price ${price.id}`);
+    } catch (error) {
+        // Se falhar, é porque o produto ainda não foi mapeado na BD.
+        console.error(error);
+        console.log(`[Webhook] Price event received, but no PlanTier found for Stripe Product ${productId}.`);
     }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser } from '@/contexts/UserContext';
-import { AppRole } from '@/lib/roles';
+import { AppRole } from '@/lib/auth/roles';
 
 type RoleWrapperProps = {
     children: React.ReactNode;

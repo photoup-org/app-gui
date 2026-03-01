@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { checkOrgExists, createOrg, generateAuth0InviteTicket } from '@/lib/auth0-management';
+import { checkOrgExists, createOrg, generateAuth0InviteTicket } from '@/lib/auth/auth0-management';
 import { sendInvitationEmail } from '@/lib/services/email';
 
 const slugify = (text: string) =>

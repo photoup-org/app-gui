@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import * as departmentService from '@/lib/services/department';
+import * as departmentService from '@/lib/repositories/department';
 
 /**
  * Synchronizes the Auth0 session user with the Prisma database on first login.

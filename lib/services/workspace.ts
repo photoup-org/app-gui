@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { createOrg, generateAuth0InviteTicket, enableOrgConnection } from '@/lib/auth0-management';
+import { createOrg, generateAuth0InviteTicket, enableOrgConnection } from '@/lib/auth/auth0-management';
 import { sendInvitationEmail } from '@/lib/services/email';
 
 /**

@@ -1,4 +1,4 @@
-import { getAppSession } from "@/lib/session";
+import { getAppSession } from "@/lib/auth/session";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { RoleGate } from "@/components/auth/RoleGate";

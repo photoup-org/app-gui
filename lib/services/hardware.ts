@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { stripe } from '@/lib/stripe';
-import { getStripeProducts } from '@/app/actions/stripe';
+import { getStripeProducts } from '@/actions/stripe';
 import { HardwareOption } from '@/types/hardware';
 
 export async function getHardwareCatalog(tierExtraSensorStripePriceId: string | null = null) {

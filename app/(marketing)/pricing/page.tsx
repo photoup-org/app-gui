@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { SubscriptionPlan } from '@/components/SubscriptionPlan';
+import { SubscriptionPlan } from '@/components/checkout/SubscriptionPlan';
 
 export default function PricingPage() {
     return (

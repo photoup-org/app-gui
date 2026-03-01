@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getLoginUrlByEmail } from "@/app/actions/auth";
+import { getLoginUrlByEmail } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

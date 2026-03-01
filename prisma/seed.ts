@@ -42,34 +42,136 @@ async function main() {
     const planTiers = [
         {
             name: "Starter",
-            stripePlanPriceId: "price_1Sw1Wg...", // ⚠️ SUBSTITUIR: O ID do preço de 499,99€/ano
+            priceAmount: 99999,
+            currency: "eur",
+            stripeProductId: "prod_TtpBDLh7dQoq1z", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
             includedGateways: 1,
             includedSensors: 3,
             maxSensors: 5,
-            extraSensorStripePriceId: "price_extra_starter_80...", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 80€
+            extraSensorStripePriceId: "prod_U2waD8aJYlehky", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 80€
+            maxUsers: 3,
+            dataRetentionMonths: 6,
+            uiFeatureMatrix: {
+                "Hardware & Instalação": {
+                    "Modo Offline (Store & Forward)": true,
+                    "Suporte a Sensores Premium": "Opcional (+Custo)"
+                },
+                "Plataforma & Visualização": {
+                    "Dashboards em Tempo Real": "Simples",
+                    "Vista Kiosk (Modo TV)": false,
+                    "Mapa Multi-Site": false,
+                    "Gestão de Alertas": "Básico (Email)"
+                },
+                "Inteligência Artificial": {
+                    "Deteção de Anomalias": false,
+                    "Interrogador de Dados (Chat)": false,
+                    "Análise de Manuais (RAG)": false,
+                    "Diagnóstico de Causa Raiz": false
+                },
+                "Dados & Compliance": {
+                    "Histórico de Dados": "6 Meses",
+                    "Relatórios Automáticos": false,
+                    "Audit Logs (Quem fez o quê)": false,
+                    "Exportação de Dados": "Manual"
+                },
+                "Integração & Suporte": {
+                    "API Access": "60 calls/hora",
+                    "Webhooks": false,
+                    "Setup & Onboarding": "Self-Service",
+                    "SLA de Suporte": "Email (48h)"
+                }
+            }
         },
         {
             name: "Industrial Pro", // Também referido como Premium na UI
-            stripePlanPriceId: "price_premium...", // ⚠️ SUBSTITUIR: O ID do preço de 1.499,99€/ano
+            priceAmount: 1499999,
+            currency: "eur",
+            stripeProductId: "prod_TtpC4VinryxEMF", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
             includedGateways: 1,
             includedSensors: 10,
             maxSensors: 20,
-            extraSensorStripePriceId: "price_extra_premium_60...", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 60€
+            extraSensorStripePriceId: "prod_U2wbqp5haVLMA4", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 60€
+            maxUsers: 10,
+            dataRetentionMonths: 12,
+            uiFeatureMatrix: {
+                "Hardware & Instalação": {
+                    "Modo Offline (Store & Forward)": true,
+                    "Suporte a Sensores Premium": "Opcional (+Custo)"
+                },
+                "Plataforma & Visualização": {
+                    "Dashboards em Tempo Real": "Avançados",
+                    "Vista Kiosk (Modo TV)": true,
+                    "Mapa Multi-Site": true,
+                    "Gestão de Alertas": "Avançado (SMS/Email)"
+                },
+                "Inteligência Artificial": {
+                    "Deteção de Anomalias": "Padrão",
+                    "Interrogador de Dados (Chat)": false,
+                    "Análise de Manuais (RAG)": false,
+                    "Diagnóstico de Causa Raiz": "Básico"
+                },
+                "Dados & Compliance": {
+                    "Histórico de Dados": "1 Ano",
+                    "Relatórios Automáticos": "PDF / Excel (PT)",
+                    "Audit Logs (Quem fez o quê)": "30 Dias",
+                    "Exportação de Dados": "Agendada"
+                },
+                "Integração & Suporte": {
+                    "API Access": "1 call/seg",
+                    "Webhooks": "1 (ERP/Slack)",
+                    "Setup & Onboarding": "Assistido",
+                    "SLA de Suporte": "Prioritário (24h)"
+                }
+            }
         },
         {
             name: "Enterprise", // Também referido como Executivo na matriz
-            stripePlanPriceId: "price_enterprise...", // ⚠️ SUBSTITUIR: O ID do preço de 4.999,99€/ano
+            priceAmount: 499999,
+            currency: "eur",
+            stripeProductId: "prod_TtpD08s9icFmyV", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
             includedGateways: 1,
             includedSensors: 20,
             maxSensors: null, // null = Ilimitado
-            extraSensorStripePriceId: "price_extra_enterprise_50...", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 50€
+            extraSensorStripePriceId: "prod_U2wbUzarTw6Gkc", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 50€
+            maxUsers: null,
+            dataRetentionMonths: 84,
+            uiFeatureMatrix: {
+                "Hardware & Instalação": {
+                    "Modo Offline (Store & Forward)": true,
+                    "Suporte a Sensores Premium": "Opcional (+Custo)"
+                },
+                "Plataforma & Visualização": {
+                    "Dashboards em Tempo Real": "Personalizáveis",
+                    "Vista Kiosk (Modo TV)": true,
+                    "Mapa Multi-Site": true,
+                    "Gestão de Alertas": "Escalamento Inteligente"
+                },
+                "Inteligência Artificial": {
+                    "Deteção de Anomalias": "Personalizada",
+                    "Interrogador de Dados (Chat)": true,
+                    "Análise de Manuais (RAG)": true,
+                    "Diagnóstico de Causa Raiz": "Avançado"
+                },
+                "Dados & Compliance": {
+                    "Histórico de Dados": "7 Anos (Audit Ready)",
+                    "Relatórios Automáticos": "HACCP / ISO",
+                    "Audit Logs (Quem fez o quê)": "Ilimitado",
+                    "Exportação de Dados": "Automatizada"
+                },
+                "Integração & Suporte": {
+                    "API Access": "Ilimitado",
+                    "Webhooks": "Ilimitados",
+                    "Setup & Onboarding": "Gestor de Conta Dedicado",
+                    "SLA de Suporte": "Telefone/Crítico (4h)"
+                }
+            }
         }
     ];
 
     for (const tier of planTiers) {
-        // Usa o nome como chave única para o upsert se o stripePlanPriceId ainda for um placeholder
+        // Usa o stripeProductId como chave única
         await prisma.planTier.upsert({
-            where: { stripePlanPriceId: tier.stripePlanPriceId },
+            where: { stripeProductId: tier.stripeProductId },
             update: tier,
             create: tier,
         });
