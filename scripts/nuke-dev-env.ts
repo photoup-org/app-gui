@@ -57,10 +57,9 @@ async function nukeStripe() {
 
         // Stripe returns a maximum of 100 customers per request, so we must paginate
         while (hasMore) {
-            const response = await stripe.customers.list({
-                limit: 100,
-                starting_after: startingAfter,
-            });
+            const response: any = await stripe.customers.list(
+                startingAfter ? { limit: 100, starting_after: startingAfter } : { limit: 100 }
+            );
 
             for (const customer of response.data) {
                 await stripe.customers.del(customer.id);
