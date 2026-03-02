@@ -5,7 +5,8 @@ export async function POST(req: NextRequest) {
     // 1. Authenticate the Webhook
     const authHeader = req.headers.get("authorization");
     const secret = process.env.AUTH0_WEBHOOK_SECRET;
-
+    console.log("[Auth0 Webhook Debug] Header recebido:", authHeader ? `Sim (Tamanho: ${authHeader.length})` : "NULO");
+    console.log("[Auth0 Webhook Debug] Segredo de ambiente existe?", !!secret, secret ? `(Tamanho: ${secret.length})` : "");
     if (!secret || authHeader !== `Bearer ${secret}`) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
