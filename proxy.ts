@@ -97,11 +97,11 @@ export const config = {
     matcher: [
         /*
          * Match all request paths except for the ones starting with:
-         * - api (API routes, handled inside proxy but good to exclude non-auth apis if needed)
+         * - api/webhooks (Stripe and Auth0 webhooks)
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
          */
-        "/((?!_next/static|_next/image|favicon.ico).*)",
+        "/((?!api/webhooks|_next/static|_next/image|favicon.ico).*)",
     ],
 };

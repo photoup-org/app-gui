@@ -4,17 +4,18 @@ import React from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { ShoppingCart, Check, Trash2, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export function CheckoutSidebar() {
     const { state, lineItems, grandTotal, updateQuantity, removeItem, clearCart } = useCart();
     const router = useRouter();
+    const pathname = usePathname();
 
     React.useEffect(() => {
-        if (!state.selectedPlan) {
+        if (!state.selectedPlan && pathname !== '/checkout/success') {
             router.push('/pricing');
         }
-    }, [state.selectedPlan, router]);
+    }, [state.selectedPlan, router, pathname]);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(amount / 100);
