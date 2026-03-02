@@ -30,6 +30,8 @@ export const DepartmentSchema = z.object({
 export const AdminUserSchema = z.object({
     email: z.string().email('Valid email is required'),
     name: z.string().optional(),
+    jobTitle: z.string().optional(),
+    phone: z.string().optional(),
     departmentId: z.string().min(1),
 });
 
@@ -137,6 +139,8 @@ export async function createAdminUserTx(tx: TxClient, input: z.infer<typeof Admi
         data: {
             email: validated.email,
             name: validated.name || null,
+            jobTitle: validated.jobTitle || null,
+            phone: validated.phone || null,
             role: 'ADMIN',
             departmentId: validated.departmentId,
         },

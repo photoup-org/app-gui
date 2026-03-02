@@ -159,10 +159,14 @@ export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {
 
                 if (userEmail) {
                     const userName = metadata.userName || 'Admin';
+                    const jobTitle = metadata.jobTitle || undefined;
+                    const phone = metadata.phone || undefined;
                     await tx.user.create({
                         data: {
                             email: userEmail,
                             name: userName,
+                            jobTitle: jobTitle || null,
+                            phone: phone || null,
                             role: 'ADMIN',
                             departmentId: department.id,
                         }
@@ -236,6 +240,8 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
         const nif = metadata.nif || `UNKNOWN-${Date.now()}`;
         const userEmail = metadata.userEmail || session.customer_details?.email;
         const userName = metadata.userName || 'Admin';
+        const jobTitle = metadata.jobTitle || undefined;
+        const phone = metadata.phone || undefined;
         const departmentName = metadata.departmentName || 'Main Workspace';
         const planId = (metadata.planId as any) || undefined;
         const organizationName = metadata.organizationName || 'New Organization';
@@ -278,6 +284,8 @@ export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Se
             await createAdminUserTx(tx, {
                 email: userEmail,
                 name: userName,
+                jobTitle: jobTitle,
+                phone: phone,
                 departmentId: department.id
             });
 

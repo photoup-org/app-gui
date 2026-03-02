@@ -27,7 +27,7 @@ export async function handlePostLoginSync(email: string, auth0UserId: string, au
             where: { email },
             data: { auth0UserId }
         });
-        console.log(`[Auth0 Webhook] Successfully synced existing user ${email} to department ${primaryDepartmentId}`);
+        console.log(`[Auth0 Webhook] 🟢 SUCCESS: Synced existing user ${email} and linked auth0UserId: ${auth0UserId}`);
     } else {
         // Fallback: an invited employee logging in for the first time
         // (or a rogue login bypassing Stripe).
