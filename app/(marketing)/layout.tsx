@@ -1,4 +1,5 @@
 import { MarketingNavBar } from "@/components/layout/MarketingNavBar";
+import { CartProvider } from "@/contexts/CartContext";
 
 export default function Layout({
   children,
@@ -6,11 +7,13 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <MarketingNavBar />
-      <main className="flex-1">
-        {children}
-      </main>
-    </div>
+    <CartProvider>
+      <div className="flex min-h-screen flex-col">
+        <MarketingNavBar />
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+    </CartProvider>
   );
 }

@@ -36,6 +36,7 @@ export const SubscriptionPlan = async () => {
                             features={features}
                             badge={plan.isPopular ? "Most Popular" : undefined}
                             href={`/checkout/hardware?product_id=${plan.stripeProductId}`}
+                            plan={plan}
                         />
                     );
                 })}

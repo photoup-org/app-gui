@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useMemo, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { HardwareOption } from '@/types/hardware';
+import { useCart } from '@/contexts/CartContext';
 
 const SensorIcon = () => (
     <div className="flex flex-col items-center">
@@ -31,8 +31,18 @@ export default function HardwareForm({
     mandatoryGateway?: any;
     extraSensorPriceAmount?: number;
 }) {
-    const [cart, setCart] = useState<Record<string, number>>({});
-    const router = useRouter();
+    const { state, updateQuantity, addItem, removeItem, setExtraSensorPrice } = useCart();
+
+    // 0. Initialize the Cart Context with the Plan's specific overage price
+    React.useEffect(() => {
+        if (extraSensorPriceAmount > 0 && state.extraSensorPriceAmount !== extraSensorPriceAmount) {
+            setExtraSensorPrice(extraSensorPriceAmount);
+        }
+    }, [extraSensorPriceAmount, state.extraSensorPriceAmount, setExtraSensorPrice]);
+
+    const getQty = useCallback((id: string) => {
+        return state.items.find(i => i.product.id === id)?.quantity || 0;
+    }, [state.items]);
 
     // 1. STRATEGIC MEMOIZATION: Only re-filter the array if the master catalog actually changes.
     const sensorsOnly = useMemo(() =>
@@ -46,55 +56,54 @@ export default function HardwareForm({
     // 2. STRATEGIC MEMOIZATION: Math reduction involving object lookups.
     // Only runs when the 'cart' explicitly changes.
     const totalSensorsInCart = useMemo(() => {
-        return Object.entries(cart).reduce((sum, [id, qty]) => {
-            const isSensor = sensorsOnly.some(s => s.id === id);
-            return isSensor ? sum + qty : sum;
+        return state.items.reduce((sum, item) => {
+            const isSensor = item.product.type === 'SENSOR_BASE' || item.product.type === 'SENSOR_PREMIUM';
+            return isSensor ? sum + item.quantity : sum;
         }, 0);
-    }, [cart, sensorsOnly]);
+    }, [state.items]);
+
+    const totalBaseSensorsInCart = useMemo(() => {
+        return state.items.reduce((sum, item) => {
+            const isBaseSensor = item.product.type === 'SENSOR_BASE';
+            return isBaseSensor ? sum + item.quantity : sum;
+        }, 0);
+    }, [state.items]);
 
     const isAtLimit = tier?.maxSensors !== null && totalSensorsInCart >= (tier?.maxSensors || 0);
 
     // 3. USECALLBACK: Stabilize cart modification handlers
-    const handleIncrement = useCallback((id: string, isSensor: boolean) => {
+    const handleIncrement = useCallback((hw: any, isSensor: boolean) => {
         if (isSensor && isAtLimit) return;
-        setCart(prev => ({
-            ...prev,
-            [id]: (prev[id] || 0) + 1
-        }));
-    }, [isAtLimit]);
+        const currentQty = getQty(hw.id);
+        if (currentQty === 0) {
+            console.log('Adding item:', hw);
+            addItem({
+                id: hw.id,
+                name: hw.name,
+                price: hw.price,
+                type: hw.type,
+                sku: hw.sku
+            } as any, 1, hw.stripePriceId);
+        } else {
+            console.log('Updating item quantity:', hw.name, currentQty + 1);
+            updateQuantity(hw.id, currentQty + 1);
+        }
+    }, [isAtLimit, getQty, addItem, updateQuantity]);
 
-    const handleDecrement = useCallback((id: string) => {
-        setCart(prev => {
-            const current = prev[id] || 0;
-            if (current <= 0) return prev;
-            const updated = { ...prev };
-            updated[id] = current - 1;
-            if (updated[id] === 0) delete updated[id];
-            return updated;
-        });
-    }, []);
-
-    // 4. USECALLBACK: Stabilize form submission handler
-    const handleSubmit = useCallback((e: React.FormEvent) => {
-        e.preventDefault();
-        const selectedHardware = Object.entries(cart)
-            .filter(([_, qty]) => qty > 0)
-            .map(([id, qty]) => {
-                const hw = availableHardware.find(h => h.id === id);
-                return {
-                    productId: id,
-                    quantity: qty,
-                    stripePriceId: hw?.stripePriceId,
-                    type: hw?.type
-                };
-            });
-
-        const encodedHardware = encodeURIComponent(JSON.stringify(selectedHardware));
-        router.push(`/checkout?plan_id=${planId}&hardware=${encodedHardware}&totalSensors=${totalSensorsInCart}`);
-    }, [cart, availableHardware, planId, totalSensorsInCart, router]);
+    const handleDecrement = useCallback((hw: any) => {
+        const currentQty = getQty(hw.id);
+        if (currentQty <= 0) return;
+        if (currentQty === 1) {
+            console.log('Removing item:', hw.name);
+            removeItem(hw.id);
+        } else {
+            console.log('Updating item quantity:', hw.name, currentQty - 1);
+            updateQuantity(hw.id, currentQty - 1);
+        }
+    }, [getQty, removeItem, updateQuantity]);
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="space-y-8">
             <div className="bg-white dark:bg-zinc-900 shadow sm:rounded-lg p-6 sm:p-10">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Hardware Selection</h2>
 
@@ -121,10 +130,16 @@ export default function HardwareForm({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {sensorsOnly.map(hw => {
-                            const qty = cart[hw.id] || 0;
-                            const displayPrice = totalSensorsInCart < (tier?.includedSensors || 0)
-                                ? "0 € (Included)"
-                                : `${extraSensorPriceAmount} € / each`;
+                            const qty = getQty(hw.id);
+
+                            let displayPrice = '';
+                            if (hw.type === 'SENSOR_PREMIUM') {
+                                displayPrice = `${hw.price} € / each`;
+                            } else {
+                                displayPrice = totalBaseSensorsInCart < (tier?.includedSensors || 0)
+                                    ? "0 € (Included)"
+                                    : `${extraSensorPriceAmount} € / each`;
+                            }
 
                             return (
                                 <div key={hw.id} className="border border-gray-200 dark:border-zinc-800 rounded-lg p-4 flex flex-col h-full hover:shadow-md transition-shadow">
@@ -137,9 +152,9 @@ export default function HardwareForm({
                                         <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-4">{displayPrice}</p>
                                     </div>
                                     <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100 dark:border-zinc-800">
-                                        <Button type="button" variant="outline" size="sm" onClick={() => handleDecrement(hw.id)} disabled={qty <= 0}>-</Button>
+                                        <Button type="button" variant="outline" size="sm" onClick={() => handleDecrement(hw)} disabled={qty <= 0}>-</Button>
                                         <span className="text-lg font-semibold dark:text-zinc-100 w-8 text-center">{qty}</span>
-                                        <Button type="button" variant="outline" size="sm" onClick={() => handleIncrement(hw.id, true)} disabled={isAtLimit}>+</Button>
+                                        <Button type="button" variant="outline" size="sm" onClick={() => handleIncrement(hw, true)} disabled={isAtLimit}>+</Button>
                                     </div>
                                 </div>
                             );
@@ -153,7 +168,7 @@ export default function HardwareForm({
 
                     <div className="space-y-4">
                         {gatewaysOnly.map(hw => {
-                            const qty = cart[hw.id] || 0;
+                            const qty = getQty(hw.id);
                             return (
                                 <div key={hw.id} className="flex flex-col sm:flex-row sm:items-center justify-between border border-gray-200 dark:border-zinc-800 p-4 rounded-lg hover:shadow-md transition-shadow">
                                     <div className="flex items-center space-x-4 mb-4 sm:mb-0">
@@ -165,9 +180,9 @@ export default function HardwareForm({
                                         </div>
                                     </div>
                                     <div className="flex items-center space-x-4 self-start sm:self-auto">
-                                        <Button type="button" variant="outline" size="sm" onClick={() => handleDecrement(hw.id)} disabled={qty <= 0}>-</Button>
+                                        <Button type="button" variant="outline" size="sm" onClick={() => handleDecrement(hw)} disabled={qty <= 0}>-</Button>
                                         <span className="text-lg font-semibold dark:text-zinc-100 w-8 text-center">{qty}</span>
-                                        <Button type="button" variant="outline" size="sm" onClick={() => handleIncrement(hw.id, false)}>+</Button>
+                                        <Button type="button" variant="outline" size="sm" onClick={() => handleIncrement(hw, false)}>+</Button>
                                     </div>
                                 </div>
                             );
@@ -175,12 +190,7 @@ export default function HardwareForm({
                     </div>
                 </div>
 
-                <div className="pt-8">
-                    <Button type="submit" className="w-full text-lg py-6">
-                        Continue to Checkout
-                    </Button>
-                </div>
             </div>
-        </form>
+        </div>
     );
 }

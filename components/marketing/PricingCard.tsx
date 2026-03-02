@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useCart } from '@/contexts/CartContext';
 
 interface PricingCardProps {
     id: string;
@@ -13,6 +14,7 @@ interface PricingCardProps {
     href?: string;
     buttonText?: string;
     badge?: string;
+    plan?: any;
 }
 
 export const PricingCard: React.FC<PricingCardProps> = React.memo(({
@@ -25,7 +27,17 @@ export const PricingCard: React.FC<PricingCardProps> = React.memo(({
     href,
     buttonText = 'Select Plan',
     badge,
+    plan,
 }) => {
+    const { setPlan } = useCart();
+
+    const handleSelect = () => {
+        if (plan) {
+            console.log('Adding item:', plan);
+            setPlan(plan);
+        }
+        onSelect?.(id);
+    };
     return (
         <div className={`border rounded-xl p-6 shadow-md hover:shadow-lg transition-all flex flex-col h-full relative ${badge ? 'border-blue-500 shadow-blue-500/10 bg-blue-50/10 dark:bg-blue-900/10' : 'bg-white dark:bg-zinc-900 dark:border-zinc-800'
             }`}>
@@ -59,13 +71,14 @@ export const PricingCard: React.FC<PricingCardProps> = React.memo(({
             {href ? (
                 <Link
                     href={href}
+                    onClick={handleSelect}
                     className="w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors mt-auto block"
                 >
                     {buttonText}
                 </Link>
             ) : (
                 <button
-                    onClick={() => onSelect?.(id)}
+                    onClick={handleSelect}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors mt-auto"
                 >
                     {buttonText}
