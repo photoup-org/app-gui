@@ -107,4 +107,3 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 ## TODO: 
 - Implement the ui on the marketing page
-- Fetch organization info based on VAT

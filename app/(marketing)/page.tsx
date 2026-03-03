@@ -1,15 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-
+import HeroSection from "@/components/marketing/HeroSection";
 
 export default function Page() {
     const router = useRouter();
 
     return (
-        <div className="min-h-screen flex items-center justify-center ">
-            HOME
+        <div className="min-h-screen">
+            <HeroSection />
         </div>
     );
 }
