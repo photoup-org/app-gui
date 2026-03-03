@@ -106,10 +106,5 @@ npx tsx --env-file=.env.local scripts/nuke-dev-env.ts
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 ## TODO: 
-- Review the User flow for registration
-   - Make sure the user gets logged in on acceting the invitation and defining the password
-   - Make sure the order is registered in the DB
-   - Make sure the user gets the correct role (Admin, User, etc.)s
-- Fix the hardware choice limitations bugs; 
-- Discus the structure of the DB regarding the plan limits;
 - Implement the ui on the marketing page
+- Fetch organization info based on VAT
