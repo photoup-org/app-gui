@@ -20,7 +20,7 @@ export default function HeroSection() {
                         />
                     </div>
                     {/* Text Card */}
-                    <div className="w-full bg-[#fef9eb] rounded-3xl p-8 shadow-sm text-foreground shrink-0">
+                    <div className="w-full bg-[#FFFBE2] rounded-3xl p-8 shadow-sm text-foreground shrink-0">
                         <h3 className="text-2xl font-bold mb-3 text-slate-900">Real-time Insights</h3>
                         <p className="text-slate-700 leading-relaxed">
                             Monitor millions of devices globally with unmatched precision and speed.
@@ -41,7 +41,7 @@ export default function HeroSection() {
                 {/* Desktop View: Bento Grid with SVG Mask (lg:block) */}
                 <div className="hidden lg:block relative w-full max-w-7xl mx-auto aspect-1003/624 isolate ">
 
-                    <div className="absolute w-[480px] h-[250px] -top-4 -right-4 bg-[#fef9eb] rounded-xl z-10 "></div>
+                    <div className="absolute w-[480px] h-[250px] -top-4 -right-4 bg-[#FFFBE2] rounded-xl z-10 "></div>
                     <div className="absolute top-0 right-0 w-[480px] h-[250px]  z-10 rounded-3xl overflow-hidden">
 
                         <Image
@@ -53,7 +53,7 @@ export default function HeroSection() {
                     </div>
 
 
-                    <div className="absolute bottom-0 left-0 w-80 h-52 bg-[#fef9eb] px-8 flex flex-col gap-2 justify-center z-10 rounded-2xl">
+                    <div className="absolute bottom-0 left-0 w-80 h-52 bg-[#FFFBE2] px-8 flex flex-col gap-2 justify-center z-10 rounded-2xl">
                         <h3 className="text-xl font-bold mb-4 text-slate-900 ">Com o nosso Software</h3>
                         <p className=" text-slate-700 leading-relaxed flex gap-2">
                             <ArrowUp className="text-primary" />
@@ -68,7 +68,7 @@ export default function HeroSection() {
                         </p>
                     </div>
                     <div
-                        className="absolute -bottom-4 -left-4 inset-0 overflow-hidden z-1 bg-[#fef9eb]"
+                        className="absolute -bottom-4 -left-4 inset-0 overflow-hidden z-1 bg-[#FFFBE2]"
                         style={{
                             WebkitMaskImage: `url("${LandingPageHeroSectionMaskUrl}")`,
                             maskImage: `url("${LandingPageHeroSectionMaskUrl}")`,
