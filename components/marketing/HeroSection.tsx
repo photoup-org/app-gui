@@ -1,5 +1,6 @@
 import Image from "next/image"
 import { LandingPageHeroSectionMask, LandingPageHeroSectionMaskUrl } from "../resources/masks"
+import { ArrowDown, ArrowUp, Check } from "lucide-react"
 
 export default function HeroSection() {
     return (
@@ -38,25 +39,49 @@ export default function HeroSection() {
                 </div>
 
                 {/* Desktop View: Bento Grid with SVG Mask (lg:block) */}
-                <div className="hidden lg:block relative w-full max-w-5xl mx-auto aspect-1003/624 isolate overflow-hidden">
+                <div className="hidden lg:block relative w-full max-w-7xl mx-auto aspect-1003/624 isolate ">
 
+                    <div className="absolute w-[480px] h-[250px] -top-4 -right-4 bg-[#fef9eb] rounded-xl z-10 "></div>
                     <div className="absolute top-0 right-0 w-[480px] h-[250px]  z-10 rounded-3xl overflow-hidden">
+
                         <Image
                             src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80"
                             alt="Data visualization"
                             fill
-                        // className="object-cover"
+                            className="object-cover"
                         />
                     </div>
 
 
-                    <div className="absolute bottom-0 left-0 w-80 h-52 bg-[#fef9eb] px-8 flex flex-col justify-center z-10 rounded-2xl">
-                        <h3 className="text-xl font-bold mb-4 text-slate-900 ">Precision Control</h3>
-                        <p className=" text-slate-700 leading-relaxed">
-                            Monitor millions of devices globally with unmatched precision and speed.
+                    <div className="absolute bottom-0 left-0 w-80 h-52 bg-[#fef9eb] px-8 flex flex-col gap-2 justify-center z-10 rounded-2xl">
+                        <h3 className="text-xl font-bold mb-4 text-slate-900 ">Com o nosso Software</h3>
+                        <p className=" text-slate-700 leading-relaxed flex gap-2">
+                            <ArrowUp className="text-primary" />
+                            Eficiência Operacional
+                        </p>
+                        <p className=" text-slate-700 leading-relaxed  flex gap-2">
+                            <ArrowDown className="text-error" /> Custos de Manutenção
+                        </p>
+                        <p className=" text-slate-700 leading-relaxed  flex gap-2">
+                            <ArrowUp className="text-primary" />
+                            Previsibilidade
                         </p>
                     </div>
+                    <div
+                        className="absolute -bottom-4 -left-4 inset-0 overflow-hidden z-1 bg-[#fef9eb]"
+                        style={{
+                            WebkitMaskImage: `url("${LandingPageHeroSectionMaskUrl}")`,
+                            maskImage: `url("${LandingPageHeroSectionMaskUrl}")`,
+                            WebkitMaskSize: '100% 100%',
+                            maskSize: '100% 100%',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center',
+                        }}
+                    >
 
+                    </div>
                     <div
                         className="absolute inset-0 overflow-hidden z-1"
                         style={{
