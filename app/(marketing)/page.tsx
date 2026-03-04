@@ -1,20 +1,20 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import HeroSection from "@/components/marketing/HeroSection";
-import TitleSection from "@/components/marketing/TitleSection";
+import HardwareSection from "@/components/marketing/home/HardwareSection";
+import HeroSection from "@/components/marketing/home/HeroSection";
+import HomeFAQSection from "@/components/marketing/home/HomeFAQSection";
+import HomeTitle from "@/components/marketing/home/HomeTitle";
+import SolutionsSections from "@/components/marketing/home/SolutionsSections";
+import MainPageSection from "@/components/marketing/MainPageSection";
 
 export default function Page() {
-    const router = useRouter();
 
-    return (
-        <div className="min-h-screen">
-            <TitleSection >
-                <h1 className="text-6xl font-bold mb-4 text-slate-900">Torne os Seus Processos</h1>
-                <h1 className="text-6xl font-bold mb-4 text-primary">Inteligentes</h1>
-                <a href="/pricing" className="text-primary  mt-10 text-2xl font-bold">Começar Agora</a>
-            </TitleSection>
-            <HeroSection />
-        </div>
+    return (<MainPageSection>
+        <HomeTitle />
+        <HeroSection />
+        <SolutionsSections />
+        <HardwareSection />
+        <HomeFAQSection />
+    </MainPageSection>
     );
 }

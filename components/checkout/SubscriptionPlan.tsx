@@ -1,6 +1,5 @@
-import React from 'react';
-import { PricingCard } from '@/components/marketing/PricingCard';
-import { PricingComparisonTable } from '@/components/marketing/PricingComparisonTable';
+import { PricingCard } from '@/components/marketing/pricing/PricingCard';
+import { PricingComparisonTable } from '@/components/marketing/pricing/PricingComparisonTable';
 import prisma from '@/lib/prisma';
 
 export const SubscriptionPlan = async () => {

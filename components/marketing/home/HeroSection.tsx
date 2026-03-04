@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { LandingPageHeroSectionMask, LandingPageHeroSectionMaskUrl } from "../resources/masks"
+import { LandingPageHeroSectionMask, LandingPageHeroSectionMaskUrl } from "../../resources/masks"
 import { ArrowDown, ArrowUp, Check } from "lucide-react"
 
 export default function HeroSection() {
@@ -39,7 +39,7 @@ export default function HeroSection() {
                 </div>
 
                 {/* Desktop View: Bento Grid with SVG Mask (lg:block) */}
-                <div className="hidden lg:block relative w-full max-w-7xl mx-auto aspect-1003/624 isolate ">
+                <div className="hidden lg:block relative w-full aspect-1003/624 isolate ">
 
                     <div className="absolute w-[480px] h-[250px] -top-4 -right-4 bg-[#FFFBE2] rounded-xl z-10 "></div>
                     <div className="absolute top-0 right-0 w-[480px] h-[250px]  z-10 rounded-3xl overflow-hidden">
