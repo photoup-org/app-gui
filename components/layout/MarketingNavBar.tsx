@@ -36,8 +36,8 @@ export function MarketingNavBar() {
                         </Link>
                     </Button>
                     <Button asChild>
-                        <Link href="/request-access">
-                            Pedir Acesso
+                        <Link href="/pricing">
+                            Começar Já
                         </Link>
                     </Button>
                 </div>
