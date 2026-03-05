@@ -1,6 +1,9 @@
 import Image from "next/image"
-import { LandingPageHeroSectionMask, LandingPageHeroSectionMaskUrl } from "../../resources/masks"
-import { ArrowDown, ArrowUp, Check } from "lucide-react"
+import { LandingPageHeroSectionMaskUrl } from "../../resources/masks"
+import { ArrowDown, ArrowUp } from "lucide-react"
+import ImageWithShadow from "./ImageWithShadow"
+import landingIndustryImg from "../../resources/images/home/landing_industry.png"
+import landingLabImg from "../../resources/images/home/landing_lab.png"
 
 export default function HeroSection() {
     return (
@@ -12,7 +15,7 @@ export default function HeroSection() {
                     {/* Main Image */}
                     <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden shadow-sm shrink-0">
                         <Image
-                            src="https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&q=80"
+                            src={landingIndustryImg}
                             alt="Main IoT Dashboard"
                             fill
                             className="object-cover"
@@ -30,7 +33,7 @@ export default function HeroSection() {
                     {/* Secondary Image */}
                     <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-sm shrink-0">
                         <Image
-                            src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80"
+                            src={landingLabImg}
                             alt="Data visualization"
                             fill
                             className="object-cover"
@@ -40,16 +43,8 @@ export default function HeroSection() {
 
                 {/* Desktop View: Bento Grid with SVG Mask (lg:block) */}
                 <div className="hidden lg:block relative w-full aspect-1003/624 isolate ">
-
-                    <div className="absolute w-[480px] h-[250px] -top-4 -right-4 bg-shadow-bg rounded-xl z-10 "></div>
-                    <div className="absolute top-0 right-0 w-[480px] h-[250px]  z-10 rounded-3xl overflow-hidden">
-                        <Image
-                            src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80"
-                            alt="Data visualization"
-                            fill
-                            className="object-cover"
-                        />
-                    </div>
+                    <ImageWithShadow
+                        src={landingLabImg} alt="Data visualization" position="top-0 right-0" size="w-[480px] h-[250px]" shadowPosition="top-right" />
 
 
                     <div className="absolute bottom-0 left-0 w-80 h-52 bg-shadow-bg px-8 flex flex-col gap-2 justify-center z-10 rounded-2xl">
@@ -95,7 +90,7 @@ export default function HeroSection() {
                         }}
                     >
                         <Image
-                            src="https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&q=80"
+                            src={landingIndustryImg}
                             alt="Main IoT Dashboard"
                             fill
                             className="object-cover"

@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import React from 'react'
+import hardwareImg from '../../resources/images/home/hardware.png'
+import ImageWithShadow from './ImageWithShadow'
 
 
 type TStepComponent = {
@@ -15,7 +17,7 @@ const HardwareSection = () => {
         <section className="w-full flex flex-col items-center py-28">
             <h2 className="text-4xl font-bold mb-4">Hardware & Software em 3 passos</h2>
             <p className="text-lg text-muted-foreground mb-8">Subscreva à nossa plataforma e modernize o seu processo</p>
-            <div className="w-full flex justify-center items-center">
+            <div className="w-full flex justify-center items-start pt-20">
                 <div className='w-96 flex flex-col gap-10'>
                     <StepComponent step={1} title='Escolha o seu Plano' description={
                         <>
@@ -34,8 +36,11 @@ const HardwareSection = () => {
                         Começar
                     </Button>
                 </div>
-                <div>
-
+                <div className='relative w-1/2'>
+                    <ImageWithShadow
+                        src={hardwareImg} alt="Hardware Gateway"
+                        position="top-0 right-0"
+                        shadowPosition="top-right" />
                 </div>
             </div>
         </section>
