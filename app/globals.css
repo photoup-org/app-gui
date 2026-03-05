@@ -25,6 +25,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-custom: oklch(0.869 0.0198 252.89);
   --color-destructive: var(--destructive);
   --color-error: var(--error);
   --color-shadow-bg: var(--shadow-bg);
