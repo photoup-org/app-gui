@@ -1,4 +1,4 @@
-import Image from "next/image"
+import { ImageWithSkeleton } from "@/components/ui/image-with-skeleton"
 import { LandingPageHeroSectionMaskUrl } from "../../resources/masks"
 import { ArrowDown, ArrowUp } from "lucide-react"
 import ImageWithShadow from "./ImageWithShadow"
@@ -14,7 +14,7 @@ export default function HeroSection() {
                 <div className="flex flex-col gap-6 lg:hidden w-full">
                     {/* Main Image */}
                     <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden shadow-sm shrink-0">
-                        <Image
+                        <ImageWithSkeleton
                             src={landingIndustryImg}
                             alt="Main IoT Dashboard"
                             fill
@@ -32,7 +32,7 @@ export default function HeroSection() {
                     </div>
                     {/* Secondary Image */}
                     <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-sm shrink-0">
-                        <Image
+                        <ImageWithSkeleton
                             src={landingLabImg}
                             alt="Data visualization"
                             fill
@@ -89,7 +89,7 @@ export default function HeroSection() {
                             maskPosition: 'center',
                         }}
                     >
-                        <Image
+                        <ImageWithSkeleton
                             src={landingIndustryImg}
                             alt="Main IoT Dashboard"
                             fill

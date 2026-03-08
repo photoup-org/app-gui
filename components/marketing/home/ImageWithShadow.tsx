@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import Image from 'next/image'
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton'
 import React from 'react'
 
 type TImageWithShadowProps = {
@@ -22,7 +22,7 @@ const ImageWithShadow = ({ src, alt, position = 'top-0 right-0', size = 'w-[480p
     return (<>
         <div className={cn("absolute bg-shadow-bg rounded-xl z-10 ", size, shadowPositionClasses[shadowPosition])}></div>
         <div className={cn("absolute z-10 rounded-3xl overflow-hidden", size, position)}>
-            <Image
+            <ImageWithSkeleton
                 src={src}
                 alt={alt}
                 fill

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton'
 import techImage from '@/components/resources/images/technology/tech.png'
 import { WifiOff, Wifi, Cable, Eye } from 'lucide-react'
 import {
@@ -60,7 +60,7 @@ export default function InteractiveLabMap() {
     return (
         <section className="w-full max-w-7xl mx-auto px-4 py-16 md:py-24">
             <div className="relative inline-block w-full rounded-2xl overflow-hidden border bg-muted/20">
-                <Image
+                <ImageWithSkeleton
                     src={techImage}
                     alt="Laboratory Map"
                     className="w-full h-auto object-cover"

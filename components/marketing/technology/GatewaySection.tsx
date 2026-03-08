@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton'
 import GatewayImg from '../../resources/images/technology/gateway.webp';
 import SectionTitleComponent from '../SectionTitleComponent';
 import { GatewayFeature } from '@/types/ui';
@@ -67,7 +67,7 @@ export const GatewayShowcase = () => {
             />
             <div className="flex flex-col gap-12 lg:hidden">
                 <div className="flex justify-center flex-col items-center">
-                    <Image
+                    <ImageWithSkeleton
                         src={GatewayImg}
                         alt="Gateway Hardware"
                         className="object-contain w-full max-w-sm h-auto drop-shadow-xl"
@@ -91,7 +91,7 @@ export const GatewayShowcase = () => {
 
                 {/* Column 2: Center Image */}
                 <div className="relative flex justify-center items-center">
-                    <Image
+                    <ImageWithSkeleton
                         src={GatewayImg}
                         alt="Gateway Hardware"
                         className="object-contain w-full h-auto drop-shadow-2xl hover:-translate-y-2 transition-transform duration-500 relative z-10"

@@ -5,6 +5,8 @@ export type SerializedHardwareProduct = Omit<PrismaHardwareProduct, 'price' | 'c
     price: number;
     createdAt: string;
     updatedAt: string;
+    subtitle: string;
+    imageUrl: string | null;
 };
 
 export const getFeaturedSensors = async (): Promise<SerializedHardwareProduct[]> => {
@@ -25,6 +27,7 @@ export const getFeaturedSensors = async (): Promise<SerializedHardwareProduct[]>
             price: Number(product.price),
             createdAt: product.createdAt.toISOString(),
             updatedAt: product.updatedAt.toISOString(),
+            subtitle: (product as any).subtitle || '',
         }));
     } catch (error) {
         console.error("Failed to fetch featured sensors:", error);

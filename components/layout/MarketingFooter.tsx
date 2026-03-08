@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Image from 'next/image';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import { BrandLogo } from '@/components/resources/logos';
 
 // PHASE 1: TYPES & DATA STRUCTURE
@@ -68,7 +68,6 @@ const legalLinks: FooterLink[] = [
     { label: 'Política de Aluguer de Equipamento', href: '#' },
 ];
 
-// PHASE 2: INTERNAL REUSABLE COMPONENTS
 const FooterColumn = ({ section }: { section: FooterSectionData }) => {
     return (
         <div className="flex flex-col">
@@ -96,7 +95,7 @@ const PartnerLogos = ({ logos }: { logos: PartnerLogoType[] }) => {
     return (
         <div className="flex flex-wrap justify-center items-center gap-8 mt-16">
             {logos.map((logo, index) => (
-                <Image
+                <ImageWithSkeleton
                     key={index}
                     src={logo.url}
                     alt={logo.name}

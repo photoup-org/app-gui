@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import dashImg from "../../resources/images/software/dash.png";
 import { LineChart, MapPin, Bell, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -33,7 +33,7 @@ const DashboardDisplayComponent = () => {
 
                     {/* Main Dashboard Image */}
                     <div className="rounded-2xl overflow-hidden shadow-2xl border border-slate-100 bg-white w-full">
-                        <Image
+                        <ImageWithSkeleton
                             src={dashImg}
                             alt="Dashboard preview"
                             className="w-full h-auto object-cover"
@@ -67,7 +67,7 @@ const DashboardDisplayComponent = () => {
                 <div className="flex lg:hidden flex-col gap-8 w-full max-w-2xl mt-8">
                     {/* Main Dashboard Image */}
                     <div className="rounded-2xl overflow-hidden shadow-xl border border-slate-100 bg-white relative w-full aspect-4/3 sm:aspect-video">
-                        <Image
+                        <ImageWithSkeleton
                             src={dashImg}
                             alt="Dashboard preview"
                             fill

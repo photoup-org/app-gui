@@ -1,5 +1,5 @@
 import React from 'react';
-import Image from 'next/image';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton'
 import { SerializedHardwareProduct } from '@/lib/api/products';
 import { Activity, Gem, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,7 +19,7 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({ product }) => {
     return (
         <div className="relative overflow-hidden rounded-[2rem] h-[400px] sm:h-[500px] w-full group cursor-pointer">
             {/* Background Image */}
-            <Image
+            <ImageWithSkeleton
                 src={displayImage}
                 alt={product.name}
                 fill
