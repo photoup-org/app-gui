@@ -11,7 +11,7 @@ export default function Layout({
     <CartProvider>
       <div className="flex min-h-screen flex-col">
         <MarketingNavBar />
-        <main className="flex-1">
+        <main className="flex-1 container mx-auto px-4 w-full">
           {children}
         </main>
         <MarketingFooter />

@@ -5,7 +5,7 @@ type TTitleSection = {
 }
 
 const TitleSection = ({ children }: TTitleSection) => {
-    return <section className='h-80 w-full flex flex-col items-center justify-center mt-16'>
+    return <section className='min-h-80 w-full flex flex-col items-center justify-center mt-16'>
         {children}
     </section>
 

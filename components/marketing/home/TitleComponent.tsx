@@ -1,6 +1,6 @@
 import TitleSection from '../TitleSection'
 
-const HomeTitle = () => {
+const TitleComponent = () => {
     return <TitleSection >
         <h1 className="text-6xl font-bold mb-4 text-slate-900">Torne os Seus Processos</h1>
         <h1 className="text-6xl font-bold mb-4 text-primary">Inteligentes</h1>
@@ -8,4 +8,4 @@ const HomeTitle = () => {
     </TitleSection>
 }
 
-export default HomeTitle
+export default TitleComponent

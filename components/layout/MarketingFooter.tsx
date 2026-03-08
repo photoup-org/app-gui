@@ -100,7 +100,7 @@ const PartnerLogos = ({ logos }: { logos: PartnerLogoType[] }) => {
                     src={logo.url}
                     alt={logo.name}
                     loading="lazy"
-                    className="max-h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all cursor-pointer"
+                    className="h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all cursor-pointer"
                 />
             ))}
         </div>
@@ -110,7 +110,7 @@ const PartnerLogos = ({ logos }: { logos: PartnerLogoType[] }) => {
 // PHASE 3: MAIN LAYOUT ARCHITECTURE
 const MarketingFooter = () => {
     return (
-        <footer className="container mx-auto flex flex-col py-20">
+        <footer className="container mx-auto flex flex-col py-20 px-4 w-full">
             {/* Layer 1: Brand Header */}
             <div className="mb-6 flex items-start">
                 <BrandLogo width={160} height={37} />
