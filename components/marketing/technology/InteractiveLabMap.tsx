@@ -1,8 +1,9 @@
 'use client'
 
+import React from 'react'
 import Image from 'next/image'
 import techImage from '@/components/resources/images/technology/tech.png'
-import { WifiOff, LucideIcon, Wifi, Cable, Eye } from 'lucide-react'
+import { WifiOff, Wifi, Cable, Eye } from 'lucide-react'
 import {
     Tooltip,
     TooltipContent,
@@ -10,23 +11,13 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
+import { HotspotData } from '@/types/ui'
 
-interface HotspotData {
-    id: string;
-    x_percent: number;
-    y_percent: number;
-    color: 'destructive' | 'primary';
-    titleColor: string;
-    title: string;
-    description: string;
-    icon: LucideIcon;
-}
-
-const HOTSPOTS: HotspotData[] = [
+const HOTSPOTS: (HotspotData & { color: 'destructive' | 'primary'; titleColor: string })[] = [
     {
         id: 'sensor-offline',
-        x_percent: 5,
-        y_percent: 45,
+        x: 5,
+        y: 45,
         color: 'destructive',
         title: 'Sensor Offline',
         description: 'Sem problema. Os seus dados são guardados localmente e sincronizados uma vez que o sensor volte a estar online',
@@ -35,8 +26,8 @@ const HOTSPOTS: HotspotData[] = [
     },
     {
         id: 'data-processing',
-        x_percent: 31,
-        y_percent: 31,
+        x: 31,
+        y: 31,
         color: 'primary',
         title: 'Edge Node Local',
         description: 'Autonomia total por sala com armazenamento offline e sincronização cloud automática para garantir zero perdas de dados.',
@@ -45,8 +36,8 @@ const HOTSPOTS: HotspotData[] = [
     },
     {
         id: 'monitor-station',
-        x_percent: 65,
-        y_percent: 32,
+        x: 65,
+        y: 32,
         color: 'primary',
         title: 'Vista KIOSKE',
         description: 'Transforme qualquer monitor ou tablet numa central de controlo de alta visibilidade.',
@@ -55,8 +46,8 @@ const HOTSPOTS: HotspotData[] = [
     },
     {
         id: 'instrument-calibration',
-        x_percent: 55,
-        y_percent: 70,
+        x: 55,
+        y: 70,
         color: 'primary',
         title: 'Instalação Plug & Play',
         description: 'Sensores não invasivos que se instalam em minutos sem interromper os processos laboratoriais.',
@@ -83,8 +74,8 @@ export default function InteractiveLabMap() {
                                 <div
                                     className="absolute cursor-pointer flex items-center justify-center group"
                                     style={{
-                                        left: `${spot.x_percent}%`,
-                                        top: `${spot.y_percent}%`,
+                                        left: `${spot.x}%`,
+                                        top: `${spot.y}%`,
                                         transform: 'translate(-50%, -50%)',
                                     }}
                                     aria-label={spot.title}
@@ -107,10 +98,10 @@ export default function InteractiveLabMap() {
                             </TooltipTrigger>
                             <TooltipContent
                                 sideOffset={10}
-                                className="w-72 p-4 bg-white/40 backdrop-blur-md border border-neutral-200 shadow-xl rounded-xl z-50 text-left"
+                                className="w-72 p-4 bg-white/60 backdrop-blur-md border border-neutral-200 shadow-xl rounded-xl z-50 text-left"
                             >
                                 <div className="flex items-start gap-4">
-                                    <spot.icon className={cn("w-5 h-5 shrink-0", spot.titleColor)} />
+                                    {spot.icon && React.createElement(spot.icon as React.ElementType, { className: cn("w-5 h-5 shrink-0", spot.titleColor) })}
                                     <div className="space-y-1.5">
                                         <h4 className={cn("font-semibold leading-none tracking-tight", spot.titleColor)}>
                                             {spot.title}

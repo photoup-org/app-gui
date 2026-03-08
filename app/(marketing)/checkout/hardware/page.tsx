@@ -1,6 +1,6 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
-import prisma from '@/lib/prisma';
+import { getPlanTierByProductId } from '@/lib/api/plans';
 import HardwareForm from './HardwareForm';
 import { getHardwareCatalog } from '@/lib/services/hardware';
 
@@ -12,9 +12,7 @@ export default async function HardwareSelectionPage(props: { searchParams: Promi
         redirect('/pricing');
     }
 
-    const tier = await prisma.planTier.findUnique({
-        where: { stripeProductId: productId }
-    });
+    const tier = await getPlanTierByProductId(productId);
 
     if (!tier) {
         redirect('/pricing');

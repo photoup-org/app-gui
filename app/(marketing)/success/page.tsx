@@ -1,14 +1,11 @@
-'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
-export default function SuccessPage() {
-    const searchParams = useSearchParams();
-    const paymentIntentClientSecret = searchParams.get('payment_intent_client_secret');
-    const redirectStatus = searchParams.get('redirect_status');
+type Props = {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
+export default async function SuccessPage({ searchParams }: Props) {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">

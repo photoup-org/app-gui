@@ -1,14 +1,9 @@
 import { PricingCard } from '@/components/marketing/pricing/PricingCard';
 import { PricingComparisonTable } from '@/components/marketing/pricing/PricingComparisonTable';
-import prisma from '@/lib/prisma';
+import { getPlanTiers } from '@/lib/api/plans';
 
 export const SubscriptionPlan = async () => {
-    let plans: any[] = [];
-    try {
-        plans = await prisma.planTier.findMany({ orderBy: { orderIndex: 'asc' } });
-    } catch (error) {
-        console.error('Failed to load plans from database', error);
-    }
+    const plans = await getPlanTiers();
 
     if (plans.length === 0) {
         return <div className="text-center p-8">No plans available.</div>;
@@ -17,7 +12,8 @@ export const SubscriptionPlan = async () => {
     return (
         <div className="flex flex-col gap-12 p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {plans.map((plan) => {
+                {plans.map((p) => {
+                    const plan = p as any;
                     const formattedPrice = new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: plan.currency,

@@ -92,19 +92,21 @@ model Address {
 }
 
 model HardwareProduct {
-  id              String       @id @default(cuid())
-  sku             String       @unique
-  name            String
-  description     String?
-  imageUrl        String?
-  stripeProductId String?      @unique
-  type            HardwareType
-  stockQuantity   Int          @default(0)
-  price           Decimal      @db.Decimal(10, 2)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  devices         Device[]
-  orderItems      OrderItem[]
+  id               String       @id @default(cuid())
+  sku              String       @unique
+  name             String
+  subtitle             String
+  description      String?
+  imageUrl         String?
+  stripeProductId  String?      @unique
+  type             HardwareType
+  stockQuantity    Int          @default(0)
+  price            Decimal      @db.Decimal(10, 2)
+  isFeatured       Boolean      @default(false) // <-- ADD THIS LINE
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  devices          Device[]
+  orderItems       OrderItem[]
 }
 
 model Device {

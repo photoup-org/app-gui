@@ -1,4 +1,3 @@
-"use client";
 
 import HardwareSection from "@/components/marketing/home/HardwareSection";
 import HeroSection from "@/components/marketing/home/HeroSection";

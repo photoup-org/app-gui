@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { BrandLogo } from '@/components/resources/logos';
 
 // PHASE 1: TYPES & DATA STRUCTURE
@@ -95,12 +96,13 @@ const PartnerLogos = ({ logos }: { logos: PartnerLogoType[] }) => {
     return (
         <div className="flex flex-wrap justify-center items-center gap-8 mt-16">
             {logos.map((logo, index) => (
-                <img
+                <Image
                     key={index}
                     src={logo.url}
                     alt={logo.name}
-                    loading="lazy"
-                    className="h-12 w-auto object-contain grayscale hover:grayscale-0 transition-all cursor-pointer"
+                    width={120}
+                    height={40}
+                    className="h-8 md:h-10 w-auto object-contain transition-all duration-300 filter grayscale opacity-50 hover:grayscale-0 hover:opacity-100 dark:brightness-200 dark:opacity-40 dark:hover:brightness-100 dark:hover:opacity-100"
                 />
             ))}
         </div>

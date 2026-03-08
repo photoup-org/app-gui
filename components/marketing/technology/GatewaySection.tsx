@@ -2,23 +2,18 @@ import React from 'react';
 import Image from 'next/image';
 import GatewayImg from '../../resources/images/technology/gateway.webp';
 import SectionTitleComponent from '../SectionTitleComponent';
+import { GatewayFeature } from '@/types/ui';
+import { cn } from '@/lib/utils';
 
-export interface GatewayFeature {
-    id: string;
-    title: string;
-    description: string;
-    position: 'left' | 'right';
-}
-
-const featuresData: GatewayFeature[] = [
+const featuresData: (Omit<GatewayFeature, 'position'> & { position: 'left' | 'right' })[] = [
     { id: '1', position: 'left', title: 'Chassi em Alumínio Industrial', description: 'Desenhado para dissipar calor e resistir a ambientes exigentes, garantindo uma vida útil longa tanto em laboratórios climatizados como em chão de fábrica.' },
-    { id: '2', position: 'left', title: 'Conetividade 4G/LTE Independente', description: 'Graças ao suporte para cartão SIM, o sistema pode operar de forma totalmente autónoma da rede Wi-Fi do edifício, evitando conflitos de IT e garantindo conetividade em zonas remotas.' },
-    { id: '3', position: 'left', title: 'Interface RS232', description: 'Permite a integração direta com balanças de precisão, PLCs ou máquinas industriais mais antigas que ainda utilizam portas série, trazendo equipamento clássico para a era da IA' },
-    { id: '4', position: 'right', title: 'Segurança de Nível Empresarial', description: 'Equipado com firewall avançada e suporte para VPNs encriptadas, assegurando que a telemetria da sua operação nunca é exposta a ameaças externas.' },
-    { id: '5', position: 'right', title: 'Baixo Consumo e Alta Eficiência', description: 'Uma solução sustentável que consome o mínimo de energia enquanto processa fluxos de dados complexos em tempo real.' },
+    { id: '2', position: 'left', title: 'Conectividade Flexível', description: 'Garante o envio de dados via Ethernet, Modbus (RS232/RS485) ou 4G/LTE, mesmo que a rede local falhe, evitando perdas de informação crucial.' },
+    { id: '3', position: 'left', title: 'Segurança Next-Gen', description: 'Inclui Firewall avançada, suporte para VPNs múltiplas, e encriptação end-to-end, protegendo os dados do sensor até à cloud IoT.' },
+    { id: '4', position: 'right', title: 'Gestão Remota (RMS)', description: 'Totalmente compatível com o RMS da Teltonika, permitindo monitorização, configuração e atualizações remotas de toda a frota de gateways.' },
+    { id: '5', position: 'right', title: 'Alta Disponibilidade', description: 'Design robusto com proteção contra picos de tensão e falhas temporárias de energia, mantendo os sensores SEMPRE conectados.' },
 ];
 
-const FeatureNode = ({ feature, index, total }: { feature: GatewayFeature; index: number; total: number }) => {
+const FeatureNode = ({ feature, index, total }: { feature: Omit<GatewayFeature, 'position'> & { position: 'left' | 'right' }; index: number; total: number }) => {
     const isLeft = feature.position === 'left';
 
     // Calculate angle for the connecting line illusion
@@ -36,15 +31,19 @@ const FeatureNode = ({ feature, index, total }: { feature: GatewayFeature; index
     }
 
     return (
-        <div className={`flex flex-col ${isLeft ? 'lg:items-end lg:text-right' : 'lg:items-start lg:text-left'} items-start text-left`}>
+        <div className={cn(
+            "flex flex-col items-start text-left",
+            isLeft ? "lg:items-end lg:text-right" : "lg:items-start lg:text-left"
+        )}>
             <div className="relative w-full">
                 {/* Title container with bottom border */}
-                <h3 className={`text-xl font-bold text-gray-900 pb-2 border-b border-[#2DD4BF] relative inline-block w-full
-          before:content-[''] before:absolute before:bottom-[-3px] before:w-1.5 before:h-1.5 before:bg-[#2DD4BF] before:rounded-full before:hidden before:lg:block
-          ${isLeft ? 'before:-right-0.5' : 'before:-left-0.5'}
-          after:content-[''] after:absolute after:bottom-0 after:w-16 after:h-px after:bg-[#2DD4BF] after:hidden after:lg:block
-          ${isLeft ? `after:-right-16 after:origin-left ${angleClass}` : `after:-left-16 after:origin-right ${angleClass}`}
-        `}>
+                <h3 className={cn(
+                    "text-xl font-bold text-gray-900 pb-2 border-b border-[#2DD4BF] relative inline-block w-full",
+                    "before:content-[''] before:absolute before:bottom-[-3px] before:w-1.5 before:h-1.5 before:bg-[#2DD4BF] before:rounded-full before:hidden before:lg:block",
+                    isLeft ? "before:-right-0.5" : "before:-left-0.5",
+                    "after:content-[''] after:absolute after:bottom-0 after:w-16 after:h-px after:bg-[#2DD4BF] after:hidden after:lg:block",
+                    isLeft ? `after:-right-16 after:origin-left ${angleClass}` : `after:-left-16 after:origin-right ${angleClass}`
+                )}>
                     {feature.title}
                 </h3>
             </div>

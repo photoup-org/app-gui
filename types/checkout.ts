@@ -20,3 +20,18 @@ export interface CheckoutFormData {
         country: string;
     };
 }
+
+export type CheckoutFormValues = {
+    organizationName: string;
+    nif: string;
+    country: string;
+    departmentName: string;
+    adminFullName: string;
+    adminEmail: string;
+    jobTitle: string;
+    phone: string;
+    internalReference: string;
+    billingAddress: { streetAddress: string; city: string; postalCode: string; country: string };
+    shippingAddress: { streetAddress: string; city: string; postalCode: string; country: string };
+    hasDifferentShippingAddress: boolean;
+};
