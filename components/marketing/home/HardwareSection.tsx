@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import hardwareImg from '../../resources/images/home/hardware.png'
 import ImageWithShadow from './ImageWithShadow'
+import SectionTitleComponent from '../SectionTitleComponent'
 
 
 type TStepComponent = {
@@ -15,8 +16,10 @@ const HardwareSection = () => {
     const router = useRouter()
     return (
         <section className="w-full flex flex-col items-center py-28">
-            <h2 className="text-4xl font-bold mb-4">Hardware & Software em 3 passos</h2>
-            <p className="text-lg text-muted-foreground mb-8">Subscreva à nossa plataforma e modernize o seu processo</p>
+            <SectionTitleComponent
+                title="Hardware & Software em 3 passos"
+                subtitle="Subscreva à nossa plataforma e modernize o seu processo"
+            />
             <div className="w-full flex justify-center items-start pt-20">
                 <div className='w-96 flex flex-col gap-10'>
                     <StepComponent step={1} title='Escolha o seu Plano' description={

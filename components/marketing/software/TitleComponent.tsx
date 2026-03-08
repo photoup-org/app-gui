@@ -33,7 +33,7 @@ const IconShapesComponent = () => {
                         key={index}
                         className={`flex items-center justify-center w-15 h-15 rounded-xl  ${rotationClass}`}
                         style={{
-                            backgroundColor: `${item.color}33`, // 33 is 20% opacity in hex
+                            backgroundColor: `${item.color}33`,
                             color: item.color
                         }}
                     >

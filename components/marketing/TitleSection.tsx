@@ -1,7 +1,7 @@
 import React from 'react'
 
 type TTitleSection = {
-    children: React.ReactNode
+    children: React.ReactNode,
 }
 
 const TitleSection = ({ children }: TTitleSection) => {
