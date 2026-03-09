@@ -5,6 +5,7 @@ import { SerializedHardwareProduct } from '@/lib/api/products';
 import AppleProductCard from '@/components/ui/AppleProductCard';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 interface FeaturedSensorsCarouselProps {
     products: SerializedHardwareProduct[];
@@ -12,6 +13,23 @@ interface FeaturedSensorsCarouselProps {
 
 const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ products }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const pathname = usePathname();
+
+    const handleCollectionClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (pathname === '/products') {
+            e.preventDefault();
+            const element = document.getElementById('collection-grid');
+            if (element) {
+                const headerOffset = 100; // Adjust for fixed headers
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }
+        }
+    };
 
     const scroll = (direction: 'left' | 'right') => {
         if (scrollContainerRef.current) {
@@ -53,7 +71,11 @@ const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ produ
 
             {/* Bottom Navigation & Link */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-2">
-                <Link href="/products" className="text-gray-900 font-medium hover:opacity-80 transition-opacity">
+                <Link
+                    href="/products#collection-grid"
+                    onClick={handleCollectionClick}
+                    className="text-gray-900 font-medium hover:opacity-80 transition-opacity"
+                >
                     Conheça a nossa <span className="text-[#2DD4BF]">coleção completa</span>
                 </Link>
 
