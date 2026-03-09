@@ -53,7 +53,7 @@ const AssistentComponent = () => {
                 title=" O Seu Novo Assistente de Engenharia Digital."
                 subtitle="Não se limite a olhar para gráficos. O nosso Agente de IA cruza os dados dos sensores com os seus manuais técnicos para dar respostas auditáveis."
             />
-            <div className='w-full flex justify-between items-center mt-16'>
+            <div className='w-full flex justify-center gap-10 items-center mt-16'>
                 {assistentFeatures.map(a => {
                     return <AssistentFeaturesComponent
                         key={a.title}

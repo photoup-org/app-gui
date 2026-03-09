@@ -37,9 +37,6 @@ const HardwareSection = () => {
                             Receba o seu Hardware: Nós enviamos o seu Gateway pré-configurado. É só ligar e começar a monitorizar o seu processo.
                         </span>
                     } />
-                    <Button className='w-fit' size="lg" onClick={() => router.push('/pricing')}>
-                        Começar
-                    </Button>
                 </div>
                 <div className='relative w-1/2'>
                     <ImageWithShadow
@@ -48,6 +45,9 @@ const HardwareSection = () => {
                         shadowPosition="top-right" />
                 </div>
             </div>
+            <Button className='w-fit mt-10 text-xl  px-8 py-6' size="lg" onClick={() => router.push('/pricing')}>
+                Começar Agora
+            </Button>
         </section>
     )
 }

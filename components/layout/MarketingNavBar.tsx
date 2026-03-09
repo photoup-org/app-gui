@@ -36,8 +36,8 @@ export function MarketingNavBar() {
                         </Link>
                     </Button>
                     <Button asChild>
-                        <Link href="/pricing">
-                            Começar Já
+                        <Link href="/demo">
+                            Live Demo
                         </Link>
                     </Button>
                 </div>
