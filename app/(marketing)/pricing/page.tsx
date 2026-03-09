@@ -1,24 +1,50 @@
-import { Suspense } from 'react';
-import { SubscriptionPlan } from '@/components/checkout/SubscriptionPlan';
+import prisma from "@/lib/prisma";
+import { PlanFeatureMatrix } from "@/types/pricing";
+import { PricingCards } from "@/components/pricing/PricingCards";
+import { ComparisonTable } from "@/components/pricing/ComparisonTable";
+import MainPageSection from "@/components/marketing/MainPageSection";
+import TitleComponent from "@/components/marketing/pricing/TitleComponent";
 
-export default function PricingPage() {
+export default async function PricingPage() {
+    const plansData = await prisma.planTier.findMany({
+        orderBy: { orderIndex: "asc" },
+    });
+
+    // Calculate prices and parse matrix
+    const parsedPlans = plansData.map((plan) => {
+        const annualPrice = plan.priceAmount / 100;
+        const monthlyPrice = Math.round(annualPrice / 12);
+
+        // Safely parse uiFeatureMatrix
+        let matrix: PlanFeatureMatrix = { cardFeatures: [], tableCategories: [] };
+        if (plan.uiFeatureMatrix) {
+            try {
+                if (typeof plan.uiFeatureMatrix === 'string') {
+                    matrix = JSON.parse(plan.uiFeatureMatrix) as PlanFeatureMatrix;
+                } else {
+                    matrix = plan.uiFeatureMatrix as unknown as PlanFeatureMatrix;
+                }
+            } catch (e) {
+                console.error("Failed to parse uiFeatureMatrix for plan", plan.id);
+            }
+        }
+
+        return {
+            ...plan,
+            annualPrice,
+            monthlyPrice,
+            matrix,
+        };
+    });
+
     return (
-        <div className="min-h-screen py-12 bg-background">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center">
-                    <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
-                        Simple, transparent pricing
-                    </h2>
-                    <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-                        Choose the plan that's right for you
-                    </p>
-                </div>
-                <div className="mt-12">
-                    <Suspense fallback={<div className="text-center p-8">Loading plans...</div>}>
-                        <SubscriptionPlan />
-                    </Suspense>
-                </div>
+        <MainPageSection className="flex flex-col gap-20 items-center w-full">
+            <TitleComponent />
+            <PricingCards plans={parsedPlans} />
+            <div className="mt-24 w-full">
+                <ComparisonTable plans={parsedPlans} />
             </div>
-        </div>
+
+        </MainPageSection>
     );
 }

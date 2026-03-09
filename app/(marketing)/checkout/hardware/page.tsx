@@ -1,7 +1,7 @@
 import React from 'react';
 import { redirect } from 'next/navigation';
 import { getPlanTierByProductId } from '@/lib/api/plans';
-import HardwareForm from './HardwareForm';
+import HardwareForm from '../../../../components/forms/HardwareForm';
 import { getHardwareCatalog } from '@/lib/services/hardware';
 
 export default async function HardwareSelectionPage(props: { searchParams: Promise<{ product_id?: string }> }) {

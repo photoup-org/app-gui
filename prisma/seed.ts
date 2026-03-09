@@ -42,134 +42,248 @@ async function main() {
     const planTiers = [
         {
             name: "Starter",
-            priceAmount: 99999,
+            priceAmount: 99999, // 999.99€
             currency: "eur",
             orderIndex: 0,
             marketingDesc: "Para pequenas unidades com sede de mudança",
-            stripeProductId: "prod_TtpBDLh7dQoq1z", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
+            stripeProductId: "prod_TtpBDLh7dQoq1z",
             includedGateways: 1,
             includedSensors: 3,
             maxSensors: 5,
-            extraSensorStripePriceId: "prod_U2waD8aJYlehky", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 80€
+            extraSensorStripePriceId: "prod_U2waD8aJYlehky",
             maxUsers: 3,
             dataRetentionMonths: 6,
             uiFeatureMatrix: {
-                "Hardware & Instalação": {
-                    "Modo Offline (Store & Forward)": true,
-                    "Suporte a Sensores Premium": "Opcional (+Custo)"
-                },
-                "Plataforma & Visualização": {
-                    "Dashboards em Tempo Real": "Simples",
-                    "Vista Kiosk (Modo TV)": false,
-                    "Mapa Multi-Site": false,
-                    "Gestão de Alertas": "Básico (Email)"
-                },
-                "Inteligência Artificial": {
-                    "Deteção de Anomalias": false,
-                    "Interrogador de Dados (Chat)": false,
-                    "Análise de Manuais (RAG)": false,
-                    "Diagnóstico de Causa Raiz": false
-                },
-                "Dados & Compliance": {
-                    "Histórico de Dados": "6 Meses",
-                    "Relatórios Automáticos": false,
-                    "Audit Logs (Quem fez o quê)": false,
-                    "Exportação de Dados": "Manual"
-                },
-                "Integração & Suporte": {
-                    "API Access": "60 calls/hora",
-                    "Webhooks": false,
-                    "Setup & Onboarding": "Self-Service",
-                    "SLA de Suporte": "Email (48h)"
-                }
+                cardFeatures: [
+                    { text: "1 Dispositivo Gateway", included: true, tooltip: "Inclui hardware e conectividade" },
+                    { text: "3 Sensores Base", included: true, tooltip: "Sensores standard incluídos à sua escolha" },
+                    { text: "3 Utilizadores", included: true },
+                    { text: "6 meses de retenção dos dados", included: true },
+                    { text: "Máximo de 5 sensores ativos", included: true },
+                    { text: "60 calls/hora da API", included: true },
+                    { text: "Sistema de alertas básico", included: true, tooltip: "Alertas via email" }
+                ],
+                tableCategories: [
+                    {
+                        categoryName: "Planos",
+                        features: [
+                            { name: "Público Alvo", value: "Pequenos Laboratórios" }
+                        ]
+                    },
+                    {
+                        categoryName: "Hardware & Instalação",
+                        features: [
+                            { name: "Gateway Industrial (Edge)", value: "Incluído (1)" },
+                            { name: "Sensores Base Incluídos", value: "3" },
+                            { name: "Capacidade de Expansão", value: "Até 5 Sensores" },
+                            { name: "Modo Offline (Store & Forward)", value: true },
+                            { name: "Suporte a Sensores Premium", value: "Opcional (+Custo)" }
+                        ]
+                    },
+                    {
+                        categoryName: "Plataforma & Visualização",
+                        features: [
+                            { name: "Utilizadores", value: "3" },
+                            { name: "Dashboards em Tempo Real", value: "Simples" },
+                            { name: "Vista Kiosk (Modo TV)", value: false },
+                            { name: "Mapa Multi-Site", value: false },
+                            { name: "Gestão de Alertas", value: "Básico (Email)" }
+                        ]
+                    },
+                    {
+                        categoryName: "Inteligência Artificial",
+                        features: [
+                            { name: "Deteção de Anomalias", value: false },
+                            { name: "Interrogador de Dados (Chat)", value: false },
+                            { name: "Análise de Manuais (RAG)", value: false },
+                            { name: "Diagnóstico de Causa Raiz", value: false }
+                        ]
+                    },
+                    {
+                        categoryName: "Dados & Compliance",
+                        features: [
+                            { name: "Histórico de Dados", value: "6 Meses" },
+                            { name: "Relatórios Automáticos", value: false },
+                            { name: "Audit Logs (Quem fez o quê)", value: false },
+                            { name: "Exportação de Dados", value: "Manual" }
+                        ]
+                    },
+                    {
+                        categoryName: "Integração & Suporte",
+                        features: [
+                            { name: "API Access", value: "60 calls/hora" },
+                            { name: "Webhooks", value: false },
+                            { name: "Setup & Onboarding", value: "Self-Service" },
+                            { name: "SLA de Suporte", value: "Email (48h)" },
+                            { name: "Custo Sensor Extra (Add-on)", value: "80€", tooltip: "Custo por sensor base adicional por ano" }
+                        ]
+                    }
+                ]
             }
         },
         {
-            name: "Industrial Pro", // Também referido como Premium na UI
+            name: "Industrial Pro",
             priceAmount: 149999,
             currency: "eur",
             orderIndex: 1,
+            isPopular: true,
             marketingDesc: "Para linhas de produção e fábricas em crescimento",
-            stripeProductId: "prod_TtpC4VinryxEMF", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
+            stripeProductId: "prod_TtpC4VinryxEMF",
             includedGateways: 1,
             includedSensors: 10,
             maxSensors: 20,
-            extraSensorStripePriceId: "prod_U2wbqp5haVLMA4", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 60€
+            extraSensorStripePriceId: "prod_U2wbqp5haVLMA4",
             maxUsers: 10,
             dataRetentionMonths: 12,
             uiFeatureMatrix: {
-                "Hardware & Instalação": {
-                    "Modo Offline (Store & Forward)": true,
-                    "Suporte a Sensores Premium": "Opcional (+Custo)"
-                },
-                "Plataforma & Visualização": {
-                    "Dashboards em Tempo Real": "Avançados",
-                    "Vista Kiosk (Modo TV)": true,
-                    "Mapa Multi-Site": true,
-                    "Gestão de Alertas": "Avançado (SMS/Email)"
-                },
-                "Inteligência Artificial": {
-                    "Deteção de Anomalias": "Padrão",
-                    "Interrogador de Dados (Chat)": false,
-                    "Análise de Manuais (RAG)": false,
-                    "Diagnóstico de Causa Raiz": "Básico"
-                },
-                "Dados & Compliance": {
-                    "Histórico de Dados": "1 Ano",
-                    "Relatórios Automáticos": "PDF / Excel (PT)",
-                    "Audit Logs (Quem fez o quê)": "30 Dias",
-                    "Exportação de Dados": "Agendada"
-                },
-                "Integração & Suporte": {
-                    "API Access": "1 call/seg",
-                    "Webhooks": "1 (ERP/Slack)",
-                    "Setup & Onboarding": "Assistido",
-                    "SLA de Suporte": "Prioritário (24h)"
-                }
+                cardFeatures: [
+                    { text: "1 Dispositivo Gateway", included: true, tooltip: "Inclui hardware e conectividade" },
+                    { text: "10 Sensores Base", included: true, tooltip: "Sensores standard incluídos à sua escolha" },
+                    { text: "Número de utilizadores Ilimitado", included: true },
+                    { text: "1 ano de retenção dos dados", included: true },
+                    { text: "Máximo de 20 sensores ativos", included: true },
+                    { text: "1 call/seg na API", included: true },
+                    { text: "1 Webhook", included: true },
+                    { text: "Analista AI: Deteção de Anomalias", included: true, tooltip: "O nosso modelo padronizado ajuda a encontrar problemas nos dados" }
+                ],
+                tableCategories: [
+                    {
+                        categoryName: "Planos",
+                        features: [
+                            { name: "Público Alvo", value: "Fábricas | Linhas" }
+                        ]
+                    },
+                    {
+                        categoryName: "Hardware & Instalação",
+                        features: [
+                            { name: "Gateway Industrial (Edge)", value: "Incluído (1)" },
+                            { name: "Sensores Base Incluídos", value: "10" },
+                            { name: "Capacidade de Expansão", value: "Até 20 Sensores" },
+                            { name: "Modo Offline (Store & Forward)", value: true },
+                            { name: "Suporte a Sensores Premium", value: "Opcional (+Custo)" }
+                        ]
+                    },
+                    {
+                        categoryName: "Plataforma & Visualização",
+                        features: [
+                            { name: "Utilizadores", value: "Ilimitados" },
+                            { name: "Dashboards em Tempo Real", value: "Avançados" },
+                            { name: "Vista Kiosk (Modo TV)", value: true },
+                            { name: "Mapa Multi-Site", value: true },
+                            { name: "Gestão de Alertas", value: "Avançado (SMS/Email)" }
+                        ]
+                    },
+                    {
+                        categoryName: "Inteligência Artificial",
+                        features: [
+                            { name: "Deteção de Anomalias", value: "Padrão" },
+                            { name: "Interrogador de Dados (Chat)", value: false },
+                            { name: "Análise de Manuais (RAG)", value: false },
+                            { name: "Diagnóstico de Causa Raiz", value: "Básico" }
+                        ]
+                    },
+                    {
+                        categoryName: "Dados & Compliance",
+                        features: [
+                            { name: "Histórico de Dados", value: "1 Ano" },
+                            { name: "Relatórios Automáticos", value: "PDF/Excel" },
+                            { name: "Audit Logs (Quem fez o quê)", value: "30 Dias" },
+                            { name: "Exportação de Dados", value: "Agendada" }
+                        ]
+                    },
+                    {
+                        categoryName: "Integração & Suporte",
+                        features: [
+                            { name: "API Access", value: "1 call/seg" },
+                            { name: "Webhooks", value: "1 (ERP/Slack)" },
+                            { name: "Setup & Onboarding", value: "Assistido" },
+                            { name: "SLA de Suporte", value: "Prioritário (24h)" },
+                            { name: "Custo Sensor Extra (Add-on)", value: "60€" }
+                        ]
+                    }
+                ]
             }
         },
         {
-            name: "Enterprise", // Também referido como Executivo na matriz
+            name: "Executivo",
             priceAmount: 499999,
             currency: "eur",
             orderIndex: 2,
             marketingDesc: "Para operações multi-site e grandes volumes de dados",
-            stripeProductId: "prod_TtpD08s9icFmyV", // ⚠️ SUBSTITUIR: ID do Produto (não Preço)
+            stripeProductId: "prod_TtpD08s9icFmyV",
             includedGateways: 1,
             includedSensors: 20,
-            maxSensors: null, // null = Ilimitado
-            extraSensorStripePriceId: "prod_U2wbUzarTw6Gkc", // ⚠️ SUBSTITUIR: O ID do preço do add-on de 50€
+            maxSensors: null,
+            extraSensorStripePriceId: "prod_U2wbUzarTw6Gkc",
             maxUsers: null,
             dataRetentionMonths: 84,
             uiFeatureMatrix: {
-                "Hardware & Instalação": {
-                    "Modo Offline (Store & Forward)": true,
-                    "Suporte a Sensores Premium": "Opcional (+Custo)"
-                },
-                "Plataforma & Visualização": {
-                    "Dashboards em Tempo Real": "Personalizáveis",
-                    "Vista Kiosk (Modo TV)": true,
-                    "Mapa Multi-Site": true,
-                    "Gestão de Alertas": "Escalamento Inteligente"
-                },
-                "Inteligência Artificial": {
-                    "Deteção de Anomalias": "Personalizada",
-                    "Interrogador de Dados (Chat)": true,
-                    "Análise de Manuais (RAG)": true,
-                    "Diagnóstico de Causa Raiz": "Avançado"
-                },
-                "Dados & Compliance": {
-                    "Histórico de Dados": "7 Anos (Audit Ready)",
-                    "Relatórios Automáticos": "HACCP / ISO",
-                    "Audit Logs (Quem fez o quê)": "Ilimitado",
-                    "Exportação de Dados": "Automatizada"
-                },
-                "Integração & Suporte": {
-                    "API Access": "Ilimitado",
-                    "Webhooks": "Ilimitados",
-                    "Setup & Onboarding": "Gestor de Conta Dedicado",
-                    "SLA de Suporte": "Telefone/Crítico (4h)"
-                }
+                cardFeatures: [
+                    { text: "1 Dispositivo Gateway", included: true, tooltip: "Inclui hardware e conectividade" },
+                    { text: "20 Sensores Base", included: true, tooltip: "Sensores standard incluídos à sua escolha" },
+                    { text: "Número de utilizadores Ilimitado", included: true },
+                    { text: "7 anos de retenção de dados", included: true },
+                    { text: "Número de sensores ativos Ilimitado", included: true, tooltip: "Expanda a sua rede infinitamente" },
+                    { text: "Sem limite de calls na API", included: true },
+                    { text: "Webhooks Ilimitados", included: true },
+                    { text: "Analista AI: Modelos Personalizados", included: true, tooltip: "Treinamos a IA para a sua fábrica" }
+                ],
+                tableCategories: [
+                    {
+                        categoryName: "Planos",
+                        features: [
+                            { name: "Público Alvo", value: "Multi-Site" }
+                        ]
+                    },
+                    {
+                        categoryName: "Hardware & Instalação",
+                        features: [
+                            { name: "Gateway Industrial (Edge)", value: "Incluído (1)" },
+                            { name: "Sensores Base Incluídos", value: "20" },
+                            { name: "Capacidade de Expansão", value: "Ilimitada", tooltip: "Sujeito a fee on-boarding extra por Gateway" },
+                            { name: "Modo Offline (Store & Forward)", value: true },
+                            { name: "Suporte a Sensores Premium", value: "Opcional (+Custo)" }
+                        ]
+                    },
+                    {
+                        categoryName: "Plataforma & Visualização",
+                        features: [
+                            { name: "Utilizadores", value: "Ilimitados" },
+                            { name: "Dashboards em Tempo Real", value: "Personalizáveis" },
+                            { name: "Vista Kiosk (Modo TV)", value: true },
+                            { name: "Mapa Multi-Site", value: true },
+                            { name: "Gestão de Alertas", value: "Escalamento inteligente", tooltip: "Alertas cruzam com tabelas de horários" }
+                        ]
+                    },
+                    {
+                        categoryName: "Inteligência Artificial",
+                        features: [
+                            { name: "Deteção de Anomalias", value: "Personalizada" },
+                            { name: "Interrogador de Dados (Chat)", value: true },
+                            { name: "Análise de Manuais (RAG)", value: true },
+                            { name: "Diagnóstico de Causa Raiz", value: "Avançado" }
+                        ]
+                    },
+                    {
+                        categoryName: "Dados & Compliance",
+                        features: [
+                            { name: "Histórico de Dados", value: "7 Anos (Audit Ready)" },
+                            { name: "Relatórios Automáticos", value: "HACCP / ISO" },
+                            { name: "Audit Logs (Quem fez o quê)", value: "Ilimitado" },
+                            { name: "Exportação de Dados", value: "Automatizada" }
+                        ]
+                    },
+                    {
+                        categoryName: "Integração & Suporte",
+                        features: [
+                            { name: "API Access", value: "Ilimitado" },
+                            { name: "Webhooks", value: "Ilimitados" },
+                            { name: "Setup & Onboarding", value: "Gestor de Conta Dedicado" },
+                            { name: "SLA de Suporte", value: "Telefone/Crítico (4h)" },
+                            { name: "Custo Sensor Extra (Add-on)", value: "50€" }
+                        ]
+                    }
+                ]
             }
         }
     ];
