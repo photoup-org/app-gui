@@ -47,20 +47,20 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
         <div className="w-full flex flex-col gap-8" id="collection-grid">
             {/* Header section with Title, Filters and Sorting */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+                <h2 className="text-2xl font-bold text-foreground tracking-tight">
                     A Nossa Coleção
                 </h2>
 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     {/* Filters */}
-                    <div className="flex bg-gray-100 p-1 rounded-xl">
+                    <div className="flex bg-muted p-1 rounded-xl">
                         <button
                             onClick={() => setFilterType('ALL')}
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'ALL'
-                                    ? "bg-white text-gray-900 shadow-sm"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
                             )}
                         >
                             Todos
@@ -70,8 +70,8 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'SENSOR_BASE'
-                                    ? "bg-white text-gray-900 shadow-sm"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
                             )}
                         >
                             Incluídos no Plano (Base)
@@ -81,8 +81,8 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'SENSOR_PREMIUM'
-                                    ? "bg-white text-gray-900 shadow-sm"
-                                    : "text-gray-600 hover:text-gray-900"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
                             )}
                         >
                             Premium
@@ -92,8 +92,8 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                     {/* Sorting */}
                     <div className="w-48">
                         <Select value={sortBy} onValueChange={(val) => setSortBy(val as SortType)}>
-                            <SelectTrigger className="w-full bg-white border-gray-200">
-                                <div className="flex items-center gap-2 text-gray-600">
+                            <SelectTrigger className="w-full bg-background border-border">
+                                <div className="flex items-center gap-2 text-muted-foreground">
                                     <ArrowUpDown size={14} />
                                     <SelectValue placeholder="Ordenar por" />
                                 </div>
@@ -119,7 +119,7 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                     ))}
                 </div>
             ) : (
-                <div className="py-20 text-center text-gray-500 rounded-2xl border-2 border-dashed border-gray-200">
+                <div className="py-20 text-center text-muted-foreground rounded-2xl border-2 border-dashed border-border">
                     Nenhum sensor encontrado para os filtros selecionados.
                 </div>
             )}

@@ -48,10 +48,10 @@ export function CheckoutSidebar() {
     return (
         <div className="sticky top-24 h-[calc(100vh-8rem)] flex flex-col pb-4">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 dark:border-zinc-800 pb-4 shrink-0">
+            <div className="flex items-center justify-between border-b border-border pb-4 shrink-0">
                 <div className="flex items-center gap-3">
-                    <ShoppingCart className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your Cart</h2>
+                    <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+                    <h2 className="text-lg font-semibold text-foreground">Your Cart</h2>
                 </div>
                 {lineItems.length > 0 && (
                     <button
@@ -66,25 +66,25 @@ export function CheckoutSidebar() {
             {/* Body (Scrollable) */}
             <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-2">
                 {lineItems.length === 0 ? (
-                    <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-6">
+                    <div className="text-sm text-muted-foreground text-center py-6">
                         Your cart is empty.
                     </div>
                 ) : (
                     lineItems.map((item) => (
                         <div key={item.id} className="flex items-start justify-between text-sm group">
                             <div className="flex flex-col gap-1 pr-4">
-                                <span className="font-medium text-gray-900 dark:text-gray-100">
+                                <span className="font-medium text-foreground">
                                     {item.name}
                                 </span>
                             </div>
                             <div className="flex items-center gap-3 shrink-0">
                                 <div className="flex flex-col items-end gap-1">
                                     {item.isIncluded ? (
-                                        <span className="flex items-center gap-1 text-green-600 dark:text-green-500 font-medium">
+                                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500 font-medium">
                                             Included <Check className="w-3 h-3" />
                                         </span>
                                     ) : (
-                                        <span className="font-medium text-gray-900 dark:text-white">
+                                        <span className="font-medium text-foreground">
                                             {formatCurrency(item.price)}
                                         </span>
                                     )}
@@ -102,7 +102,7 @@ export function CheckoutSidebar() {
                                                     }
                                                 }
                                             }}
-                                            className="w-6 h-6 flex items-center justify-center rounded border border-gray-200 dark:border-zinc-700 text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-zinc-800"
+                                            className="w-6 h-6 flex items-center justify-center rounded border border-border text-muted-foreground hover:text-foreground hover:bg-accent"
                                             aria-label="Decrease quantity"
                                         >
                                             <Minus className="w-3 h-3" />
@@ -114,14 +114,14 @@ export function CheckoutSidebar() {
                                                     updateQuantity(item.productId!, cartItem.quantity + 1);
                                                 }
                                             }}
-                                            className="w-6 h-6 flex items-center justify-center rounded border border-gray-200 dark:border-zinc-700 text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-zinc-800"
+                                            className="w-6 h-6 flex items-center justify-center rounded border border-border text-muted-foreground hover:text-foreground hover:bg-accent"
                                             aria-label="Increase quantity"
                                         >
                                             <Plus className="w-3 h-3" />
                                         </button>
                                         <button
                                             onClick={() => removeItem(item.productId!)}
-                                            className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 ml-1"
+                                            className="w-6 h-6 flex items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1"
                                             aria-label="Remove item"
                                         >
                                             <Trash2 className="w-3 h-3" />
@@ -135,12 +135,12 @@ export function CheckoutSidebar() {
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-200 dark:border-zinc-800 mt-auto shrink-0 pb-8">
-                <div className="flex items-center justify-between text-base font-bold text-gray-900 dark:text-white mb-2">
+            <div className="p-4 border-t border-border mt-auto shrink-0 pb-8">
+                <div className="flex items-center justify-between text-base font-bold text-foreground mb-2">
                     <span>Total due today</span>
                     <span>{formatCurrency(grandTotal)}</span>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-right mb-4">
+                <p className="text-xs text-muted-foreground text-right mb-4">
                     Plus applicable taxes
                 </p>
                 <Button

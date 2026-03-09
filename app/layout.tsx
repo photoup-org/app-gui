@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Anek_Latin } from "next/font/google";
 import { getAppSession } from "@/lib/auth/session";
 import { UserProvider } from "@/contexts/UserContext";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const brandFont = Anek_Latin({
     variable: "--font-brand",
@@ -24,11 +25,18 @@ export default async function RootLayout({
     const session = await getAppSession();
 
     return (
-        <html lang="pt">
+        <html lang="pt" suppressHydrationWarning>
             <body className={`${brandFont.variable} antialiased`}>
-                <UserProvider user={session?.user}>
-                    {children}
-                </UserProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <UserProvider user={session?.user}>
+                        {children}
+                    </UserProvider>
+                </ThemeProvider>
             </body>
         </html>
     );

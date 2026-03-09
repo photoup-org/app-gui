@@ -56,7 +56,7 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({ product, onClick })
                     </h3>
                 </div>
                 {/* Top Right Icon */}
-                <div className={cn("text-black p-2 rounded-lg pointer-events-none shrink-0 shadow-lg", product.type === "SENSOR_BASE" ? "bg-shadow-bg" : "bg-[#2DD4BF]")}>
+                <div className={cn("text-slate-900 p-2 rounded-lg pointer-events-none shrink-0 shadow-lg", product.type === "SENSOR_BASE" ? "bg-shadow-bg" : "bg-[#2DD4BF]")}>
                     {product.type === "SENSOR_BASE" ? <ShieldCheck size={20} /> : <Gem size={20} />}
                 </div>
             </div>

@@ -32,7 +32,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden bg-white dark:bg-gray-900 border-none rounded-[2rem] gap-0">
+            <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden bg-background border-none rounded-[2rem] gap-0">
                 {/* Header Image Section */}
                 <div className="relative w-full h-[300px] sm:h-[400px]">
                     <ImageWithSkeleton
@@ -46,7 +46,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
 
                     {/* Top Icons/Labels */}
                     <div className="absolute top-6 left-6 right-6 flex justify-between items-start pointer-events-none">
-                        <div className={cn("text-black p-2 rounded-lg shrink-0 shadow-lg", isBase ? "bg-shadow-bg" : "bg-[#2DD4BF]")}>
+                        <div className={cn("text-slate-900 p-2 rounded-lg shrink-0 shadow-lg", isBase ? "bg-shadow-bg" : "bg-[#2DD4BF]")}>
                             {isBase ? <ShieldCheck size={24} /> : <Gem size={24} />}
                         </div>
                     </div>
@@ -65,10 +65,10 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
                 {/* Content Section */}
                 <div className="p-6 sm:p-8 flex flex-col gap-6">
                     <DialogHeader className="text-left space-y-2">
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-white">
+                        <h4 className="text-xl font-bold text-foreground">
                             {product.subtitle}
                         </h4>
-                        <div className="overflow-y-auto max-h-[60vh] pr-2 prose prose-sm md:prose-base prose-teal max-w-none dark:prose-invert text-gray-600 dark:text-gray-300">
+                        <div className="overflow-y-auto max-h-[60vh] pr-2 prose prose-sm md:prose-base prose-teal max-w-none dark:prose-invert text-muted-foreground">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {product.description || "Descrição detalhada do sensor não disponível no momento. Contacte a nossa equipa para mais informações estruturais sobre este dispositivo."}
                             </ReactMarkdown>
@@ -76,18 +76,18 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
                     </DialogHeader>
 
                     {/* Bottom Action Area */}
-                    <div className="pt-4 mt-auto border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="pt-4 mt-auto border-t border-border flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div className="flex flex-col w-full sm:w-auto text-center sm:text-left">
-                            <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            <span className="text-sm text-muted-foreground mb-1">
                                 {isBase ? 'Incluído nos planos' : 'A partir de'}
                             </span>
-                            <span className="text-gray-900 dark:text-white text-3xl sm:text-4xl font-extrabold tracking-tight">
+                            <span className="text-foreground text-3xl sm:text-4xl font-extrabold tracking-tight">
                                 {isBase ? '0 €' : `${product.price} €`}
                             </span>
                         </div>
 
                         <div className="flex w-full sm:w-auto gap-4">
-                            <button onClick={onClose} className="px-6 py-3 rounded-full font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors w-full sm:w-auto">
+                            <button onClick={onClose} className="px-6 py-3 rounded-full font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors w-full sm:w-auto">
                                 Cancelar
                             </button>
                             <Link href="/planos" className="w-full sm:w-auto flex-1">

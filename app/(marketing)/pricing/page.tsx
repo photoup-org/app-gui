@@ -3,7 +3,7 @@ import { SubscriptionPlan } from '@/components/checkout/SubscriptionPlan';
 
 export default function PricingPage() {
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 py-12">
+        <div className="min-h-screen py-12 bg-background">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
                     <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">

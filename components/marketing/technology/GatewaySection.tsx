@@ -38,7 +38,7 @@ const FeatureNode = ({ feature, index, total }: { feature: Omit<GatewayFeature, 
             <div className="relative w-full">
                 {/* Title container with bottom border */}
                 <h3 className={cn(
-                    "text-xl font-bold text-gray-900 pb-2 border-b border-[#2DD4BF] relative inline-block w-full",
+                    "text-xl font-bold text-foreground pb-2 border-b border-[#2DD4BF] relative inline-block w-full",
                     "before:content-[''] before:absolute before:bottom-[-3px] before:w-1.5 before:h-1.5 before:bg-[#2DD4BF] before:rounded-full before:hidden before:lg:block",
                     isLeft ? "before:-right-0.5" : "before:-left-0.5",
                     "after:content-[''] after:absolute after:bottom-0 after:w-16 after:h-px after:bg-[#2DD4BF] after:hidden after:lg:block",

@@ -45,7 +45,7 @@ const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ produ
 
     if (!products || products.length === 0) {
         return (
-            <div className="w-full py-12 text-center text-gray-500">
+            <div className="w-full py-12 text-center text-muted-foreground">
                 Nenhum sensor em destaque disponível no momento.
             </div>
         );
@@ -87,7 +87,7 @@ const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ produ
                 <Link
                     href="/products#collection-grid"
                     onClick={handleCollectionClick}
-                    className="text-gray-900 font-medium hover:opacity-80 transition-opacity"
+                    className="text-foreground font-medium hover:opacity-80 transition-opacity"
                 >
                     Conheça a nossa <span className="text-[#2DD4BF]">coleção completa</span>
                 </Link>
@@ -95,17 +95,17 @@ const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ produ
                 <div className={cn("flex items-center gap-4", products.length <= 4 && "xl:hidden")}>
                     <button
                         onClick={() => scroll('left')}
-                        className="bg-gray-100 rounded-full p-3 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
+                        className="bg-muted rounded-full p-3 hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
                         aria-label="Scroll left"
                     >
-                        <ChevronLeft size={20} className="text-gray-700" />
+                        <ChevronLeft size={20} className="text-muted-foreground" />
                     </button>
                     <button
                         onClick={() => scroll('right')}
-                        className="bg-gray-100 rounded-full p-3 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
+                        className="bg-muted rounded-full p-3 hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
                         aria-label="Scroll right"
                     >
-                        <ChevronRight size={20} className="text-gray-700" />
+                        <ChevronRight size={20} className="text-muted-foreground" />
                     </button>
                 </div>
             </div>

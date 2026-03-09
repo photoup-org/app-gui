@@ -50,11 +50,11 @@ export function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: st
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-4">Complete Payment</h3>
+            <h3 className="text-xl font-medium text-foreground mb-4">Complete Payment</h3>
             <PaymentElement />
             {errorMessage && <div className="text-red-500 text-sm mt-2">{errorMessage}</div>}
 
-            <div className="flex flex-col gap-4 pt-4 border-t border-gray-200 dark:border-zinc-700">
+            <div className="flex flex-col gap-4 pt-4 border-t border-border">
                 <Button
                     type="button"
                     variant="outline"

@@ -15,16 +15,16 @@ export const PricingComparisonTable: React.FC<PricingComparisonTableProps> = ({ 
     const categories = Object.keys(baseMatrix || {});
 
     return (
-        <div className="mt-16 bg-white dark:bg-zinc-900 rounded-xl shadow-lg border border-gray-200 dark:border-zinc-800 overflow-hidden">
+        <div className="mt-16 bg-background rounded-xl shadow-lg border border-border overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr>
-                            <th className="p-6 bg-gray-50 dark:bg-zinc-950 font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-zinc-800 w-1/4">
+                            <th className="p-6 bg-muted font-semibold text-foreground border-b border-border w-1/4">
                                 Features
                             </th>
                             {plans.map((plan) => (
-                                <th key={plan.id} className="p-6 bg-gray-50 dark:bg-zinc-950 font-bold text-lg text-center text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-zinc-800 w-1/4">
+                                <th key={plan.id} className="p-6 bg-muted font-bold text-lg text-center text-foreground border-b border-border w-1/4">
                                     {plan.name}
                                 </th>
                             ))}
@@ -34,10 +34,10 @@ export const PricingComparisonTable: React.FC<PricingComparisonTableProps> = ({ 
                         {categories.map((category) => (
                             <React.Fragment key={category}>
                                 {/* Category Header Row */}
-                                <tr className="bg-gray-100 dark:bg-zinc-800/50">
+                                <tr className="bg-muted">
                                     <td
                                         colSpan={plans.length + 1}
-                                        className="px-6 py-4 font-bold text-gray-900 dark:text-white uppercase text-xs tracking-wider border-b border-gray-200 dark:border-zinc-800"
+                                        className="px-6 py-4 font-bold text-foreground uppercase text-xs tracking-wider border-b border-border"
                                     >
                                         {category}
                                     </td>
@@ -45,8 +45,8 @@ export const PricingComparisonTable: React.FC<PricingComparisonTableProps> = ({ 
 
                                 {/* Feature Rows */}
                                 {Object.keys(baseMatrix[category]).map((featureName, index) => (
-                                    <tr key={featureName} className={`border-b border-gray-200 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/20 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50/50 dark:bg-zinc-900/50'}`}>
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <tr key={featureName} className={`border-b border-border hover:bg-muted transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/30'}`}>
+                                        <td className="px-6 py-4 text-sm font-medium text-muted-foreground">
                                             {featureName}
                                         </td>
 
@@ -61,10 +61,10 @@ export const PricingComparisonTable: React.FC<PricingComparisonTableProps> = ({ 
                                                             featureValue ? (
                                                                 <Check className="w-5 h-5 text-green-500" />
                                                             ) : (
-                                                                <X className="w-5 h-5 text-gray-300 dark:text-gray-600" />
+                                                                <X className="w-5 h-5 text-muted-foreground/30" />
                                                             )
                                                         ) : (
-                                                            <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                                                            <span className="text-sm font-semibold text-muted-foreground">
                                                                 {featureValue}
                                                             </span>
                                                         )}

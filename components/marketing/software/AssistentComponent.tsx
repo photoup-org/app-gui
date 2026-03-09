@@ -39,7 +39,7 @@ const assistentFeatures: TAssistentFeatures[] = [
 const AssistentFeaturesComponent = ({ icon: Icon, title, description, className }: TAssistentFeaturesComponentProps) => {
     return (
         <div className={cn("w-full md:w-64 h-w-64 py-7 px-6 bg-[#D4F3F3] rounded-3xl flex flex-col gap-4", className)}>
-            <Icon className="w-8 h-8" />
+            <Icon className="w-8 h-8 text-slate-900" />
             <h3 className="font-bold text-lg leading-tight text-primary">{title}</h3>
             <p className="text-sm text-gray-600 leading-tight">{description}</p>
         </div>

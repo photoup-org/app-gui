@@ -19,10 +19,10 @@ const ProductsPage = async () => {
             {/* Top Section */}
             <div className="w-full flex flex-col items-center gap-12">
                 <div className="text-center space-y-4 max-w-3xl">
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900">
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
                         O Nosso Conjunto de <span className="text-[#2DD4BF]">Soluções</span>
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-lg text-muted-foreground">
                         Encontre soluções para diferentes tipos de problemas e subscreva a um dos nossos planos.
                     </p>
                 </div>

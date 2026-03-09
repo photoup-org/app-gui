@@ -24,8 +24,9 @@ const footerSections: FooterSectionData[] = [
         title: 'Navegação',
         links: [
             { label: 'Home', href: '/' },
-            { label: 'A Nossa Tecnologia', href: '#tecnologia' },
-            { label: 'As Nossas Soluções', href: '#solucoes' },
+            { label: 'Software', href: '/software' },
+            { label: 'Tecnologia', href: '/technology' },
+            { label: 'Produtos', href: '/products' },
             { label: 'Planos', href: '/pricing' },
         ],
     },
@@ -72,7 +73,7 @@ const FooterColumn = ({ section }: { section: FooterSectionData }) => {
     return (
         <div className="flex flex-col">
             <h3 className="text-xl font-bold text-[#2DD4BF] mb-6">{section.title}</h3>
-            <ul className="flex flex-col gap-3 text-gray-600 font-medium">
+            <ul className="flex flex-col gap-3 text-muted-foreground font-medium">
                 {section.links.map((link, index) => (
                     <li key={index}>
                         {link.isEmail ? (
@@ -118,7 +119,7 @@ const MarketingFooter = () => {
             </div>
 
             {/* Layer 2: The Main Outlined Card */}
-            <div className="border border-custom rounded-[2rem] p-8 lg:p-12 mb-8 bg-white ">
+            <div className="border border-custom rounded-[2rem] p-8 lg:p-12 mb-8 bg-background">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {footerSections.map((section, index) => (
                         <FooterColumn key={index} section={section} />
@@ -128,11 +129,11 @@ const MarketingFooter = () => {
             </div>
 
             {/* Layer 3: The Sub-Footer (Legal) */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 font-medium">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground font-medium">
                 <div>&copy; Copyright da PhotoUP. Todos os direitos reservados.</div>
                 <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                     {legalLinks.map((link, index) => (
-                        <Link key={index} href={link.href} className="hover:text-gray-900 transition-colors">
+                        <Link key={index} href={link.href} className="hover:text-foreground transition-colors">
                             {link.label}
                         </Link>
                     ))}

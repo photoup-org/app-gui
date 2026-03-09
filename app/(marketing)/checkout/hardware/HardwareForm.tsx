@@ -13,7 +13,7 @@ const SensorIcon = () => (
 );
 
 const GatewayIcon = () => (
-    <div className="bg-gray-100 dark:bg-zinc-800 h-16 w-16 flex items-center justify-center rounded-md text-gray-400 text-xs shrink-0">
+    <div className="bg-muted h-16 w-16 flex items-center justify-center rounded-md text-muted-foreground text-xs shrink-0">
         <svg className="w-6 h-6 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
     </div>
 );
@@ -104,20 +104,20 @@ export default function HardwareForm({
 
     return (
         <div className="space-y-8">
-            <div className="bg-white dark:bg-zinc-900 shadow sm:rounded-lg p-6 sm:p-10">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Hardware Selection</h2>
+            <div className="bg-background shadow sm:rounded-lg p-6 sm:p-10">
+                <h2 className="text-2xl font-bold text-foreground mb-6">Hardware Selection</h2>
 
-                <div className="mb-8 border-b border-gray-200 dark:border-zinc-700 pb-6">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Included in {tier?.name} Plan</h3>
-                    <ul className="list-disc pl-5 text-gray-600 dark:text-gray-400">
+                <div className="mb-8 border-b border-border pb-6">
+                    <h3 className="text-lg font-medium text-foreground mb-2">Included in {tier?.name} Plan</h3>
+                    <ul className="list-disc pl-5 text-muted-foreground">
                         <li>1x Gateway {mandatoryGateway?.name || 'Teltonika TRB142'} ({mandatoryGateway?.sku || 'GW-TRB142'})</li>
                         <li>{tier?.includedSensors}x Base Sensors</li>
                     </ul>
                 </div>
 
                 <div className="mb-8">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Sensors</h3>
-                    <p className="text-sm text-gray-500 mb-4">
+                    <h3 className="text-lg font-medium text-foreground mb-2">Sensors</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
                         Build your monitoring network.
                         (Included: {tier?.includedSensors} | Max: {tier?.maxSensors === null ? 'Unlimited' : tier?.maxSensors})
                     </p>
@@ -142,18 +142,18 @@ export default function HardwareForm({
                             }
 
                             return (
-                                <div key={hw.id} className="border border-gray-200 dark:border-zinc-800 rounded-lg p-4 flex flex-col h-full hover:shadow-md transition-shadow">
-                                    <div className="bg-gray-100 dark:bg-zinc-800 h-32 w-full flex items-center justify-center rounded-md mb-4 text-gray-400 dark:text-gray-500 text-sm overflow-hidden">
+                                <div key={hw.id} className="border border-border rounded-lg p-4 flex flex-col h-full hover:shadow-md transition-shadow">
+                                    <div className="bg-muted h-32 w-full flex items-center justify-center rounded-md mb-4 text-muted-foreground text-sm overflow-hidden">
                                         <SensorIcon />
                                     </div>
                                     <div className="flex-1">
-                                        <h4 className="font-semibold text-gray-900 dark:text-white line-clamp-1" title={hw.name}>{hw.name}</h4>
-                                        <p className="text-xs text-gray-500 mb-2 font-mono">{hw.sku}</p>
+                                        <h4 className="font-semibold text-foreground line-clamp-1" title={hw.name}>{hw.name}</h4>
+                                        <p className="text-xs text-muted-foreground mb-2 font-mono">{hw.sku}</p>
                                         <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-4">{displayPrice}</p>
                                     </div>
-                                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100 dark:border-zinc-800">
+                                    <div className="flex items-center justify-between mt-auto pt-2 border-t border-border">
                                         <Button type="button" variant="outline" size="sm" onClick={() => handleDecrement(hw)} disabled={qty <= 0}>-</Button>
-                                        <span className="text-lg font-semibold dark:text-zinc-100 w-8 text-center">{qty}</span>
+                                        <span className="text-lg font-semibold text-foreground w-8 text-center">{qty}</span>
                                         <Button type="button" variant="outline" size="sm" onClick={() => handleIncrement(hw, true)} disabled={isAtLimit}>+</Button>
                                     </div>
                                 </div>
@@ -162,26 +162,26 @@ export default function HardwareForm({
                     </div>
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-zinc-700 pt-6">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Extra Gateways</h3>
-                    <p className="text-sm text-gray-500 mb-4">Add extra gateways if you need monitoring coverage in separate locations.</p>
+                <div className="border-t border-border pt-6">
+                    <h3 className="text-lg font-medium text-foreground mb-2">Extra Gateways</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Add extra gateways if you need monitoring coverage in separate locations.</p>
 
                     <div className="space-y-4">
                         {gatewaysOnly.map(hw => {
                             const qty = getQty(hw.id);
                             return (
-                                <div key={hw.id} className="flex flex-col sm:flex-row sm:items-center justify-between border border-gray-200 dark:border-zinc-800 p-4 rounded-lg hover:shadow-md transition-shadow">
+                                <div key={hw.id} className="flex flex-col sm:flex-row sm:items-center justify-between border border-border p-4 rounded-lg hover:shadow-md transition-shadow">
                                     <div className="flex items-center space-x-4 mb-4 sm:mb-0">
                                         <GatewayIcon />
                                         <div>
-                                            <h4 className="font-semibold text-gray-900 dark:text-white">{hw.name}</h4>
-                                            <p className="text-xs text-gray-500 font-mono mb-1">{hw.sku}</p>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-300">{hw.price} € / each</p>
+                                            <h4 className="font-semibold text-foreground">{hw.name}</h4>
+                                            <p className="text-xs text-muted-foreground font-mono mb-1">{hw.sku}</p>
+                                            <p className="text-sm font-medium text-foreground">{hw.price} € / each</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center space-x-4 self-start sm:self-auto">
                                         <Button type="button" variant="outline" size="sm" onClick={() => handleDecrement(hw)} disabled={qty <= 0}>-</Button>
-                                        <span className="text-lg font-semibold dark:text-zinc-100 w-8 text-center">{qty}</span>
+                                        <span className="text-lg font-semibold text-foreground w-8 text-center">{qty}</span>
                                         <Button type="button" variant="outline" size="sm" onClick={() => handleIncrement(hw, false)}>+</Button>
                                     </div>
                                 </div>

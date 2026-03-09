@@ -39,7 +39,7 @@ export const PricingCard: React.FC<PricingCardProps> = React.memo(({
         onSelect?.(id);
     };
     return (
-        <div className={`border rounded-xl p-6 shadow-md hover:shadow-lg transition-all flex flex-col h-full relative ${badge ? 'border-blue-500 shadow-blue-500/10 bg-blue-50/10 dark:bg-blue-900/10' : 'bg-white dark:bg-zinc-900 dark:border-zinc-800'
+        <div className={`border rounded-xl p-6 shadow-md hover:shadow-lg transition-all flex flex-col h-full relative ${badge ? 'border-primary shadow-primary/10 bg-primary/5' : 'bg-background border-border'
             }`}>
             {badge && (
                 <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -49,16 +49,16 @@ export const PricingCard: React.FC<PricingCardProps> = React.memo(({
                 </div>
             )}
             <h3 className="text-xl font-bold mb-2 pt-2">{name}</h3>
-            {description && <p className="text-gray-500 dark:text-gray-400 mb-4 grow">{description}</p>}
+            {description && <p className="text-muted-foreground mb-4 grow">{description}</p>}
             <div className="mb-6">
                 <span className="text-3xl font-bold">{price}</span>
-                <span className="text-gray-500">/year</span>
+                <span className="text-muted-foreground">/year</span>
             </div>
 
             {features.length > 0 && (
                 <ul className="mb-6 space-y-3">
                     {features.map((feature, index) => (
-                        <li key={index} className="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                        <li key={index} className="flex items-start text-sm text-muted-foreground">
                             <svg className="w-5 h-5 mr-3 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                             </svg>

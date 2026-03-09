@@ -17,7 +17,7 @@ export interface FAQItem {
 const FAQSection = ({ faqData }: { faqData: FAQItem[] }) => {
     return (
         <section className="w-full py-16 px-4">
-            <h2 className="text-3xl font-extrabold mb-8 text-gray-900">
+            <h2 className="text-3xl font-extrabold mb-8 text-foreground">
                 Perguntas Frequentes (FAQ)
             </h2>
 
@@ -28,12 +28,12 @@ const FAQSection = ({ faqData }: { faqData: FAQItem[] }) => {
                         <AccordionItem
                             key={item.id}
                             value={item.id}
-                            className="border border-custom rounded-xl px-6 bg-white overflow-hidden"
+                            className="border border-custom rounded-xl px-6 bg-background overflow-hidden"
                         >
-                            <AccordionTrigger className="font-bold text-gray-900 hover:no-underline">
+                            <AccordionTrigger className="font-bold text-foreground hover:no-underline">
                                 {item.question}
                             </AccordionTrigger>
-                            <AccordionContent className="text-gray-600 leading-relaxed pb-6">
+                            <AccordionContent className="text-muted-foreground leading-relaxed pb-6">
                                 {item.answer}
                             </AccordionContent>
                         </AccordionItem>

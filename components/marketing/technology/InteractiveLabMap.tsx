@@ -106,7 +106,7 @@ export default function InteractiveLabMap() {
                                         <h4 className={cn("font-semibold leading-none tracking-tight", spot.titleColor)}>
                                             {spot.title}
                                         </h4>
-                                        <p className="text-sm text-slate-900 leading-snug">
+                                        <p className="text-sm text-foreground leading-snug">
                                             {spot.description}
                                         </p>
                                     </div>

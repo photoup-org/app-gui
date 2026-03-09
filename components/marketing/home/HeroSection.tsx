@@ -24,8 +24,8 @@ export default function HeroSection() {
                     </div>
                     {/* Text Card */}
                     <div className="w-full bg-shadow-bg rounded-3xl p-8 shadow-sm text-foreground shrink-0">
-                        <h3 className="text-2xl font-bold mb-3 text-slate-900">Real-time Insights</h3>
-                        <p className="text-slate-700 leading-relaxed">
+                        <h3 className="text-2xl font-bold mb-3 text-foreground">Real-time Insights</h3>
+                        <p className="text-muted-foreground leading-relaxed">
                             Monitor millions of devices globally with unmatched precision and speed.
                             Experience ultra-low latency data ingestion.
                         </p>
@@ -49,14 +49,14 @@ export default function HeroSection() {
 
                     <div className="absolute bottom-0 left-0 w-80 h-52 bg-shadow-bg px-8 flex flex-col gap-2 justify-center z-10 rounded-2xl">
                         <h3 className="text-xl font-bold mb-4 text-slate-900 ">Com o nosso Software</h3>
-                        <p className=" text-slate-700 leading-relaxed flex gap-2">
+                        <p className=" text-muted-foreground leading-relaxed flex gap-2">
                             <ArrowUp className="text-primary" />
                             Eficiência Operacional
                         </p>
-                        <p className=" text-slate-700 leading-relaxed  flex gap-2">
+                        <p className=" text-muted-foreground leading-relaxed  flex gap-2">
                             <ArrowDown className="text-destructive" /> Custos de Manutenção
                         </p>
-                        <p className=" text-slate-700 leading-relaxed  flex gap-2">
+                        <p className=" text-muted-foreground leading-relaxed  flex gap-2">
                             <ArrowUp className="text-primary" />
                             Previsibilidade
                         </p>

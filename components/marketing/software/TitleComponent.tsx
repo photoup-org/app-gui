@@ -52,7 +52,7 @@ const IconShapesComponent = () => {
 const TitleComponent = () => {
     return <TitleSection>
         <IconShapesComponent />
-        <h1 className="text-6xl font-bold mb-4 text-slate-900">Visão Global. <span className='text-primary'>Controlo Total.</span></h1>
+        <h1 className="text-6xl font-bold mb-4 text-foreground">Visão Global. <span className='text-primary'>Controlo Total.</span></h1>
         <h5 className='text-2xl mb-4 text-muted-foreground'>Centralize laboratórios, armazéns e linhas de produção num único ecrã.</h5>
     </TitleSection>
 }
