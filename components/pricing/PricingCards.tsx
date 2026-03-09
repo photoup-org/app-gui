@@ -1,5 +1,4 @@
-"use client";
-
+import Link from "next/link";
 import { Check } from "lucide-react";
 import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { PlanFeatureMatrix } from "@/types/pricing";
@@ -12,6 +11,7 @@ interface ParsedPlan {
     annualPrice: number;
     monthlyPrice: number;
     isPopular: boolean;
+    stripeProductId: string;
     matrix: PlanFeatureMatrix;
 }
 
@@ -61,12 +61,15 @@ export function PricingCards({ plans }: PricingCardsProps) {
                     </div>
 
                     <Button
+                        asChild
                         className={`w-full mb-8 font-semibold rounded-xl text-base transition-colors ${plan.isPopular
                             ? "bg-teal-500 hover:bg-teal-600 text-white py-6 shadow-md"
                             : "bg-teal-500 hover:bg-teal-600 text-white py-5 shadow-sm"
                             }`}
                     >
-                        Selecionar Plano
+                        <Link href={`/checkout/hardware?product_id=${plan.stripeProductId}`}>
+                            Selecionar Plano
+                        </Link>
                     </Button>
 
                     <div className="flex-1 mt-2">

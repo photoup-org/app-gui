@@ -12,7 +12,8 @@ export function CheckoutSidebar() {
     const pathname = usePathname();
 
     React.useEffect(() => {
-        if (!state.selectedPlan && pathname !== '/checkout/success') {
+
+        if (!state.selectedPlan && pathname === '/checkout') {
             router.push('/pricing');
         }
     }, [state.selectedPlan, router, pathname]);

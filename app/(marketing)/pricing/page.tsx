@@ -4,6 +4,9 @@ import { PricingCards } from "@/components/pricing/PricingCards";
 import { ComparisonTable } from "@/components/pricing/ComparisonTable";
 import MainPageSection from "@/components/marketing/MainPageSection";
 import TitleComponent from "@/components/marketing/pricing/TitleComponent";
+import { Suspense } from 'react';
+import { PricingCartFeedback } from '@/components/marketing/pricing/PricingCartFeedback';
+import { PricingCartBanner } from '@/components/marketing/pricing/PricingCartBanner';
 
 export default async function PricingPage() {
     const plansData = await prisma.planTier.findMany({
@@ -38,13 +41,18 @@ export default async function PricingPage() {
     });
 
     return (
-        <MainPageSection className="flex flex-col gap-20 items-center w-full">
-            <TitleComponent />
-            <PricingCards plans={parsedPlans} />
-            <div className="mt-24 w-full">
-                <ComparisonTable plans={parsedPlans} />
-            </div>
-
-        </MainPageSection>
+        <>
+            <PricingCartBanner />
+            <Suspense fallback={null}>
+                <PricingCartFeedback />
+            </Suspense>
+            <MainPageSection className="flex flex-col gap-20 items-center w-full">
+                <TitleComponent />
+                <PricingCards plans={parsedPlans} />
+                <div className="mt-24 w-full">
+                    <ComparisonTable plans={parsedPlans} />
+                </div>
+            </MainPageSection>
+        </>
     );
 }

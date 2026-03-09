@@ -31,14 +31,17 @@ export default function HardwareForm({
     mandatoryGateway?: any;
     extraSensorPriceAmount?: number;
 }) {
-    const { state, updateQuantity, addItem, removeItem, setExtraSensorPrice } = useCart();
+    const { state, updateQuantity, addItem, removeItem, setExtraSensorPrice, setPlan } = useCart();
 
-    // 0. Initialize the Cart Context with the Plan's specific overage price
+    // 0. Initialize the Cart Context with the Plan and specific overage price
     React.useEffect(() => {
+        if (tier && (!state.selectedPlan || state.selectedPlan.id !== tier.id)) {
+            setPlan(tier);
+        }
         if (extraSensorPriceAmount > 0 && state.extraSensorPriceAmount !== extraSensorPriceAmount) {
             setExtraSensorPrice(extraSensorPriceAmount);
         }
-    }, [extraSensorPriceAmount, state.extraSensorPriceAmount, setExtraSensorPrice]);
+    }, [tier, extraSensorPriceAmount, state.selectedPlan, state.extraSensorPriceAmount, setPlan, setExtraSensorPrice]);
 
     const getQty = useCallback((id: string) => {
         return state.items.find(i => i.product.id === id)?.quantity || 0;

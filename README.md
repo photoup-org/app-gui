@@ -110,6 +110,8 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 - Implement the Demo page
 - Redesign the login page
+- Redesign the checkout page
+- Redesign the success page
 - Design the Dashboard
 - Change the functionality of "Escolher Plano" button on the sensor cards
    - The user should be redirected to the /pricing page

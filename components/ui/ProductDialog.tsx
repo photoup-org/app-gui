@@ -4,15 +4,15 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { SerializedHardwareProduct } from '@/lib/api/products';
 import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
-import { Activity, Gem, ShieldCheck, X } from 'lucide-react';
+import { Gem, ShieldCheck, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import AddToCartButton from '@/components/ui/AddToCartButton';
 
 interface ProductDialogProps {
     product: SerializedHardwareProduct | null;
@@ -90,11 +90,13 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
                             <button onClick={onClose} className="px-6 py-3 rounded-full font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors w-full sm:w-auto">
                                 Cancelar
                             </button>
-                            <Link href="/planos" className="w-full sm:w-auto flex-1">
-                                <button className="w-full bg-[#2DD4BF] hover:bg-[#20b2aa] text-white px-8 py-3 rounded-full font-semibold transition-transform hover:scale-105 shadow-lg flex items-center justify-center gap-2">
-                                    Adicionar ao Plano
-                                </button>
-                            </Link>
+                            <AddToCartButton
+                                product={product}
+                                onAddComplete={onClose}
+                                className="w-full sm:w-auto flex-1 px-8 py-3 rounded-full font-semibold shadow-lg text-base"
+                            >
+                                Adicionar ao Plano
+                            </AddToCartButton>
                         </div>
                     </div>
                 </div>

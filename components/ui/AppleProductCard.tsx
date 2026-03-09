@@ -3,7 +3,7 @@ import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton'
 import { SerializedHardwareProduct } from '@/lib/api/products';
 import { Gem, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
+import AddToCartButton from '@/components/ui/AddToCartButton';
 
 interface AppleProductCardProps {
     product: SerializedHardwareProduct;
@@ -71,16 +71,14 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({ product, onClick })
                         {product.type === 'SENSOR_BASE' || product.price === 0 ? '0 €' : `${product.price} €`}
                     </span>
                 </div>
-
-                {/* 
-                    Stop propagation on the inner link/button so that clicking 
-                    "Escolher Plano" doesn't also trigger the modal open 
+                {/*
+                    Stop propagation on the inner link/button so that clicking
+                    "Escolher Plano" doesn't also trigger the modal open
                 */}
-                <Link href="/planos" className="z-30 shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <button className="bg-[#2DD4BF] hover:bg-[#20b2aa] text-white px-3 sm:px-6 py-2.5 rounded-full font-medium transition-colors w-full sm:w-auto text-xs sm:text-sm shadow-md whitespace-nowrap">
-                        Escolher Plano
-                    </button>
-                </Link>
+                <AddToCartButton
+                    product={product}
+                    className="z-30 shrink-0 px-3 sm:px-6 py-2.5 w-full sm:w-auto text-xs sm:text-sm"
+                />
             </div>
         </div>
     );

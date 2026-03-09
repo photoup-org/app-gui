@@ -4,6 +4,7 @@ import { Anek_Latin } from "next/font/google";
 import { getAppSession } from "@/lib/auth/session";
 import { UserProvider } from "@/contexts/UserContext";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const brandFont = Anek_Latin({
     variable: "--font-brand",
@@ -36,6 +37,7 @@ export default async function RootLayout({
                     <UserProvider user={session?.user}>
                         {children}
                     </UserProvider>
+                    <Toaster />
                 </ThemeProvider>
             </body>
         </html>
