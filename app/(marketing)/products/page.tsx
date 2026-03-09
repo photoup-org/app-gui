@@ -1,6 +1,5 @@
 import MainPageSection from '@/components/marketing/MainPageSection'
 import TechFAQSection from '@/components/marketing/technology/TechFAQSection'
-import React from 'react'
 import { getAllSensors } from '@/lib/api/products'
 import FeaturedSensorsCarousel from '@/components/marketing/technology/FeaturedSensorsCarousel'
 import FilterableProductGrid from '@/components/marketing/products/FilterableProductGrid'

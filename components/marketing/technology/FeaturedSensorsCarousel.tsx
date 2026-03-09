@@ -3,9 +3,12 @@
 import React, { useRef } from 'react';
 import { SerializedHardwareProduct } from '@/lib/api/products';
 import AppleProductCard from '@/components/ui/AppleProductCard';
+import ProductDialog from '@/components/ui/ProductDialog';
+import { useProductModal } from '@/hooks/useProductModal';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 interface FeaturedSensorsCarouselProps {
     products: SerializedHardwareProduct[];
@@ -14,6 +17,7 @@ interface FeaturedSensorsCarouselProps {
 const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ products }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
+    const { selectedProduct, isOpen, openModal, closeModal } = useProductModal();
 
     const handleCollectionClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
         if (pathname === '/products') {
@@ -52,7 +56,10 @@ const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ produ
             {/* Carousel Container */}
             <div
                 ref={scrollContainerRef}
-                className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-6 pb-4 w-full"
+                className={cn(
+                    "flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 w-full hide-scrollbar",
+                    products.length <= 4 && "xl:grid xl:grid-cols-4 xl:overflow-visible xl:snap-none"
+                )}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
                 <style dangerouslySetInnerHTML={{
@@ -63,8 +70,14 @@ const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ produ
                 `}} />
 
                 {products.map((product) => (
-                    <div key={product.id} className="min-w-[280px] sm:min-w-[320px] snap-center shrink-0">
-                        <AppleProductCard product={product} />
+                    <div
+                        key={product.id}
+                        className={cn(
+                            "w-80 snap-center shrink-0",
+                            products.length <= 4 && "xl:w-full" // Let grid control width on XL
+                        )}
+                    >
+                        <AppleProductCard product={product} onClick={() => openModal(product)} />
                     </div>
                 ))}
             </div>
@@ -79,7 +92,7 @@ const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ produ
                     Conheça a nossa <span className="text-[#2DD4BF]">coleção completa</span>
                 </Link>
 
-                <div className="flex items-center gap-4">
+                <div className={cn("flex items-center gap-4", products.length <= 4 && "xl:hidden")}>
                     <button
                         onClick={() => scroll('left')}
                         className="bg-gray-100 rounded-full p-3 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
@@ -96,6 +109,12 @@ const FeaturedSensorsCarousel: React.FC<FeaturedSensorsCarouselProps> = ({ produ
                     </button>
                 </div>
             </div>
+
+            <ProductDialog
+                product={selectedProduct}
+                isOpen={isOpen}
+                onClose={closeModal}
+            />
         </div>
     );
 };

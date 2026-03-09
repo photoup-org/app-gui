@@ -3,6 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import { SerializedHardwareProduct } from '@/lib/api/products';
 import AppleProductCard from '@/components/ui/AppleProductCard';
+import ProductDialog from '@/components/ui/ProductDialog';
+import { useProductModal } from '@/hooks/useProductModal';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { ArrowUpDown } from 'lucide-react';
@@ -17,6 +19,9 @@ type SortType = 'PRICE_ASC' | 'PRICE_DESC';
 const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialProducts }) => {
     const [filterType, setFilterType] = useState<FilterType>('ALL');
     const [sortBy, setSortBy] = useState<SortType>('PRICE_ASC');
+
+    // Inject Modal Logic
+    const { selectedProduct, isOpen, openModal, closeModal } = useProductModal();
 
     const filteredAndSortedProducts = useMemo(() => {
         let result = [...initialProducts];
@@ -41,7 +46,7 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
     return (
         <div className="w-full flex flex-col gap-8" id="collection-grid">
             {/* Header section with Title, Filters and Sorting */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
                 <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
                     A Nossa Coleção
                 </h2>
@@ -104,9 +109,13 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
 
             {/* Grid */}
             {filteredAndSortedProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredAndSortedProducts.map(product => (
-                        <AppleProductCard key={product.id} product={product} />
+                        <AppleProductCard
+                            key={product.id}
+                            product={product}
+                            onClick={() => openModal(product)}
+                        />
                     ))}
                 </div>
             ) : (
@@ -114,6 +123,13 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                     Nenhum sensor encontrado para os filtros selecionados.
                 </div>
             )}
+
+            {/* Modal Rendering */}
+            <ProductDialog
+                product={selectedProduct}
+                isOpen={isOpen}
+                onClose={closeModal}
+            />
         </div>
     );
 };
