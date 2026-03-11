@@ -95,6 +95,7 @@ export const SensorGrid: React.FC<SensorGridProps> = ({
                         onQuantityChange={(newQty) => onQuantityChange(sensor.id, newQty)}
                         customPriceDisplay={customPriceDisplay}
                         maxReached={maxReached}
+
                     />
                 );
             })}
