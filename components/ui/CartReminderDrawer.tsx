@@ -35,7 +35,7 @@ export function CartReminderDrawer() {
   useEffect(() => {
     // Only trigger drawer logic if cart context is mounted, hydrated, and loaded
     if (isMounted && !isLoading && isPricingPage && !isCartEmpty) {
-      
+
       const openDrawerWhenReady = () => {
         setIsOpen(true);
       };
@@ -46,7 +46,7 @@ export function CartReminderDrawer() {
         window.addEventListener('load', openDrawerWhenReady);
         return () => window.removeEventListener('load', openDrawerWhenReady);
       }
-      
+
     } else if (isMounted && (!isPricingPage || isCartEmpty)) {
       setIsOpen(false);
     }
@@ -57,7 +57,11 @@ export function CartReminderDrawer() {
   }
 
   const handleResume = () => {
-    router.push('/checkout');
+    if (state.selectedPlan?.stripeProductId) {
+      router.push(`/checkout/hardware?product_id=${state.selectedPlan.stripeProductId}`);
+    } else {
+      router.push('/checkout/hardware');
+    }
     setIsOpen(false);
   };
 

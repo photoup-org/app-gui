@@ -13,7 +13,7 @@ export default function HardwareSelectionClient() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const productId = searchParams.get('product_id');
-    const { setBundle } = useCart();
+    const { setBundle, state } = useCart();
 
     const [plan, setPlan] = useState<any>(null);
     const [sensors, setSensors] = useState<SerializedHardwareProduct[]>([]);
@@ -36,10 +36,21 @@ export default function HardwareSelectionClient() {
             }
             setPlan(data.plan);
             setSensors(data.sensors);
+
+            // Hydrate quantities from existing cart context if available, but only on first load
+            if (state.items && state.items.length > 0) {
+                const initialQuantities: Record<string, number> = {};
+                state.items.forEach(item => {
+                    initialQuantities[item.product.id] = item.quantity;
+                });
+                setQuantities(initialQuantities);
+            }
+
             setLoading(false);
         }
 
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [productId, router]);
 
     const planBasePrice = plan ? Number(plan.priceAmount) : 0;
