@@ -4,6 +4,8 @@ import { SerializedHardwareProduct } from '@/lib/api/products';
 import { Gem, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AddToCartButton from '@/components/ui/AddToCartButton';
+import { useProductModal } from '@/hooks/useProductModal';
+import ProductDialog from '@/components/ui/ProductDialog';
 
 interface AppleProductCardProps {
     product: SerializedHardwareProduct;
@@ -28,27 +30,40 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({
     customPriceDisplay,
     maxReached = false
 }) => {
+    const { selectedProduct, isOpen, openModal, closeModal } = useProductModal();
     // Determine the image to display, fallback to a local visual or placeholder if none
     const displayImage = product.imageUrl || '/placeholder-sensor.jpg';
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            onClick?.();
+            if (mode === 'catalog') {
+                onClick?.();
+            } else {
+                openModal(product);
+            }
+        }
+    };
+
+    const handleCardClick = () => {
+        if (mode === 'catalog') {
+            if (onClick) onClick();
+        } else {
+            openModal(product);
         }
     };
 
     return (
         <div
             className={cn(
-                "relative overflow-hidden rounded-[2rem] h-[600px] w-full group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2 transition-all duration-300",
+                "relative overflow-hidden rounded-[2rem] h-[600px] w-full cursor-pointer group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2 transition-all duration-300",
                 mode === 'catalog' ? 'cursor-pointer' : '',
                 mode === 'selection' && quantity > 0 ? 'ring-4 ring-[#2DD4BF] ring-offset-2 ring-offset-background' : ''
             )}
-            role={mode === 'catalog' ? 'button' : undefined}
-            tabIndex={mode === 'catalog' ? 0 : undefined}
-            onClick={mode === 'catalog' ? onClick : undefined}
-            onKeyDown={mode === 'catalog' ? handleKeyDown : undefined}
+            role="button"
+            tabIndex={0}
+            onClick={handleCardClick}
+            onKeyDown={handleKeyDown}
         >
             {/* Background Image */}
             <ImageWithSkeleton
@@ -127,6 +142,12 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({
                     />
                 )}
             </div>
+
+            <ProductDialog
+                product={selectedProduct}
+                isOpen={isOpen}
+                onClose={closeModal}
+            />
         </div>
     );
 };

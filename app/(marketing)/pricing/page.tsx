@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { PlanFeatureMatrix } from "@/types/pricing";
-import { PricingCards } from "@/components/pricing/PricingCards";
-import { ComparisonTable } from "@/components/pricing/ComparisonTable";
+import { PricingCards } from "@/components/marketing/pricing/PricingCards";
+import { ComparisonTable } from "@/components/marketing/pricing/ComparisonTable";
 import MainPageSection from "@/components/marketing/MainPageSection";
 import TitleComponent from "@/components/marketing/pricing/TitleComponent";
 import { Suspense } from 'react';

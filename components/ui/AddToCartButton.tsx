@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 import { SerializedHardwareProduct } from "@/lib/api/products";
-import { cn } from "@/lib/utils";
 
 interface AddToCartButtonProps extends React.ComponentProps<typeof Button> {
     product: SerializedHardwareProduct;
@@ -35,10 +34,7 @@ export function AddToCartButton({
     return (
         <Button
             onClick={handleAddToCart}
-            className={cn(
-                "bg-[#2DD4BF] hover:bg-[#20b2aa] text-white rounded-full font-medium transition-transform hover:scale-105 shadow-md whitespace-nowrap",
-                className
-            )}
+            className={className}
             {...props}
         >
             {children || "Escolher Plano"}

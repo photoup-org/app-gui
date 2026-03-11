@@ -1,7 +1,7 @@
 import React from 'react';
 import SectionTitleComponent from '../SectionTitleComponent';
 import { getFeaturedSensors } from '@/lib/api/products';
-import FeaturedSensorsCarousel from './FeaturedSensorsCarousel';
+import FeaturedSensorsCarousel from '../FeaturedSensorsCarousel';
 
 const SensorSection = async () => {
     const featuredSensors = await getFeaturedSensors();

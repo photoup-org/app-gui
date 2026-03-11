@@ -9,10 +9,10 @@ import { SerializedHardwareProduct } from '@/lib/api/products';
 import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import { Gem, ShieldCheck, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import AddToCartButton from '@/components/ui/AddToCartButton';
+import { Button } from '@/components/ui/button';
 
 interface ProductDialogProps {
     product: SerializedHardwareProduct | null;
@@ -32,7 +32,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden bg-background border-none rounded-[2rem] gap-0">
+            <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden bg-background border-none rounded-2xl gap-0">
                 {/* Header Image Section */}
                 <div className="relative w-full h-[300px] sm:h-[400px]">
                     <ImageWithSkeleton
@@ -76,27 +76,28 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
                     </DialogHeader>
 
                     {/* Bottom Action Area */}
-                    <div className="pt-4 mt-auto border-t border-border flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="pt-4 mt-auto border-t border-border flex flex-col sm:flex-row items-end justify-between gap-6">
                         <div className="flex flex-col w-full sm:w-auto text-center sm:text-left">
                             <span className="text-sm text-muted-foreground mb-1">
                                 {isBase ? 'Incluído nos planos' : 'A partir de'}
                             </span>
-                            <span className="text-foreground text-3xl sm:text-4xl font-extrabold tracking-tight">
-                                {isBase ? '0 €' : `${product.price} €`}
+                            <span className="text-foreground text-3xl sm:text-4xl font-extrabold tracking-tight leading-none">
+                                {isBase ? '0 €' : `${Number(product.price) / 100} €`}
                             </span>
                         </div>
 
-                        <div className="flex w-full sm:w-auto gap-4">
-                            <button onClick={onClose} className="px-6 py-3 rounded-full font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors w-full sm:w-auto">
+                        <div className="flex w-full sm:w-auto gap-4 items-center">
+                            <Button
+                                variant="ghost"
+                                size="lg"
+                                onClick={onClose}
+                            >
                                 Cancelar
-                            </button>
+                            </Button>
                             <AddToCartButton
                                 product={product}
                                 onAddComplete={onClose}
-                                className="w-full sm:w-auto flex-1 px-8 py-3 rounded-full font-semibold shadow-lg text-base"
-                            >
-                                Adicionar ao Plano
-                            </AddToCartButton>
+                            />
                         </div>
                     </div>
                 </div>

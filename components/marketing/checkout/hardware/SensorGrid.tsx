@@ -52,15 +52,15 @@ export const SensorGrid: React.FC<SensorGridProps> = ({
                             <div className="flex flex-col">
                                 <span className="text-xs tracking-wider uppercase text-destructive mb-1 leading-tight font-bold">Add-on Aplicado</span>
                                 {thisSensorFree > 0 ? (
-                                    <div className="text-foreground flex flex-col mt-0.5">
+                                    <div className="text-white flex flex-col mt-0.5">
                                         <span className="text-lg font-bold">{thisSensorFree} Incluídos</span>
                                         <span className="text-muted-foreground font-medium text-sm">
-                                            {thisSensorPaid} Extra (+{(thisSensorPaid * extraSensorPriceAmount) / 100} € /mês)
+                                            {thisSensorPaid} Extra (+{(thisSensorPaid * extraSensorPriceAmount) / 100} €)
                                         </span>
                                     </div>
                                 ) : (
-                                    <span className="text-foreground text-xl font-bold mt-1">
-                                        {thisSensorPaid} Extra (+{(thisSensorPaid * extraSensorPriceAmount) / 100} € /mês)
+                                    <span className="text-white text-xl font-bold mt-1">
+                                        {thisSensorPaid} Extra (+{(thisSensorPaid * extraSensorPriceAmount) / 100} €)
                                     </span>
                                 )}
                             </div>
@@ -69,8 +69,7 @@ export const SensorGrid: React.FC<SensorGridProps> = ({
                         customPriceDisplay = (
                             <div className="flex flex-col">
                                 <span className="text-xs tracking-wider uppercase text-primary mb-1 leading-tight font-bold">Coberto pelo Plano</span>
-                                <span className="text-foreground text-3xl font-bold mt-0.5">0 €</span>
-                                <span className="text-muted-foreground text-xs font-medium">/mês</span>
+                                <span className="text-white text-3xl font-bold mt-0.5">0 €</span>
                             </div>
                         );
                     }

@@ -1,4 +1,4 @@
-import { CheckoutClient } from "@/components/checkout/CheckoutClient";
+import { CheckoutClient } from "@/components/marketing/checkout/CheckoutClient";
 
 type Props = {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>

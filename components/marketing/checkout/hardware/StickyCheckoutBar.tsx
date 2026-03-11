@@ -19,11 +19,12 @@ export const StickyCheckoutBar: React.FC<StickyCheckoutBarProps> = ({
                     <span className="text-muted-foreground text-sm font-medium">Total Estimado</span>
                     <div className="flex items-baseline gap-2">
                         <span className="text-foreground text-3xl md:text-4xl font-bold">{totalPrice / 100} €</span>
-                        <span className="text-muted-foreground text-sm">/mês</span>
+                        <span className="text-muted-foreground text-sm">/ano</span>
                     </div>
                 </div>
 
                 <Button
+                    size="lg"
                     onClick={onContinue}
                     disabled={isContinueDisabled}
                 >

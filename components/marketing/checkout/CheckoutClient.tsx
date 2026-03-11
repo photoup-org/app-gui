@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { StripePaymentForm } from '@/components/checkout/StripePaymentForm';
-import { AddressForm } from '@/components/checkout/AddressForm';
-import { FormField } from '@/components/checkout/FormField';
+import { StripePaymentForm } from '@/components/marketing/checkout/StripePaymentForm';
+import { AddressForm } from '@/components/marketing/checkout/AddressForm';
+import { FormField } from '@/components/marketing/checkout/FormField';
 
 // Ensure NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set in your .env.local
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
