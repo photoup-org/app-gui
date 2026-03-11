@@ -1,15 +1,51 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import type { PlanTier, HardwareProduct } from '@prisma/client';
 import type { CartState, CartContextType, CartItem } from '@/types/cart';
 import { useCartTotals } from '@/hooks/useCartTotals';
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+// Extended context type to include isLoading
+export interface ExtendedCartContextType extends CartContextType {
+    isLoading: boolean;
+}
+
+const CartContext = createContext<ExtendedCartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
     const [state, setState] = useState<CartState>({ selectedPlan: null, items: [], extraSensorPriceAmount: 0 });
     const { lineItems, grandTotal } = useCartTotals(state);
+    const [isHydrated, setIsHydrated] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        try {
+            const saved = window.localStorage.getItem('cartState');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.timestamp && (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) && parsed.state) {
+                    setState(parsed.state);
+                } else {
+                    window.localStorage.removeItem('cartState');
+                }
+            }
+        } catch (e) {
+            console.error("Failed to parse cart state from localStorage", e);
+        } finally {
+            setIsHydrated(true);
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!isHydrated) return; // Wait for mount
+
+        try {
+            window.localStorage.setItem('cartState', JSON.stringify({ state, timestamp: Date.now() }));
+        } catch (e) {
+            console.error("Failed to save cart state to localStorage", e);
+        }
+    }, [state, isHydrated]);
 
     const setPlan = useCallback((plan: PlanTier) => {
         setState((prev) => ({ ...prev, selectedPlan: plan }));
@@ -72,7 +108,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     return (
         <CartContext.Provider value={{
-            state, lineItems, grandTotal,
+            state, lineItems, grandTotal, isLoading,
             setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart
         }}>
             {children}

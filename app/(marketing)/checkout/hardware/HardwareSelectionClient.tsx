@@ -85,9 +85,10 @@ export default function HardwareSelectionClient() {
         setQuantities(prev => ({ ...prev, [sensorId]: newQty }));
     };
 
-    const handleContinue = () => {
-        if (!plan || totalBaseSelected === 0) return;
-
+    // Live sync form selection to Cart Context so it's always persisted
+    useEffect(() => {
+        if (!plan) return;
+        
         const cartItems = sensors
             .filter(s => (quantities[s.id] || 0) > 0)
             .map(s => ({
@@ -96,7 +97,10 @@ export default function HardwareSelectionClient() {
             }));
 
         setBundle(plan, cartItems);
+    }, [plan, quantities, sensors, setBundle]);
 
+    const handleContinue = () => {
+        if (!plan || totalBaseSelected === 0) return;
         router.push('/checkout/summary');
     };
 
