@@ -5,9 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { getPlanAndSensors } from '@/actions/checkout';
 import type { SerializedHardwareProduct } from '@/lib/api/products';
 import { useCart } from '@/contexts/CartContext';
-import { PlanSummaryBox } from '@/components/checkout/hardware/PlanSummaryBox';
-import { SensorGrid } from '@/components/checkout/hardware/SensorGrid';
-import { StickyCheckoutBar } from '@/components/checkout/hardware/StickyCheckoutBar';
+import { PlanSummaryBox } from '@/components/marketing/checkout/hardware/PlanSummaryBox';
+import { SensorGrid } from '@/components/marketing/checkout/hardware/SensorGrid';
+import { StickyCheckoutBar } from '@/components/marketing/checkout/hardware/StickyCheckoutBar';
 
 export default function HardwareSelectionClient() {
     const searchParams = useSearchParams();
@@ -111,14 +111,14 @@ export default function HardwareSelectionClient() {
 
     return (
         <div className="relative">
-            <PlanSummaryBox 
+            <PlanSummaryBox
                 planName={plan?.name || ''}
                 includedSensors={includedSensors}
                 totalBaseSelected={totalBaseSelected}
                 maxSensors={maxSensors}
             />
 
-            <SensorGrid 
+            <SensorGrid
                 sensors={sensors}
                 baseSensors={baseSensors}
                 quantities={quantities}
@@ -128,7 +128,7 @@ export default function HardwareSelectionClient() {
                 onQuantityChange={handleQuantityChange}
             />
 
-            <StickyCheckoutBar 
+            <StickyCheckoutBar
                 totalPrice={totalPrice}
                 isContinueDisabled={totalBaseSelected === 0}
                 onContinue={handleContinue}

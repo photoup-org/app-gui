@@ -1,7 +1,7 @@
 import MainPageSection from '@/components/marketing/MainPageSection'
 import TechFAQSection from '@/components/marketing/technology/TechFAQSection'
 import { getAllSensors } from '@/lib/api/products'
-import FeaturedSensorsCarousel from '@/components/marketing/technology/FeaturedSensorsCarousel'
+import FeaturedSensorsCarousel from '@/components/marketing/FeaturedSensorsCarousel'
 import FilterableProductGrid from '@/components/marketing/products/FilterableProductGrid'
 
 export const dynamic = 'force-dynamic'; // We can safely assume sensors list changes frequently or we want fresh queries. Or we omit it and let next dictate.
