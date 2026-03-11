@@ -48,7 +48,7 @@ export default function HeroSection() {
 
 
                     <div className="absolute bottom-0 left-0 w-80 h-52 bg-shadow-bg px-8 flex flex-col gap-2 justify-center z-10 rounded-2xl">
-                        <h3 className="text-xl font-bold mb-4 text-slate-900 ">Com o nosso Software</h3>
+                        <h3 className="text-xl font-bold mb-4 text-foreground ">Com o nosso Software</h3>
                         <p className=" text-muted-foreground leading-relaxed flex gap-2">
                             <ArrowUp className="text-primary" />
                             Eficiência Operacional

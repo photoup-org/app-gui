@@ -26,6 +26,7 @@ export type CartContextType = {
     lineItems: LineItem[];
     grandTotal: number;
     setPlan: (plan: PlanTier) => void;
+    setBundle: (plan: PlanTier | null, items: CartItem[]) => void;
     setExtraSensorPrice: (price: number) => void;
     addItem: (product: HardwareProduct, quantity: number, stripePriceId?: string) => void;
     removeItem: (productId: string) => void;

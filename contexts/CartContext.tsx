@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import type { PlanTier, HardwareProduct } from '@prisma/client';
-import type { CartState, CartContextType } from '@/types/cart';
+import type { CartState, CartContextType, CartItem } from '@/types/cart';
 import { useCartTotals } from '@/hooks/useCartTotals';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -13,6 +13,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const setPlan = useCallback((plan: PlanTier) => {
         setState((prev) => ({ ...prev, selectedPlan: plan }));
+    }, []);
+
+    const setBundle = useCallback((plan: PlanTier | null, items: CartItem[]) => {
+        setState((prev) => ({
+            ...prev,
+            selectedPlan: plan,
+            items: items,
+        }));
     }, []);
 
     const setExtraSensorPrice = useCallback((price: number) => {
@@ -53,13 +61,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const clearCart = useCallback(() => {
-        setState(prev => ({ selectedPlan: null, items: [], extraSensorPriceAmount: 0 }));
+        setState(prev => ({
+            ...prev,
+            selectedPlan: null,
+            items: prev.items.filter(item => item.product.type !== 'GATEWAY' && item.product.type !== 'SENSOR_BASE' && item.product.type !== 'SENSOR_PREMIUM'),
+        }));
+
+        setState({ selectedPlan: null, items: [], extraSensorPriceAmount: 0 });
     }, []);
 
     return (
         <CartContext.Provider value={{
             state, lineItems, grandTotal,
-            setPlan, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart
+            setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart
         }}>
             {children}
         </CartContext.Provider>

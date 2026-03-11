@@ -8,13 +8,26 @@ import AddToCartButton from '@/components/ui/AddToCartButton';
 interface AppleProductCardProps {
     product: SerializedHardwareProduct;
     onClick?: () => void;
+    mode?: 'catalog' | 'selection';
+    quantity?: number;
+    onQuantityChange?: (newQuantity: number) => void;
+    customPriceDisplay?: React.ReactNode;
+    maxReached?: boolean;
 }
 
 const formatProductType = (type: string) => {
     return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
 };
 
-const AppleProductCard: React.FC<AppleProductCardProps> = ({ product, onClick }) => {
+const AppleProductCard: React.FC<AppleProductCardProps> = ({
+    product,
+    onClick,
+    mode = 'catalog',
+    quantity = 0,
+    onQuantityChange,
+    customPriceDisplay,
+    maxReached = false
+}) => {
     // Determine the image to display, fallback to a local visual or placeholder if none
     const displayImage = product.imageUrl || '/placeholder-sensor.jpg';
 
@@ -27,11 +40,15 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({ product, onClick })
 
     return (
         <div
-            className="relative overflow-hidden rounded-[2rem] h-[500px] w-full group cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2"
-            role="button"
-            tabIndex={0}
-            onClick={onClick}
-            onKeyDown={handleKeyDown}
+            className={cn(
+                "relative overflow-hidden rounded-[2rem] h-[600px] w-full group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2 transition-all duration-300",
+                mode === 'catalog' ? 'cursor-pointer' : '',
+                mode === 'selection' && quantity > 0 ? 'ring-4 ring-[#2DD4BF] ring-offset-2 ring-offset-background' : ''
+            )}
+            role={mode === 'catalog' ? 'button' : undefined}
+            tabIndex={mode === 'catalog' ? 0 : undefined}
+            onClick={mode === 'catalog' ? onClick : undefined}
+            onKeyDown={mode === 'catalog' ? handleKeyDown : undefined}
         >
             {/* Background Image */}
             <ImageWithSkeleton
@@ -64,21 +81,51 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({ product, onClick })
             {/* Content Context - Bottom */}
             <div className="absolute bottom-6 left-6 right-6 z-20 flex sm:items-end justify-between items-center gap-2 transition-transform duration-300">
                 <div className="flex flex-col shrink-0 max-w-[50%]">
-                    <span className="text-xs text-gray-300 mb-1 leading-tight">
-                        {product.type === 'SENSOR_BASE' || product.price === 0 ? 'Incluídos' : 'A partir de'}
-                    </span>
-                    <span className="text-white text-2xl sm:text-3xl font-bold whitespace-nowrap">
-                        {product.type === 'SENSOR_BASE' || product.price === 0 ? '0 €' : `${product.price} €`}
-                    </span>
+                    {customPriceDisplay ? (
+                        customPriceDisplay
+                    ) : (
+                        <>
+                            <span className="text-xs text-gray-300 mb-1 leading-tight">
+                                {product.type === 'SENSOR_BASE' || product.price === 0 ? 'Incluídos' : 'A partir de'}
+                            </span>
+                            <span className="text-white text-2xl sm:text-3xl font-bold whitespace-nowrap">
+                                {product.type === 'SENSOR_BASE' || product.price === 0 ? '0 €' : `${Number(product.price) / 100} €`}
+                            </span>
+                        </>
+                    )}
                 </div>
                 {/*
                     Stop propagation on the inner link/button so that clicking
                     "Escolher Plano" doesn't also trigger the modal open
                 */}
-                <AddToCartButton
-                    product={product}
-                    className="z-30 shrink-0 px-3 sm:px-6 py-2.5 w-full sm:w-auto text-xs sm:text-sm"
-                />
+                {mode === 'selection' ? (
+                    <div className="z-30 shrink-0 flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 p-1">
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); onQuantityChange?.(Math.max(0, quantity - 1)); }}
+                            className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/20 rounded-full transition-colors"
+                        >
+                            -
+                        </button>
+                        <span className="w-8 text-center text-white font-medium">{quantity}</span>
+                        <button
+                            type="button"
+                            disabled={maxReached}
+                            onClick={(e) => { e.stopPropagation(); onQuantityChange?.(quantity + 1); }}
+                            className={cn(
+                                "w-8 h-8 flex items-center justify-center rounded-full transition-colors",
+                                maxReached ? "text-white/30 cursor-not-allowed" : "text-white hover:bg-white/20"
+                            )}
+                        >
+                            +
+                        </button>
+                    </div>
+                ) : (
+                    <AddToCartButton
+                        product={product}
+                        className="z-30 shrink-0 px-3 sm:px-6 py-2.5 w-full sm:w-auto text-xs sm:text-sm"
+                    />
+                )}
             </div>
         </div>
     );

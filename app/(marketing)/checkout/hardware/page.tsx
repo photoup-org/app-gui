@@ -1,36 +1,12 @@
-import React from 'react';
-import { redirect } from 'next/navigation';
-import { getPlanTierByProductId } from '@/lib/api/plans';
-import HardwareForm from '../../../../components/forms/HardwareForm';
-import { getHardwareCatalog } from '@/lib/services/hardware';
+import { Suspense } from 'react';
+import HardwareSelectionClient from './HardwareSelectionClient';
 
-export default async function HardwareSelectionPage(props: { searchParams: Promise<{ product_id?: string }> }) {
-    const searchParams = await props.searchParams;
-    const productId = searchParams.product_id;
-
-    if (!productId) {
-        redirect('/pricing');
-    }
-
-    const tier = await getPlanTierByProductId(productId);
-
-    if (!tier) {
-        redirect('/pricing');
-    }
-
-    const { availableHardware, mandatoryGateway, extraSensorPriceAmount } = await getHardwareCatalog(tier.extraSensorStripePriceId);
-
+export default function HardwareSelectionPage() {
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-                <HardwareForm
-                    tier={tier}
-                    planId={productId}
-                    availableHardware={availableHardware}
-                    mandatoryGateway={mandatoryGateway}
-                    extraSensorPriceAmount={extraSensorPriceAmount}
-                />
-            </div>
+        <div className="min-h-screen bg-background text-foreground pb-32">
+            <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]">A carregar configuração...</div>}>
+                <HardwareSelectionClient />
+            </Suspense>
         </div>
     );
 }

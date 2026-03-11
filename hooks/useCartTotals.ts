@@ -32,7 +32,7 @@ export function useCartTotals(state: CartState) {
             let remainingFreeGateways = planGateways;
 
             gateways.forEach(item => {
-                const productPrice = Number(item.product.price) * 100; // Convert Euros to Cents
+                const productPrice = Number(item.product.price); // DB value is already in Cents
 
                 if (remainingFreeGateways > 0) {
                     const freeAmount = Math.min(item.quantity, remainingFreeGateways);
@@ -84,7 +84,7 @@ export function useCartTotals(state: CartState) {
             baseSensors.forEach(item => {
                 // IMPORTANT: Base Sensors never use their intrinsic database price (which is €0)
                 // When we exceed the quota, we must charge the plan's specific Extra Add-on rate.
-                const extraSensorPriceCents = state.extraSensorPriceAmount * 100; // Convert Euros to Cents
+                const extraSensorPriceCents = state.extraSensorPriceAmount; // DB value is already in Cents
 
                 if (remainingFreeSensors > 0) {
                     const freeAmount = Math.min(item.quantity, remainingFreeSensors);
@@ -130,7 +130,7 @@ export function useCartTotals(state: CartState) {
 
         // 4. Premium Sensors (NEVER use free quota)
         premiumSensors.forEach(item => {
-            const productPrice = Number(item.product.price) * 100; // Convert Euros to Cents
+            const productPrice = Number(item.product.price); // DB value is already in Cents
             const itemsPrice = item.quantity * productPrice;
             lineItems.push({
                 id: `paid-sensor-premium-${item.product.id}`,
