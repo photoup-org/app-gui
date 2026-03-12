@@ -1,16 +1,30 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useMemo } from 'react';
 import type { PlanTier, HardwareProduct } from '@prisma/client';
-import type { CartState, CartContextType, CartItem } from '@/types/cart';
+import type { CartState, CartItem } from '@/types/cart';
 import { useCartTotals } from '@/hooks/useCartTotals';
+import type { LineItem } from '@/types/cart';
 
-// Extended context type to include isLoading
-export interface ExtendedCartContextType extends CartContextType {
+export interface CartStateContextType {
+    state: CartState;
+    lineItems: LineItem[];
+    grandTotal: number;
     isLoading: boolean;
 }
 
-const CartContext = createContext<ExtendedCartContextType | undefined>(undefined);
+export interface CartDispatchContextType {
+    setPlan: (plan: PlanTier) => void;
+    setBundle: (plan: PlanTier | null, items: CartItem[]) => void;
+    setExtraSensorPrice: (price: number) => void;
+    addItem: (product: HardwareProduct, quantity: number, stripePriceId?: string) => void;
+    removeItem: (productId: string) => void;
+    updateQuantity: (productId: string, quantity: number) => void;
+    clearCart: () => void;
+}
+
+const CartStateContext = createContext<CartStateContextType | undefined>(undefined);
+const CartDispatchContext = createContext<CartDispatchContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
     const [state, setState] = useState<CartState>({ selectedPlan: null, items: [], extraSensorPriceAmount: 0 });
@@ -106,20 +120,49 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setState({ selectedPlan: null, items: [], extraSensorPriceAmount: 0 });
     }, []);
 
+    const dispatchValue = useMemo(() => ({
+        setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart
+    }), [setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart]);
+
+    const stateValue = useMemo(() => ({
+        state, lineItems, grandTotal, isLoading
+    }), [state, lineItems, grandTotal, isLoading]);
+
     return (
-        <CartContext.Provider value={{
-            state, lineItems, grandTotal, isLoading,
-            setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart
-        }}>
-            {children}
-        </CartContext.Provider>
+        <CartDispatchContext.Provider value={dispatchValue}>
+            <CartStateContext.Provider value={stateValue}>
+                {children}
+            </CartStateContext.Provider>
+        </CartDispatchContext.Provider>
     );
 }
 
-export function useCart() {
-    const context = useContext(CartContext);
+export function useCartState() {
+    const context = useContext(CartStateContext);
     if (context === undefined) {
-        throw new Error('useCart must be used within a CartProvider');
+        throw new Error('useCartState must be used within a CartProvider');
     }
     return context;
+}
+
+export function useCartDispatch() {
+    const context = useContext(CartDispatchContext);
+    if (context === undefined) {
+        throw new Error('useCartDispatch must be used within a CartProvider');
+    }
+    return context;
+}
+
+export function useCart() {
+    const stateContext = useContext(CartStateContext);
+    const dispatchContext = useContext(CartDispatchContext);
+    
+    if (stateContext === undefined || dispatchContext === undefined) {
+        throw new Error('useCart must be used within a CartProvider');
+    }
+    
+    return {
+        ...stateContext,
+        ...dispatchContext
+    };
 }

@@ -1,0 +1,55 @@
+
+> app-gui@0.1.0 build
+> npx prisma generate && next build
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+✔ Generated Prisma Client (v5.10.2) to .\node_modules\@prisma\client in 61ms
+
+Start using Prisma Client in Node.js (See: https://pris.ly/d/client)
+```
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
+```
+or start using Prisma Client at the edge (See: https://pris.ly/d/accelerate)
+```
+import { PrismaClient } from '@prisma/client/edge'
+const prisma = new PrismaClient()
+```
+
+See other ways of importing Prisma Client: http://pris.ly/d/importing-client
+
+┌─────────────────────────────────────────────────────────────┐
+│  Deploying your app to serverless or edge functions?        │
+│  Try Prisma Accelerate for connection pooling and caching.  │
+│  https://pris.ly/cli/accelerate                             │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│  Update available 5.10.2 -> 7.5.0                       │
+│                                                         │
+│  This is a major update - please follow the guide at    │
+│  https://pris.ly/d/major-version-upgrade                │
+│                                                         │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local, .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1842.3ms
+  Running TypeScript ...
+Failed to compile.
+
+./components/marketing/checkout/SubscriptionPlan.tsx:1:29
+Type error: Cannot find module '@/components/marketing/pricing/PricingCard' or its corresponding type declarations.
+
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m { [33mPricingCard[39m } [36mfrom[39m [32m'@/components/marketing/pricing/PricingCard'[39m[33m;[39m
+ [90m   |[39m                             [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m { [33mPricingComparisonTable[39m } [36mfrom[39m [32m'@/components/marketing/pricing/PricingComparisonTable'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { getPlanTiers } [36mfrom[39m [32m'@/lib/api/plans'[39m[33m;[39m
+ [90m 4 |[39m[0m
+Next.js build worker exited with code: 1 and signal: null

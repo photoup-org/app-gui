@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/contexts/CartContext";
+import { useCartDispatch } from "@/contexts/CartContext"; // Changed from useCart to useCartDispatch
 import { useRouter } from "next/navigation";
 import { SerializedHardwareProduct } from "@/lib/api/products";
 
@@ -19,7 +19,7 @@ export function AddToCartButton({
     children,
     ...props
 }: AddToCartButtonProps) {
-    const { addItem } = useCart();
+    const { addItem } = useCartDispatch(); // Changed from useCart to useCartDispatch
     const router = useRouter();
 
     const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {

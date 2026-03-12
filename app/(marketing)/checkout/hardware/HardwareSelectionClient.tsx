@@ -1,59 +1,40 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { getPlanAndSensors } from '@/actions/checkout';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { SerializedHardwareProduct } from '@/lib/api/products';
 import { useCart } from '@/contexts/CartContext';
 import { PlanSummaryBox } from '@/components/marketing/checkout/hardware/PlanSummaryBox';
 import { SensorGrid } from '@/components/marketing/checkout/hardware/SensorGrid';
 import { StickyCheckoutBar } from '@/components/marketing/checkout/hardware/StickyCheckoutBar';
 
-export default function HardwareSelectionClient() {
-    const searchParams = useSearchParams();
+export default function HardwareSelectionClient({
+    plan,
+    sensors
+}: {
+    plan: any;
+    sensors: SerializedHardwareProduct[];
+}) {
     const router = useRouter();
-    const productId = searchParams.get('product_id');
-    const { setBundle, state } = useCart();
-
-    const [plan, setPlan] = useState<any>(null);
-    const [sensors, setSensors] = useState<SerializedHardwareProduct[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { setBundle, state, grandTotal, isLoading } = useCart();
 
     const [quantities, setQuantities] = useState<Record<string, number>>({});
+    const [hasHydrated, setHasHydrated] = useState(false);
 
     useEffect(() => {
-        if (!productId) {
-            router.push('/pricing');
-            return;
+        if (isLoading || hasHydrated) return;
+
+        // Hydrate quantities from existing cart context if available, but only on first load
+        if (state.items && state.items.length > 0) {
+            const initialQuantities: Record<string, number> = {};
+            state.items.forEach(item => {
+                initialQuantities[item.product.id] = item.quantity;
+            });
+            setQuantities(initialQuantities);
         }
+        setHasHydrated(true);
+    }, [isLoading, hasHydrated, state.items]);
 
-        async function fetchData() {
-            setLoading(true);
-            const data = await getPlanAndSensors(productId as string);
-            if (!data.plan) {
-                router.push('/pricing');
-                return;
-            }
-            setPlan(data.plan);
-            setSensors(data.sensors);
-
-            // Hydrate quantities from existing cart context if available, but only on first load
-            if (state.items && state.items.length > 0) {
-                const initialQuantities: Record<string, number> = {};
-                state.items.forEach(item => {
-                    initialQuantities[item.product.id] = item.quantity;
-                });
-                setQuantities(initialQuantities);
-            }
-
-            setLoading(false);
-        }
-
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [productId, router]);
-
-    const planBasePrice = plan ? Number(plan.priceAmount) : 0;
     const includedSensors = plan ? Number(plan.includedSensors) : 0;
     const maxSensors = plan?.maxSensors ? Number(plan.maxSensors) : Infinity;
     const extraSensorPriceAmount = plan ? Number(plan.extraSensorPriceAmount || 5000) : 5000;
@@ -63,33 +44,6 @@ export default function HardwareSelectionClient() {
     const totalSelected = Object.values(quantities).reduce((acc, qty) => acc + qty, 0);
     const maxReached = totalSelected >= maxSensors;
 
-    // Total price calculation mapping exactly to useCartTotals
-    const totalPrice = useMemo(() => {
-        let total = planBasePrice;
-
-        const premiumSensors = sensors.filter(s => s.type === 'SENSOR_PREMIUM');
-        premiumSensors.forEach(s => {
-            total += (quantities[s.id] || 0) * (s.price);
-        });
-
-        let remainingFree = includedSensors;
-        baseSensors.forEach(s => {
-            const qty = quantities[s.id] || 0;
-            if (remainingFree > 0) {
-                const freeAmount = Math.min(qty, remainingFree);
-                const paidAmount = qty - freeAmount;
-                remainingFree -= freeAmount;
-                if (paidAmount > 0) {
-                    total += paidAmount * (extraSensorPriceAmount);
-                }
-            } else {
-                total += qty * (extraSensorPriceAmount);
-            }
-        });
-
-        return total;
-    }, [quantities, sensors, planBasePrice, includedSensors, extraSensorPriceAmount]);
-
     const handleQuantityChange = (sensorId: string, newQty: number) => {
         const currentQty = quantities[sensorId] || 0;
         if (newQty > currentQty && maxReached) return;
@@ -98,8 +52,8 @@ export default function HardwareSelectionClient() {
 
     // Live sync form selection to Cart Context so it's always persisted
     useEffect(() => {
-        if (!plan) return;
-        
+        if (!plan || !hasHydrated) return;
+
         const cartItems = sensors
             .filter(s => (quantities[s.id] || 0) > 0)
             .map(s => ({
@@ -108,21 +62,12 @@ export default function HardwareSelectionClient() {
             }));
 
         setBundle(plan, cartItems);
-    }, [plan, quantities, sensors, setBundle]);
+    }, [plan, quantities, sensors, setBundle, hasHydrated]);
 
     const handleContinue = () => {
         if (!plan || totalBaseSelected === 0) return;
         router.push('/checkout/summary');
     };
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[50vh] gap-3">
-                <span className="w-5 h-5 border-2 border-[#2DD4BF] border-t-transparent rounded-full animate-spin"></span>
-                <span className="text-slate-600 dark:text-gray-400">A carregar configuração...</span>
-            </div>
-        );
-    }
 
     return (
         <div className="relative">
@@ -144,7 +89,7 @@ export default function HardwareSelectionClient() {
             />
 
             <StickyCheckoutBar
-                totalPrice={totalPrice}
+                totalPrice={grandTotal}
                 isContinueDisabled={totalBaseSelected === 0}
                 onContinue={handleContinue}
             />

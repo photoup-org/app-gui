@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
 
 /**
  * Checks if a given NIF/VAT number already exists in the Organization table.
@@ -29,40 +30,47 @@ export async function checkNifExists(nif: string): Promise<boolean> {
     }
 }
 
-export async function getPlanAndSensors(productId: string) {
-    try {
-        const plan = await prisma.planTier.findUnique({
-            where: { stripeProductId: productId }
-        });
+export const getPlanAndSensors = unstable_cache(
+    async (productId: string) => {
+        try {
+            const plan = await prisma.planTier.findUnique({
+                where: { stripeProductId: productId }
+            });
 
-        const sensors = await prisma.hardwareProduct.findMany({
-            where: {
-                type: {
-                    in: ['SENSOR_BASE', 'SENSOR_PREMIUM']
+            const sensors = await prisma.hardwareProduct.findMany({
+                where: {
+                    type: {
+                        in: ['SENSOR_BASE', 'SENSOR_PREMIUM']
+                    }
+                },
+                orderBy: {
+                    createdAt: 'desc'
                 }
-            },
-            orderBy: {
-                createdAt: 'desc'
-            }
-        });
+            });
 
-        // Serialize correctly, converting Decimals to numbers and Dates to strings.
-        const serializedPlan = plan ? {
-            ...plan,
-            uiFeatureMatrix: plan.uiFeatureMatrix ? JSON.stringify(plan.uiFeatureMatrix) : null,
-        } : null;
+            // Serialize correctly, converting Decimals to numbers and Dates to strings.
+            const serializedPlan = plan ? {
+                ...plan,
+                uiFeatureMatrix: plan.uiFeatureMatrix ? JSON.stringify(plan.uiFeatureMatrix) : null,
+            } : null;
 
-        const serializedSensors = sensors.map(product => ({
-            ...product, // Decimals need Number()
-            price: Number(product.price),
-            createdAt: product.createdAt.toISOString(),
-            updatedAt: product.updatedAt.toISOString(),
-            subtitle: (product as any).subtitle || '',
-        }));
+            const serializedSensors = sensors.map(product => ({
+                ...product, // Decimals need Number()
+                price: Number(product.price),
+                createdAt: product.createdAt.toISOString(),
+                updatedAt: product.updatedAt.toISOString(),
+                subtitle: (product as any).subtitle || '',
+            }));
 
-        return { plan: serializedPlan, sensors: serializedSensors };
-    } catch (error) {
-        console.error("Error fetching plan and sensors:", error);
-        return { plan: null, sensors: [] };
+            return { plan: serializedPlan, sensors: serializedSensors };
+        } catch (error) {
+            console.error("Error fetching plan and sensors:", error);
+            return { plan: null, sensors: [] };
+        }
+    },
+    ['catalog-plan-sensors'],
+    {
+        tags: ['catalog'],
+        revalidate: 3600 // Cache for 1 hour
     }
-}
+);
