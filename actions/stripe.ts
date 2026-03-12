@@ -5,7 +5,6 @@ import { isValidNIF } from '@/lib/utils';
 import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
 import { CheckoutFormData } from '@/types/checkout';
-import { Product } from '@/types/stripe';
 import { getStripeLineItemsConfig } from '@/lib/services/stripe';
 
 export async function createSubscriptionIntent(
