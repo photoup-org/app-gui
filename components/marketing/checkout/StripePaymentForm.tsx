@@ -32,7 +32,7 @@ export function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: st
             const { error } = await stripe.confirmSetup({
                 elements,
                 confirmParams: {
-                    return_url: `${window.location.origin}/checkout/success`,
+                    return_url: `${window.location.origin}/success`,
                 },
             });
             resultError = error;
@@ -40,7 +40,7 @@ export function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: st
             const { error } = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
-                    return_url: `${window.location.origin}/checkout/success`,
+                    return_url: `${window.location.origin}/success`,
                 },
             });
             resultError = error;

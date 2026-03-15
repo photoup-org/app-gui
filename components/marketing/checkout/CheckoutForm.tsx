@@ -30,7 +30,7 @@ export const CheckoutForm = () => {
             elements,
             confirmParams: {
                 // Return to the successful checkout page
-                return_url: `${window.location.origin}/checkout/success`,
+                return_url: `${window.location.origin}/success`,
             },
         });
 

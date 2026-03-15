@@ -109,4 +109,5 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 - Implement the ui on the marketing page
    - Implement the Demo page
    - Redesign the success page
+   - Fix the Order fields being null (stripeIntentId, customerEmail)
 - Design the Dashboard
