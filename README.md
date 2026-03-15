@@ -108,6 +108,5 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 ## TODO: 
 - Implement the ui on the marketing page
    - Implement the Demo page
-   - Redesign the login page
    - Redesign the success page
 - Design the Dashboard
