@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton';
 import { BrandLogo } from '@/components/resources/logos';
+import { cn } from '@/lib/utils';
 
 // PHASE 1: TYPES & DATA STRUCTURE
 interface FooterLink {
@@ -127,20 +128,22 @@ const MarketingFooter = () => {
                 </div>
                 <PartnerLogos logos={partnerLogos} />
             </div>
-
-            {/* Layer 3: The Sub-Footer (Legal) */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground font-medium">
-                <div>&copy; Copyright da PhotoUP. Todos os direitos reservados.</div>
-                <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-                    {legalLinks.map((link, index) => (
-                        <Link key={index} href={link.href} className="hover:text-foreground transition-colors">
-                            {link.label}
-                        </Link>
-                    ))}
-                </div>
-            </div>
+            <LegalComponent />
         </footer>
     );
 };
+
+export const LegalComponent = ({ className }: { className?: string }) => {
+    return <div className={cn("flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground font-medium", className)}>
+        <div>&copy; Copyright da PhotoUP. Todos os direitos reservados.</div>
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+            {legalLinks.map((link, index) => (
+                <Link key={index} href={link.href} className="hover:text-foreground transition-colors">
+                    {link.label}
+                </Link>
+            ))}
+        </div>
+    </div>
+}
 
 export default MarketingFooter;

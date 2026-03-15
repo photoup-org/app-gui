@@ -32,7 +32,7 @@ export default function LoginForm() {
     }
 
     return (
-        <form action={handleSubmit} className="space-y-6">
+        <form action={handleSubmit} className="space-y-6 w-full">
             <div>
                 <Label htmlFor="email">Email address</Label>
                 <div className="mt-1">
