@@ -28,7 +28,7 @@ export default async function PricingPage() {
                     matrix = plan.uiFeatureMatrix as unknown as PlanFeatureMatrix;
                 }
             } catch (e) {
-                console.error("Failed to parse uiFeatureMatrix for plan", plan.id);
+                console.error("Failed to parse uiFeatureMatrix for plan", plan.id, e);
             }
         }
 

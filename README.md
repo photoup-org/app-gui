@@ -107,12 +107,7 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
 ## TODO: 
 - Implement the ui on the marketing page
-
-- Implement the Demo page
-- Redesign the login page
-- Redesign the checkout page
-- Redesign the success page
+   - Implement the Demo page
+   - Redesign the login page
+   - Redesign the success page
 - Design the Dashboard
-- Change the functionality of "Escolher Plano" button on the sensor cards
-   - The user should be redirected to the /pricing page
-   - The sensor should be added to the shopping card but the user should not see. Only when the user chooses a plan, the system should calculate the correct price and update the sensor in the shopping card.
