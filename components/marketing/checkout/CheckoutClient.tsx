@@ -50,19 +50,12 @@ export function CheckoutClient({ planId, totalSensors, hardwareParam }: Checkout
     const [isValidatingVat, setIsValidatingVat] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
-    /**
-     * Separate loading state that tracks the async Auth0 + Stripe initialisation
-     * between Tab 2 "Continuar" click and Tab 3 appearing.
-     * react-hook-form's own `formState.isSubmitting` resets too early here because
-     * we advance the tab *after* the action resolves, so we track it manually.
-     */
     const [isCreatingIntent, setIsCreatingIntent] = useState(false);
 
     if (!planId) {
         return <div className="text-center p-12 text-muted-foreground">Nenhum plano de software selecionado.</div>;
     }
 
-    // ─── VIES handler (UNCHANGED) ──────────────────────────────────────────────
     const handleVatBlur = async () => {
         const currentName = methods.getValues('organizationName');
         if (currentName && currentName.trim() !== '') return;
@@ -129,7 +122,6 @@ export function CheckoutClient({ planId, totalSensors, hardwareParam }: Checkout
         }
     };
 
-    // ─── Tab progression guards ────────────────────────────────────────────────
     const handleContinuarOrganizacao = async () => {
         const valid = await methods.trigger([
             'country',
@@ -146,21 +138,16 @@ export function CheckoutClient({ planId, totalSensors, hardwareParam }: Checkout
     const handleContinuarAdministrador = async () => {
         const valid = await methods.trigger(['adminFullName', 'adminEmail', 'jobTitle', 'phone']);
         if (valid) {
-            // Fire the full form submit — this calls Auth0 + Stripe.
-            // isCreatingIntent ensures the button is disabled until we land on Tab 3.
             methods.handleSubmit(onSubmit)();
         }
     };
 
     return (
-        // ─── 2-column page layout ──────────────────────────────────────────────
         <main className="min-h-screen bg-background">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 lg:gap-12 items-start">
 
-                {/* ── LEFT COLUMN — scrollable form ────────────────────────── */}
                 <div className="overflow-y-auto max-h-[calc(100vh-6rem)] pb-12 pr-1">
 
-                    {/* Tab breadcrumb navigation */}
                     <nav className="flex items-center gap-0 mb-8" aria-label="Etapas do checkout">
                         {TAB_ORDER.map((tab, idx) => {
                             const isActive = tab === activeTab;

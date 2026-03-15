@@ -18,6 +18,15 @@ export function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: st
         setIsProcessing(true);
         setErrorMessage('');
 
+        // Required: Trigger form validation and wallet collection
+        const { error: submitError } = await elements.submit();
+        if (submitError) {
+            setErrorMessage(submitError.message || 'Validation error.');
+            setIsProcessing(false);
+            return; // Stop here if validation fails
+        }
+
+
         let resultError;
         if (clientSecret.startsWith('seti_')) {
             const { error } = await stripe.confirmSetup({
@@ -38,18 +47,13 @@ export function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: st
         }
 
         if (resultError) {
-            // This point will only be reached if there is an immediate error when
-            // confirming the payment. Otherwise, your customer will be redirected to
-            // your `return_url`. For some payment methods like iDEAL, your customer will
-            // be redirected to an intermediate site first to authorize the payment, then
-            // redirected to the `return_url`.
             setErrorMessage(resultError.message || 'An unexpected error occurred.');
             setIsProcessing(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
             <h3 className="text-xl font-medium text-foreground mb-4">Complete Payment</h3>
             <PaymentElement />
             {errorMessage && <div className="text-red-500 text-sm mt-2">{errorMessage}</div>}
@@ -62,16 +66,16 @@ export function StripePaymentForm({ clientSecret, onCancel }: { clientSecret: st
                     disabled={isProcessing}
                     className="w-full"
                 >
-                    Back
+                    Voltar
                 </Button>
                 <Button
-                    type="submit"
+                    onClick={handleSubmit}
                     disabled={!stripe || isProcessing}
                     className="w-full"
                 >
-                    {isProcessing ? 'Processing...' : 'Pay Now'}
+                    {isProcessing ? 'A Processar...' : 'Finalizar Compra'}
                 </Button>
             </div>
-        </form>
+        </div>
     );
 }

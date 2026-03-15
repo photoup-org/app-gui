@@ -18,11 +18,19 @@ export const CheckoutForm = () => {
 
         setIsLoading(true);
 
+        // Required: Trigger form validation and wallet collection
+        const { error: submitError } = await elements.submit();
+        if (submitError) {
+            setMessage(submitError.message || 'Validation error.');
+            setIsLoading(false);
+            return; // Stop here if validation fails
+        }
+
         const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
-                // Return to the success page
-                return_url: `${window.location.origin}/success`,
+                // Return to the successful checkout page
+                return_url: `${window.location.origin}/checkout/success`,
             },
         });
 
