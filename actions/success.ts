@@ -3,6 +3,7 @@
 import { stripe } from "@/lib/stripe";
 import { z } from "zod";
 import Stripe from "stripe";
+import prisma from "@/lib/prisma";
 
 // 1. Added redirect_status to the schema
 const searchParamsSchema = z.object({
@@ -121,5 +122,47 @@ export async function getOrderSuccessDetails(searchParams: { [key: string]: stri
   } catch (error) {
     console.error("Error fetching Stripe intent:", error);
     return { error: "Encomenda não encontrada no sistema." };
+  }
+}
+
+export async function getSuccessServerData(intentId: string) {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { stripeIntentId: intentId }
+    });
+
+    if (!order) {
+      return { success: false, error: "Encomenda não encontrada" };
+    }
+
+    let documentUrl: string | null = null;
+
+    if (intentId.startsWith("pi_")) {
+      const intent = await stripe.paymentIntents.retrieve(intentId, {
+        expand: ['latest_charge', 'invoice']
+      });
+
+      // @ts-ignore
+      const invoice = intent.invoice as Stripe.Invoice | null | undefined;
+      const latest_charge = intent.latest_charge as Stripe.Charge | null | undefined;
+
+      if (invoice && typeof invoice === 'object') {
+        documentUrl = invoice.hosted_invoice_url || invoice.invoice_pdf || null;
+      }
+
+      if (!documentUrl && latest_charge && typeof latest_charge === 'object') {
+        documentUrl = latest_charge.receipt_url || null;
+      }
+    }
+
+    return { 
+      success: true, 
+      orderId: order.id, 
+      documentUrl 
+    };
+
+  } catch (error) {
+    console.error("Error in getSuccessServerData:", error);
+    return { success: false, error: "Ocorreu um erro ao procurar a encomenda." };
   }
 }

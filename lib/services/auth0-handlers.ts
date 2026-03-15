@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 import * as departmentService from '@/lib/repositories/department';
+import { createOrg, enableOrgConnection, generateAuth0InviteTicket } from "../auth/auth0-management";
+import { sendInvitationEmail } from "./email";
 
 export async function handlePostLoginSync(email: string, auth0UserId: string, auth0OrgId: string) {
     if (!email || !auth0UserId || !auth0OrgId) {
@@ -42,5 +44,30 @@ export async function handlePostLoginSync(email: string, auth0UserId: string, au
             }
         });
         console.log(`[Auth0 Webhook] Created and synced fallback user ${email} to department ${primaryDepartmentId}`);
+    }
+}
+
+export async function setupAuth0AndInvite(orgName: string, departmentId: string, userEmail: string) {
+    try {
+        const auth0OrgSlug = orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') + `-${Date.now().toString().slice(-6)}`;
+        console.log(`[Webhook] Creating Auth0 Organization: ${auth0OrgSlug}`);
+
+        const auth0Org = await createOrg(auth0OrgSlug, orgName);
+        const auth0OrgId = auth0Org.id as string;
+
+        // Update Department with real Auth0 Org ID
+        await departmentService.updateDepartmentAuth0OrgId(departmentId, auth0OrgId);
+        await enableOrgConnection(auth0OrgId);
+
+        console.log(`[Webhook] Generating Auth0 Invite for ${userEmail} (Org: ${auth0OrgId})`);
+        const ticket = await generateAuth0InviteTicket(auth0OrgId, userEmail);
+
+        if (ticket) {
+            const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+            const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${auth0OrgId}&screen_hint=signup`;
+            await sendInvitationEmail(userEmail, customLink);
+        }
+    } catch (error: any) {
+        console.error(`[Webhook] Post-Transaction Error (Auth0/Email) for ${userEmail}:`, error);
     }
 }

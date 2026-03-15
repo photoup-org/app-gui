@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useMemo } from 'react';
-import type { PlanTier, HardwareProduct } from '@prisma/client';
-import type { CartState, CartItem } from '@/types/cart';
+import type { PlanTier, HardwareProduct, Address } from '@prisma/client';
+import type { CartState, CartItem, CartAddress } from '@/types/cart';
 import { useCartTotals } from '@/hooks/useCartTotals';
 import type { LineItem } from '@/types/cart';
 
@@ -11,6 +11,7 @@ export interface CartStateContextType {
     lineItems: LineItem[];
     grandTotal: number;
     isLoading: boolean;
+
 }
 
 export interface CartDispatchContextType {
@@ -21,13 +22,16 @@ export interface CartDispatchContextType {
     removeItem: (productId: string) => void;
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
+    setBillingAddress: (address: CartAddress) => void;
+    setShippingAddress: (address: CartAddress) => void;
+    setUserEmail: (email: string) => void;
 }
 
 const CartStateContext = createContext<CartStateContextType | undefined>(undefined);
 const CartDispatchContext = createContext<CartDispatchContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-    const [state, setState] = useState<CartState>({ selectedPlan: null, items: [], extraSensorPriceAmount: 0 });
+    const [state, setState] = useState<CartState>({ selectedPlan: null, items: [], extraSensorPriceAmount: 0, billingAddress: null, shippingAddress: null, userEmail: null });
     const { lineItems, grandTotal } = useCartTotals(state);
     const [isHydrated, setIsHydrated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -120,9 +124,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setState({ selectedPlan: null, items: [], extraSensorPriceAmount: 0 });
     }, []);
 
+    const setBillingAddress = useCallback((address: CartAddress) => {
+        setState((prev) => ({ ...prev, billingAddress: address }));
+    }, []);
+
+    const setShippingAddress = useCallback((address: CartAddress) => {
+        setState((prev) => ({ ...prev, shippingAddress: address }));
+    }, []);
+
+    const setUserEmail = useCallback((email: string) => {
+        setState((prev) => ({ ...prev, userEmail: email }));
+    }, []);
+
     const dispatchValue = useMemo(() => ({
-        setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart
-    }), [setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart]);
+        setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart, setBillingAddress, setShippingAddress, setUserEmail
+    }), [setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart, setBillingAddress, setShippingAddress, setUserEmail]);
 
     const stateValue = useMemo(() => ({
         state, lineItems, grandTotal, isLoading
@@ -156,11 +172,11 @@ export function useCartDispatch() {
 export function useCart() {
     const stateContext = useContext(CartStateContext);
     const dispatchContext = useContext(CartDispatchContext);
-    
+
     if (stateContext === undefined || dispatchContext === undefined) {
         throw new Error('useCart must be used within a CartProvider');
     }
-    
+
     return {
         ...stateContext,
         ...dispatchContext

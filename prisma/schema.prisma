@@ -75,6 +75,7 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  orders       Order[]
 }
 
 model Address {
@@ -122,13 +123,18 @@ model Device {
 }
 
 model Order {
-  id           String      @id @default(cuid())
-  status       OrderStatus @default(PENDING_PAYMENT)
-  departmentId String
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  department   Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  items        OrderItem[]
+  id               String      @id @default(cuid())
+  status           OrderStatus @default(PENDING_PAYMENT)
+  departmentId     String
+  customerEmail    String?    
+  customerName     String?    
+  userId           String?
+  stripeIntentId   String?     @unique
+  user             User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  department       Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  items            OrderItem[]
 }
 
 model OrderItem {

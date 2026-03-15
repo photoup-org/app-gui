@@ -12,6 +12,7 @@ import { OrganizacaoTab } from '@/components/marketing/checkout/tabs/Organizacao
 import { AdministradorTab } from '@/components/marketing/checkout/tabs/AdministradorTab';
 import { CheckoutSummaryPanel } from '@/components/marketing/checkout/CheckoutSummaryPanel';
 import { cn } from '@/lib/utils';
+import { useCartDispatch, useCartState } from '@/contexts/CartContext';
 
 // Only the publishable key is referenced here — no secret ever touches the client.
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
@@ -34,8 +35,8 @@ type CheckoutClientProps = {
 
 export function CheckoutClient({ planId, totalSensors, hardwareParam }: CheckoutClientProps) {
     const selectedHardware = hardwareParam ? JSON.parse(decodeURIComponent(hardwareParam)) : [];
-
-    // ─── Form state (UNCHANGED) ────────────────────────────────────────────────
+    const { setBillingAddress, setShippingAddress, setUserEmail } = useCartDispatch()
+    const { state } = useCartState()
     const methods = useForm<CheckoutFormValues>({
         defaultValues: {
             country: 'PT',
@@ -44,7 +45,7 @@ export function CheckoutClient({ planId, totalSensors, hardwareParam }: Checkout
             shippingAddress: { country: 'PT' },
         },
     });
-
+    console.log(state)
     // ─── Local UI state ────────────────────────────────────────────────────────
     const [activeTab, setActiveTab] = useState<Tab>('organizacao');
     const [isValidatingVat, setIsValidatingVat] = useState(false);
@@ -132,11 +133,25 @@ export function CheckoutClient({ planId, totalSensors, hardwareParam }: Checkout
             'billingAddress.city',
             'departmentName',
         ]);
+        setBillingAddress({
+            street: methods.getValues('billingAddress.streetAddress'),
+            zipCode: methods.getValues('billingAddress.postalCode'),
+            city: methods.getValues('billingAddress.city'),
+            country: methods.getValues('country'),
+        })
+        const isSameAddress = methods.getValues('hasDifferentShippingAddress') === false;
+        setShippingAddress({
+            street: methods.getValues(`${isSameAddress ? 'billingAddress' : 'shippingAddress'}.streetAddress`),
+            zipCode: methods.getValues(`${isSameAddress ? 'billingAddress' : 'shippingAddress'}.postalCode`),
+            city: methods.getValues(`${isSameAddress ? 'billingAddress' : 'shippingAddress'}.city`),
+            country: methods.getValues('country'),
+        })
         if (valid) setActiveTab('administrador');
     };
 
     const handleContinuarAdministrador = async () => {
         const valid = await methods.trigger(['adminFullName', 'adminEmail', 'jobTitle', 'phone']);
+        setUserEmail(methods.getValues('adminEmail'));
         if (valid) {
             methods.handleSubmit(onSubmit)();
         }

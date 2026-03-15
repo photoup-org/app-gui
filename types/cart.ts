@@ -1,15 +1,19 @@
-import type { PlanTier, HardwareProduct } from '@prisma/client';
+import type { PlanTier, HardwareProduct, Address } from '@prisma/client';
 
 export type CartItem = {
     product: HardwareProduct; // Includes id, name, price, type ('GATEWAY' | 'SENSOR_BASE' | 'SENSOR_PREMIUM')
     quantity: number;
     stripePriceId?: string;
 };
+export type CartAddress = Omit<Address, 'id' | 'createdAt' | 'updatedAt' | "nif" | "contactName">;
 
 export type CartState = {
     selectedPlan: PlanTier | null;
     items: CartItem[];
     extraSensorPriceAmount: number;
+    billingAddress?: CartAddress | null;
+    shippingAddress?: CartAddress | null;
+    userEmail?: string | null;
 };
 
 export type LineItem = {
