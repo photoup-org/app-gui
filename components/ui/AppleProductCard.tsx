@@ -56,7 +56,7 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({
     return (
         <div
             className={cn(
-                "relative overflow-hidden rounded-[2rem] h-[500px] xl:h-[600px] w-full cursor-pointer group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2 transition-all duration-300",
+                "relative overflow-hidden rounded-[2rem] h-[500px] xl:h-[600px] w-full max-w-sm cursor-pointer group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2 transition-all duration-300",
                 mode === 'catalog' ? 'cursor-pointer' : '',
                 mode === 'selection' && quantity > 0 ? 'ring-4 ring-[#2DD4BF] ring-offset-2 ring-offset-background' : ''
             )}

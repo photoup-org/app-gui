@@ -22,7 +22,7 @@ export const SensorGrid: React.FC<SensorGridProps> = ({
     onQuantityChange
 }) => {
     return (
-        <div className="px-6 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sensors.map(sensor => {
                 const isBase = sensor.type === 'SENSOR_BASE';
                 const qty = quantities[sensor.id] || 0;

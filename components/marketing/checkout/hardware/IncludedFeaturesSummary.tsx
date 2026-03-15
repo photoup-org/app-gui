@@ -27,7 +27,7 @@ const IncludedFeaturesSummary = ({ totalBaseSelected, includedSensors, maxSensor
                     </div>
                 </div>
                 {maxSensors < Infinity && (
-                    <div className="text-sm font-medium text-destructive text-right pr-2">
+                    <div className="text-sm font-bold text-muted-foreground text-right pr-2">
                         Limite global de {maxSensors} sensores.
                     </div>
                 )}

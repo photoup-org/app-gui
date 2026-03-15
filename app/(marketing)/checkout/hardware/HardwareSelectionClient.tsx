@@ -66,8 +66,28 @@ export default function HardwareSelectionClient({
 
     const handleContinue = () => {
         if (!plan || totalBaseSelected === 0) return;
-        router.push('/checkout/summary');
+
+        // Build the same searchParams that CheckoutClient expects server-side.
+        // plan.stripeProductId is the Stripe price/product ID used as planId.
+        const totalSensors = Object.entries(quantities)
+            .filter(([id]) => sensors.find(s => s.id === id && (s.type === 'SENSOR_BASE' || s.type === 'SENSOR_PREMIUM')))
+            .reduce((sum, [, qty]) => sum + qty, 0);
+
+        const selectedHardware = sensors
+            .filter(s => (quantities[s.id] || 0) > 0)
+            .map(s => ({
+                productId: s.id,
+                quantity: quantities[s.id],
+                stripePriceId: s.stripeProductId ?? '',
+                type: s.type,
+            }));
+
+        const encodedHardware = encodeURIComponent(JSON.stringify(selectedHardware));
+        router.push(
+            `/checkout/summary?plan_id=${plan.stripeProductId}&hardware=${encodedHardware}&totalSensors=${totalSensors}`
+        );
     };
+
 
     return (
         <div className="relative">
