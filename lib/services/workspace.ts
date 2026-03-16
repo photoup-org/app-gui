@@ -6,7 +6,7 @@ import { createHardwareOrderTx } from '@/lib/repositories/workspace';
 /**
  * Reusable service to provision the workspace atomically via Stripe metadata.
  */
-export async function provisionWorkspace(metadata: any, customerId: string, subscriptionId: string | null) {
+export async function provisionWorkspace(metadata: any, paymentIntent: string, customerId: string, subscriptionId: string | null) {
     try {
         await prisma.$transaction(async (tx) => {
             // 0. Idempotency Check
@@ -95,7 +95,7 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
                 data: {
                     name: metadata.departmentName || 'Main Workspace',
                     slug: `${departmentSlug}-${Date.now().toString().slice(-4)}`, // Ensure uniqueness
-                    auth0OrgId: auth0OrgId, // <--- Moved here
+                    auth0OrgId: auth0OrgId,
                     stripeCustomerId: customerId,
                     stripeSubscriptionId: subscriptionId,
                     organizationId: organization.id,
@@ -129,7 +129,7 @@ export async function provisionWorkspace(metadata: any, customerId: string, subs
             }
 
             if (cart.length > 0) {
-                await createHardwareOrderTx(tx, department.id, cart);
+                await createHardwareOrderTx(tx, department.id, cart, paymentIntent, metadata.userEmail);
             }
 
             // 4. Invite the Admin User

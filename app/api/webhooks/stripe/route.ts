@@ -27,31 +27,15 @@ export async function POST(req: Request) {
 
     try {
         switch (event.type) {
-            case 'customer.subscription.updated':
-                await handlers.handleSubscriptionUpdated(
-                    event.data.object as any,
-                    event.data.previous_attributes
-                );
-                break;
+            // case 'customer.subscription.deleted':
+            //     await handlers.handleSubscriptionDeleted(event.data.object as any);
+            //     break;
 
-            case 'customer.subscription.deleted':
-                await handlers.handleSubscriptionDeleted(event.data.object as any);
-                break;
+            // case 'price.created':
+            // case 'price.updated':
+            //     await handlers.handlePriceUpdated(event.data.object as any);
+            //     break;
 
-            case 'price.created':
-            case 'price.updated':
-                await handlers.handlePriceUpdated(event.data.object as any);
-                break;
-
-
-            case 'payment_intent.succeeded':
-            case 'payment_intent.processing':
-                await handlers.handlePaymentIntent(event.data.object as any);
-                break;
-
-            case 'checkout.session.completed':
-                await handlers.handleCheckoutSessionCompleted(event.data.object as any);
-                break;
 
             case 'invoice.paid':
                 await handlers.handleInvoicePaid(event.data.object as any);
@@ -61,12 +45,14 @@ export async function POST(req: Request) {
                 await handlers.handleInvoicePaymentFailed(event.data.object);
                 break;
 
-            case 'setup_intent.succeeded':
-                await handlers.handleSetupIntentSucceeded(event.data.object as any);
-                break;
+            // case 'setup_intent.succeeded':
+            //     await handlers.handleSetupIntentSucceeded(event.data.object as any);
+            //     break;
 
-            default:
-                console.log(`Unhandled event type ${event.type}`);
+
+
+            // default:
+            //     console.log(`Unhandled event type ${event.type}`);
         }
 
     } catch (e: any) {

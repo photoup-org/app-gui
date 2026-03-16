@@ -1,6 +1,5 @@
 import Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
-import { provisionWorkspace } from './workspace';
 import * as departmentService from '@/lib/repositories/department';
 import { setupAuth0AndInvite } from './auth0-handlers';
 import { executeTenantProvisioningTx } from '../checkout/handlers';
@@ -8,123 +7,108 @@ import prisma from '@/lib/prisma';
 
 
 export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {
-    const subscriptionId = (rawInvoice as any).subscription;
+    console.log(`\n--- [WEBHOOK TRIGGERED] handleInvoicePaid ---`);
+    console.log(`Invoice ID: ${rawInvoice.id}`);
 
-    if (rawInvoice.status !== 'paid' || !subscriptionId) return;
-    // STEP 1: Pre-fetch external data outside the transaction
-    const subscription = typeof subscriptionId === 'string'
-        ? await stripe.subscriptions.retrieve(subscriptionId)
-        : subscriptionId as Stripe.Subscription;
-
-    const expandedInvoice = await stripe.invoices.retrieve(rawInvoice.id, { expand: ['lines.data.price.product'] });
-    const metadata = subscription.metadata || {};
-
-    const customerId = typeof rawInvoice.customer === 'string' ? rawInvoice.customer : rawInvoice.customer?.id;
-    const userEmail = metadata.userEmail || rawInvoice.customer_email;
-    const nif = metadata.nif;
-    const rawPaymentIntent = (rawInvoice as any).payment_intent;
-
-    const stripeIntentId = typeof rawPaymentIntent === 'string'
-        ? rawPaymentIntent
-        : rawPaymentIntent?.id;
-
-    if (!customerId || !userEmail || !nif || !stripeIntentId) {
-        console.error(`[Webhook] handleInvoicePaid missing critical metadata or IDs.`);
+    if (rawInvoice.status !== 'paid') {
+        console.warn(`[Webhook] Aborting: Invoice status is '${rawInvoice.status}'.`);
         return;
     }
 
-    // Map expanded invoice lines to our helper format
-    const lineItems = expandedInvoice.lines.data.map((item: any) => ({
-        stripeProductId: typeof item.price?.product === 'string' ? item.price.product : item.price?.product?.id,
-        quantity: item.quantity || 1
-    }));
+    // FIXED: Removed the invalid 'lines.data.pricing.price_details.product' expansion path
+    const fullInvoice: any = await stripe.invoices.retrieve(rawInvoice.id, { 
+        expand: ['lines.data.price.product'] 
+    });
 
-    try {
-        // STEP 2: Fast DB Transaction
-        const { department, organization } = await executeTenantProvisioningTx({
-            nif,
-            orgName: metadata.organizationName || 'New Organization',
-            deptName: metadata.departmentName || 'Main Workspace',
-            userEmail,
-            userName: metadata.userName || 'Admin',
-            jobTitle: metadata.jobTitle,
-            phone: metadata.phone,
-            metadata,
-            stripeData: { customerId, subscriptionId: subscription.id, intentId: stripeIntentId },
-            lineItems
+    // 1. EXACT EXTRACTION FROM NEW STRIPE JSON STRUCTURE
+    const subscriptionId = fullInvoice.parent?.subscription_details?.subscription
+        || fullInvoice.subscription;
+
+    // Fallback to Invoice ID so our DB has a unique transaction receipt
+    const stripeIntentId = fullInvoice.payment_intent
+        || fullInvoice.id;
+
+    const customerId = fullInvoice.customer;
+    const billingReason = fullInvoice.billing_reason;
+
+    console.log(`Extracted Sub ID: ${subscriptionId || 'MISSING'}`);
+    console.log(`Extracted Receipt ID: ${stripeIntentId}`);
+    console.log(`Billing Reason: ${billingReason}`);
+
+    // =========================================================
+    // SCENARIO 1: INITIAL PURCHASE (Provision Everything)
+    // =========================================================
+    if (billingReason === 'subscription_create') {
+        console.log(`[Webhook] Initial purchase. Extracting metadata from nested parent...`);
+
+        // Extract metadata directly from the invoice's new parent object
+        const aggregatedMetadata = fullInvoice.parent?.subscription_details?.metadata
+            || fullInvoice.lines?.data?.[0]?.metadata
+            || {};
+
+        const userEmail = aggregatedMetadata.userEmail || fullInvoice.customer_email;
+        const nif = aggregatedMetadata.nif;
+
+        if (!customerId || !userEmail || !nif) {
+            console.error(`[Webhook] ABORTED: Missing critical data.`);
+            console.error(`Metadata found:`, aggregatedMetadata);
+            return;
+        }
+
+        // Handle nested line items parsing based on the JSON dump
+        const lineItems = fullInvoice.lines.data.map((item: any) => {
+            const productId = item.pricing?.price_details?.product
+                || (typeof item.price?.product === 'string' ? item.price.product : item.price?.product?.id);
+            return {
+                stripeProductId: productId,
+                quantity: item.quantity || 1
+            };
         });
 
-        // STEP 3: Post-Transaction Auth0 Integration
-        await setupAuth0AndInvite(organization.name, department.id, userEmail);
+        try {
+            console.log(`[Webhook] Metadata secured. Provisioning Database...`);
+            const { department, organization } = await executeTenantProvisioningTx({
+                nif,
+                orgName: aggregatedMetadata.organizationName || 'New Organization',
+                deptName: aggregatedMetadata.departmentName || 'Main Workspace',
+                userEmail,
+                userName: aggregatedMetadata.userName || 'Admin',
+                jobTitle: aggregatedMetadata.jobTitle,
+                phone: aggregatedMetadata.phone,
+                metadata: aggregatedMetadata,
+                stripeData: {
+                    customerId: customerId as string,
+                    subscriptionId: subscriptionId as string,
+                    intentId: stripeIntentId as string
+                },
+                lineItems
+            });
 
-    } catch (error: any) {
-        if (error.code === 'P2002') return console.log(`[Webhook] handleInvoicePaid skipped (idempotency).`);
-        throw error;
+            await setupAuth0AndInvite(organization.name, department.id, userEmail);
+
+        } catch (error: any) {
+            if (error.code === 'P2002') return console.log(`[Webhook] handleInvoicePaid skipped (idempotency).`);
+            console.error(`[Webhook] Database Provisioning Failed:`, error);
+            throw error;
+        }
+    }
+    // =========================================================
+    // SCENARIO 2: RECURRING RENEWAL
+    // =========================================================
+    else if (billingReason === 'subscription_cycle') {
+        if (!subscriptionId) return console.warn(`[Webhook] Cannot process renewal: No sub ID.`);
+        console.log(`[Webhook] Renewal for sub: ${subscriptionId}. Updating status...`);
+        try {
+            await departmentService.updateDepartmentStatusByStripeSubscriptionId(subscriptionId as string, 'ACTIVE');
+        } catch (error) {
+            console.error(`[Webhook] Failed to update status:`, error);
+        }
+    }
+    else {
+        console.log(`[Webhook] Unhandled reason: ${billingReason}. Ignoring.`);
     }
 }
 
-export async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-    if (!session || !session.metadata) return;
-
-    const metadata = session.metadata;
-    const userEmail = metadata.userEmail || session.customer_details?.email;
-    const nif = metadata.nif;
-    const stripeIntentId = (session.payment_intent as string) || (session.setup_intent as string);
-
-    if (!userEmail || !nif || !stripeIntentId) {
-        console.error('[Webhook] checkout.session.completed missing userEmail, nif, or intentId');
-        return;
-    }
-
-    // STEP 1: Pre-fetch line items outside the transaction
-    const lineItemsDesc = await stripe.checkout.sessions.listLineItems(session.id, { expand: ['data.price.product'] });
-    const lineItems = lineItemsDesc.data.map((item: any) => ({
-        stripeProductId: typeof item.price?.product === 'string' ? item.price.product : item.price?.product?.id,
-        quantity: item.quantity || 1
-    }));
-
-    try {
-        // STEP 2: Fast DB Transaction
-        const { department, organization } = await executeTenantProvisioningTx({
-            nif,
-            orgName: metadata.organizationName || 'New Organization',
-            deptName: metadata.departmentName || 'Main Workspace',
-            userEmail,
-            userName: metadata.userName || 'Admin',
-            jobTitle: metadata.jobTitle,
-            phone: metadata.phone,
-            metadata,
-            stripeData: {
-                customerId: (session.customer as string) || `cus_PENDING_${Date.now()}`,
-                subscriptionId: (session.subscription as string) || undefined,
-                intentId: stripeIntentId
-            },
-            lineItems
-        });
-
-        // STEP 3: Post-Transaction Auth0 Integration
-        await setupAuth0AndInvite(organization.name, department.id, userEmail);
-
-    } catch (error: any) {
-        if (error.code === 'P2002') return console.log(`[Webhook] handleCheckoutSessionCompleted skipped (idempotency).`);
-        console.error(`[Webhook] Transaction Aborted:`, error);
-        throw error;
-    }
-}
-
-export async function handleSubscriptionUpdated(subscription: Stripe.Subscription, previousAttributes: any) {
-    if (previousAttributes?.status === 'incomplete' && subscription.status === 'active') {
-        const metadata = subscription.metadata || {};
-        await provisionWorkspace(metadata, subscription.customer as string, subscription.id);
-    }
-}
-
-export async function handlePaymentIntent(paymentIntent: Stripe.PaymentIntent) {
-    const metadata = paymentIntent.metadata || {};
-    if (metadata.organizationName && !(paymentIntent as any).invoice) {
-        await provisionWorkspace(metadata, paymentIntent.customer as string, null);
-    }
-}
 
 export async function handleInvoicePaymentFailed(invoice: any) {
     if (invoice.subscription) {
@@ -145,11 +129,11 @@ export async function handleSetupIntentSucceeded(setupIntent: Stripe.SetupIntent
                 await stripe.customers.update(subscription.customer as string, {
                     invoice_settings: { default_payment_method: setupIntent.payment_method as string }
                 });
+                console.log(`[Webhook] Successfully attached PaymentMethod to Subscription ${subscriptionId}`);
             } catch (err) {
                 console.error(`[Webhook] Failed to attach PaymentMethod:`, err);
             }
         }
-        await provisionWorkspace(subscription.metadata || {}, subscription.customer as string, subscription.id);
     }
 }
 

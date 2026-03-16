@@ -6,21 +6,21 @@ import { Check, Download, Package, CreditCard, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-interface SuccessSummaryProps {
-    intentId: string;
+export interface SuccessSummaryProps {
     orderId: string;
     documentUrl: string | null;
 }
 
-export default function SuccessSummary({ intentId, orderId, documentUrl }: SuccessSummaryProps) {
+export default function SuccessSummary({
+    orderId,
+    documentUrl,
+}: SuccessSummaryProps) {
     const cartState = useCartState();
     const { clearCart } = useCartDispatch();
     const [orderSnapshot, setOrderSnapshot] = useState<any>(null);
 
     useEffect(() => {
-        // We snapshot the cart state to avoid losing information when clearing the cart
         if (cartState && cartState.state.items.length > 0 && !orderSnapshot) {
-            // 1. Snapshot the data for the UI
             setOrderSnapshot({
                 cartItems: cartState.state.items,
                 billingAddress: cartState.state.billingAddress,
@@ -32,23 +32,15 @@ export default function SuccessSummary({ intentId, orderId, documentUrl }: Succe
         }
     }, [cartState, orderSnapshot]);
 
-    // Fallback UI (Refresh Protection)
-    if (!orderSnapshot && (!cartState || cartState.state.items.length === 0)) {
+    if (!orderSnapshot) {
         return (
             <div className="flex flex-col items-center justify-center p-12 text-center space-y-4">
-                <Check className="w-16 h-16 text-green-500 mb-2" />
-                <h2 className="text-2xl font-bold">A sua encomenda já foi processada.</h2>
-                <p className="text-muted-foreground">Verifique o seu email para ver o recibo e mais detalhes.</p>
-                <Button asChild className="mt-6">
-                    <Link href="/">Voltar à Página Inicial</Link>
-                </Button>
+                <p>Loading...</p>
             </div>
         );
     }
 
-    // If we have a snapshot, use it. Otherwise, use what's in cartState right now (during the tiny gap before snapshot commits)
     const displayData = orderSnapshot || cartState;
-
     if (!displayData) return null;
 
     return (
@@ -104,9 +96,8 @@ export default function SuccessSummary({ intentId, orderId, documentUrl }: Succe
                             </div>
                             <address className="not-italic text-sm text-muted-foreground space-y-1.5 leading-relaxed">
                                 <p className="font-medium text-foreground text-base">{displayData.shippingAddress.name}</p>
-                                <p>{displayData.shippingAddress.line1}</p>
-                                {displayData.shippingAddress.line2 && <p>{displayData.shippingAddress.line2}</p>}
-                                <p>{displayData.shippingAddress.postal_code} {displayData.shippingAddress.city}</p>
+                                <p>{displayData.shippingAddress.street}</p>
+                                <p>{displayData.shippingAddress.zipCode} {displayData.shippingAddress.city}</p>
                                 <p>{displayData.shippingAddress.country}</p>
                             </address>
                         </div>
@@ -122,10 +113,9 @@ export default function SuccessSummary({ intentId, orderId, documentUrl }: Succe
                             </div>
                             <address className="not-italic text-sm text-muted-foreground space-y-1.5 leading-relaxed">
                                 <p className="font-medium text-foreground text-base">{displayData.billingAddress.name}</p>
-                                {displayData.billingAddress.tax_id && <p>NIF: <span className="font-mono">{displayData.billingAddress.tax_id}</span></p>}
-                                <p>{displayData.billingAddress.line1}</p>
-                                {displayData.billingAddress.line2 && <p>{displayData.billingAddress.line2}</p>}
-                                <p>{displayData.billingAddress.postal_code} {displayData.billingAddress.city}</p>
+                                {displayData.nif && <p>NIF: <span className="font-mono">{displayData.nif}</span></p>}
+                                <p>{displayData.billingAddress.street}</p>
+                                <p>{displayData.billingAddress.zipCode} {displayData.billingAddress.city}</p>
                                 <p>{displayData.billingAddress.country}</p>
                             </address>
                         </div>

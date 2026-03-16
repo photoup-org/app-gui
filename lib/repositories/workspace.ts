@@ -153,15 +153,18 @@ export async function createAdminUserTx(tx: TxClient, input: z.infer<typeof Admi
 export async function createHardwareOrderTx(
     tx: TxClient,
     departmentId: string,
-    cartItemsRaw: any[]
+    cartItemsRaw: any[],
+    intentId: string,
+    customerEmail: string
 ) {
     const cartItems = OrderItemsSchema.parse(cartItemsRaw);
-
     if (cartItems.length > 0) {
         const order = await tx.order.create({
             data: {
                 departmentId: departmentId,
                 status: 'PAID_UNSHIPPED',
+                stripeIntentId: intentId,
+                customerEmail: customerEmail
             },
         });
 
