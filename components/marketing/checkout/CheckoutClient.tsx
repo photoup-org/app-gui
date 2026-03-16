@@ -35,8 +35,7 @@ type CheckoutClientProps = {
 
 export function CheckoutClient({ planId, totalSensors, hardwareParam }: CheckoutClientProps) {
     const selectedHardware = hardwareParam ? JSON.parse(decodeURIComponent(hardwareParam)) : [];
-    const { setBillingAddress, setShippingAddress, setUserEmail } = useCartDispatch()
-    const { state } = useCartState()
+    const { setBillingAddress, setShippingAddress, setUserEmail, setNIF } = useCartDispatch()
     const methods = useForm<CheckoutFormValues>({
         defaultValues: {
             country: 'PT',
@@ -45,7 +44,6 @@ export function CheckoutClient({ planId, totalSensors, hardwareParam }: Checkout
             shippingAddress: { country: 'PT' },
         },
     });
-    console.log(state)
     // ─── Local UI state ────────────────────────────────────────────────────────
     const [activeTab, setActiveTab] = useState<Tab>('organizacao');
     const [isValidatingVat, setIsValidatingVat] = useState(false);
@@ -146,6 +144,7 @@ export function CheckoutClient({ planId, totalSensors, hardwareParam }: Checkout
             city: methods.getValues(`${isSameAddress ? 'billingAddress' : 'shippingAddress'}.city`),
             country: methods.getValues('country'),
         })
+        setNIF(methods.getValues('nif'));
         if (valid) setActiveTab('administrador');
     };
 

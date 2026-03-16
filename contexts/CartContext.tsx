@@ -25,6 +25,7 @@ export interface CartDispatchContextType {
     setBillingAddress: (address: CartAddress) => void;
     setShippingAddress: (address: CartAddress) => void;
     setUserEmail: (email: string) => void;
+    setNIF: (nif: string) => void;
 }
 
 const CartStateContext = createContext<CartStateContextType | undefined>(undefined);
@@ -136,9 +137,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setState((prev) => ({ ...prev, userEmail: email }));
     }, []);
 
+    const setNIF = useCallback((nif: string) => {
+        setState((prev) => ({ ...prev, nif }));
+    }, []);
+
     const dispatchValue = useMemo(() => ({
-        setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart, setBillingAddress, setShippingAddress, setUserEmail
-    }), [setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart, setBillingAddress, setShippingAddress, setUserEmail]);
+        setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart, setBillingAddress, setShippingAddress, setUserEmail, setNIF
+    }), [setPlan, setBundle, setExtraSensorPrice, addItem, removeItem, updateQuantity, clearCart, setBillingAddress, setShippingAddress, setUserEmail, setNIF]);
 
     const stateValue = useMemo(() => ({
         state, lineItems, grandTotal, isLoading

@@ -26,9 +26,10 @@ export default function SuccessSummary({
                 billingAddress: cartState.state.billingAddress,
                 shippingAddress: cartState.state.shippingAddress,
                 userEmail: cartState.state.userEmail,
-                planId: cartState.state.selectedPlan?.id
+                planId: cartState.state.selectedPlan?.id,
+                nif: cartState.state.nif
             });
-            // clearCart();
+            clearCart();
         }
     }, [cartState, orderSnapshot]);
 
@@ -42,7 +43,7 @@ export default function SuccessSummary({
 
     const displayData = orderSnapshot || cartState;
     if (!displayData) return null;
-
+    console.log(displayData)
     return (
         <div className="max-w-4xl mx-auto w-full space-y-10 flex-1 items-center justify-center">
             {/* Hero / Header */}

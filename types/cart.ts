@@ -14,6 +14,7 @@ export type CartState = {
     billingAddress?: CartAddress | null;
     shippingAddress?: CartAddress | null;
     userEmail?: string | null;
+    nif?: string | null;
 };
 
 export type LineItem = {
