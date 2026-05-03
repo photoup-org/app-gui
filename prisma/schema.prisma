@@ -58,6 +58,7 @@ model Department {
   organization         Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   plan                 PlanTier?          @relation(fields: [planId], references: [id])
   shippingAddress      Address?           @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  labProfile           LabProfile?        // Null means they haven't picked yet
   devices              Device[]
   orders               Order[]
   users                User[]
@@ -120,7 +121,9 @@ model Device {
   updatedAt    DateTime        @updatedAt
   department   Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   product      HardwareProduct @relation(fields: [productId], references: [id])
+  readings     SensorReading[]
 }
+
 
 model Order {
   id               String      @id @default(cuid())
@@ -146,6 +149,19 @@ model OrderItem {
   updatedAt DateTime        @updatedAt
   order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   HardwareProduct @relation(fields: [productId], references: [id])
+}
+
+model SensorReading {
+  id         String   @id @default(cuid())
+  deviceId   String
+  metricType String
+  value      Float
+  timestamp  DateTime @default(now())
+
+  device     Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  // Just a standard index to make querying by time fast
+  @@index([deviceId, timestamp(sort: Desc)])
 }
 
 enum OrderStatus {
@@ -178,4 +194,9 @@ enum DeviceStatus {
   ACTIVE
   OFFLINE
   MAINTENANCE
+}
+
+enum LabProfile {
+  CONTINUOUS
+  PROJECTS
 }

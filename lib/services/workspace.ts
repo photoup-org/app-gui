@@ -155,3 +155,40 @@ export async function provisionWorkspace(metadata: any, paymentIntent: string, c
         throw error;
     }
 }
+
+/**
+ * Data Access Layer (DAL) for fetching aggregated workspace context.
+ * This is used in server components/layouts to fetch heavy data while keeping
+ * the React Context lean.
+ * 
+ * @param auth0UserId The Auth0 user ID (sub)
+ * @returns The user object with included department, plan, latest order, and device count.
+ */
+export async function getUserWorkspaceContext(auth0UserId: string) {
+    const user = await prisma.user.findUnique({
+        where: { auth0UserId },
+        include: {
+            department: {
+                include: {
+                    plan: true,
+                    orders: {
+                        orderBy: { createdAt: "desc" },
+                        take: 1,
+                        include: {
+                            items: {
+                                include: {
+                                    product: true,
+                                },
+                            },
+                        },
+                    },
+                    _count: {
+                        select: { devices: true },
+                    },
+                },
+            },
+        },
+    });
+
+    return user;
+}
