@@ -12,6 +12,7 @@ export interface AppState {
         id: string;
         name: string | null;
         email: string;
+        picture: string | null;
     };
     workspace: {
         departmentId: string;

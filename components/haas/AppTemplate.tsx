@@ -2,12 +2,20 @@
 
 import { Sidebar } from "./Sidebar";
 import { MobileNav } from "./MobileNav";
+import { useCallback, useState } from "react";
+import { cn } from "@/lib/utils";
 
-export default function DashboardShell({
+export default function AppTemplate({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const [collapsed, setCollapsed] = useState(false);
+
+    const toggleSidebar = useCallback(() => {
+        setCollapsed(!collapsed);
+    }, [collapsed])
+
     return (
         <div className="min-h-screen bg-white">
             {/* Mobile Header */}
@@ -18,8 +26,11 @@ export default function DashboardShell({
 
             <div className="flex">
                 {/* Desktop Sidebar */}
-                <div className="hidden lg:block w-64 border-r min-h-screen bg-gray-50/40">
-                    <Sidebar />
+                <div className={cn(
+                    "hidden lg:block border-r min-h-screen bg-gray-50/40 transition-all duration-1000 ease-in-out overflow-hidden",
+                    collapsed ? "w-20" : "w-64"
+                )}>
+                    <Sidebar toggleSidebar={toggleSidebar} collapsed={collapsed} />
                 </div>
 
                 {/* Main Content */}

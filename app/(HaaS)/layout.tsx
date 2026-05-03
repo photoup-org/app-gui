@@ -1,8 +1,12 @@
-import DashboardShell from "@/components/haas/DashboardShell";
 import { getAppSession } from "@/lib/auth/session";
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import { AppProvider, AppState } from "@/contexts/AppContext";
 import { redirect } from "next/navigation";
+import { WelcomeScreen } from "@/components/dashboard/WelcomeScreen";
+import { HardwarePendingScreen } from "@/components/dashboard/HardwarePendingScreen";
+import { hasRequiredRole } from "@/lib/auth/permissions";
+import { Role } from "@prisma/client";
+import AppTemplate from "@/components/haas/AppTemplate";
 
 export default async function Layout({
   children,
@@ -24,12 +28,18 @@ export default async function Layout({
     redirect("/auth/logout");
   }
 
+  // Role-based access control (RBAC) - Ensure minimum OPERATOR role for dashboard access
+  if (!hasRequiredRole(userContext.role, Role.OPERATOR)) {
+    redirect("/auth/logout");
+  }
+
   // Map the heavy Prisma object into our lean AppState for the client context
   const initialState: AppState = {
     user: {
       id: userContext.id,
       name: userContext.name,
       email: userContext.email,
+      picture: session.user?.picture || "",
     },
     workspace: {
       departmentId: userContext.departmentId,
@@ -39,9 +49,23 @@ export default async function Layout({
     },
   };
 
+  const { department } = userContext;
+  const labProfile = department.labProfile;
+  const deviceCount = department._count.devices;
+  const latestOrder = department.orders[0] || null;
+
+  // --- Onboarding State Machine (Server-Side) ---
+
+  // State 1: Pick a Lab Profile (First-time login) - NO DashboardShell
+  if (!labProfile) return <WelcomeScreen />
+
+
+
   return (
     <AppProvider initialState={initialState}>
-      {children}
+      <AppTemplate>
+        {deviceCount === 0 ? <HardwarePendingScreen latestOrder={latestOrder} /> : children}
+      </AppTemplate>
     </AppProvider>
   );
 }
