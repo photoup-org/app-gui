@@ -2,7 +2,6 @@ import './globals.css';
 import type { Metadata } from "next";
 import { Anek_Latin } from "next/font/google";
 import { getAppSession } from "@/lib/auth/session";
-import { UserProvider } from "@/contexts/UserContext";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -34,9 +33,7 @@ export default async function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <UserProvider user={session?.user}>
-                        {children}
-                    </UserProvider>
+                    {children}
                     <Toaster />
                 </ThemeProvider>
             </body>

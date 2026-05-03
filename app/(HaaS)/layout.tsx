@@ -23,7 +23,7 @@ export default async function Layout({
   // Fetch the aggregated workspace context from the DAL
   const userContext = await getUserWorkspaceContext(session.user.sub);
 
-  if (!userContext) {
+  if (!userContext || !userContext.department) {
     // If the user doesn't exist in our DB yet, force a logout/re-sync
     redirect("/auth/logout");
   }
@@ -42,7 +42,9 @@ export default async function Layout({
       picture: session.user?.picture || "",
     },
     workspace: {
-      departmentId: userContext.departmentId,
+      organizationName: userContext.department.organization.name,
+      departmentId: userContext.department.id,
+      departmentName: userContext.department.name,
       role: userContext.role,
       planName: userContext.department.plan?.name || null,
       labProfile: userContext.department.labProfile,

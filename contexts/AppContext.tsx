@@ -16,6 +16,8 @@ export interface AppState {
     };
     workspace: {
         departmentId: string;
+        organizationName: string;
+        departmentName: string;
         role: Role;
         planName: string | null;
         labProfile: LabProfile | null;

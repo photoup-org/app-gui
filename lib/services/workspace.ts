@@ -164,21 +164,22 @@ export async function provisionWorkspace(metadata: any, paymentIntent: string, c
  * @param auth0UserId The Auth0 user ID (sub)
  * @returns The user object with included department, plan, latest order, and device count.
  */
+// lib/services/workspace.ts
+
 export async function getUserWorkspaceContext(auth0UserId: string) {
     const user = await prisma.user.findUnique({
         where: { auth0UserId },
         include: {
             department: {
                 include: {
+                    organization: true,
                     plan: true,
                     orders: {
                         orderBy: { createdAt: "desc" },
                         take: 1,
                         include: {
                             items: {
-                                include: {
-                                    product: true,
-                                },
+                                include: { product: true },
                             },
                         },
                     },
