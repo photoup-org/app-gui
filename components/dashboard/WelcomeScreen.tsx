@@ -24,10 +24,10 @@ export function WelcomeScreen() {
     return (<div className="flex flex-col items-center py-10 px-24">
         <BrandLogo className="shrink-0" width={215} height={50} />
         <div className="flex flex-col items-center space-y-8 mt-15">
-            <h1 className="text-2xl md:text-6xl font-bold text-center">🚀 Bem-vindo à PhotoUP</h1>
-            <h5 className="text-sm md:text-xl max-w-2xl text-center text-muted-foreground/50">Obrigado por nos escolher. Estamos entusiasmados por ajudá-lo a modernizar os seus processos. O seu equipamento está a ser preparado. Vamos usar este tempo para definir o seu primeiro ambiente de monitorização.</h5>
+            <h1 className="text-2xl md:text-5xl font-bold text-center">🚀 Bem-vindo à PhotoUP</h1>
+            <h5 className="text-sm md:text-lg max-w-2xl text-center text-muted-foreground/50">Obrigado por nos escolher. Estamos entusiasmados por ajudá-lo a modernizar os seus processos. O seu equipamento está a ser preparado. Vamos usar este tempo para definir o seu primeiro ambiente de monitorização.</h5>
             <div className="space-y-3 text-center">
-                <h5 className="text-md md:text-xl max-w-2xl text-center font-bold">Como planeia utilizar a nossa plataforma?</h5>
+                <h5 className="text-md md:text-lg max-w-2xl text-center font-bold">Como planeia utilizar a nossa plataforma?</h5>
                 <p className="text-sm md:text-md text-muted-foreground/50">Escolha uma opção para prosseguir</p>
             </div>
             <div className="flex flex-col md:flex-row justify-center items-center space-y-5 md:space-y-0 md:space-x-10 w-full">
@@ -48,7 +48,7 @@ export function WelcomeScreen() {
                             description: "Direcione notificações críticas de forma inteligente."
                         }
                     ]}
-                    onClick={() => { }}
+                    onClick={() => { handleSelect("CONTINUOUS") }}
                     textColor="text-primary"
                     bgColor="bg-primary-bg"
                 />
@@ -69,7 +69,7 @@ export function WelcomeScreen() {
                             description: "Permita que vários investigadores registem observações e intervenções."
                         }
                     ]}
-                    onClick={() => { }}
+                    onClick={() => { handleSelect("PROJECTS") }}
                     textColor="text-info"
                     bgColor="bg-info-bg"
                 />
