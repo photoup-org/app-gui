@@ -43,7 +43,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-success: var(--success);
-  --color-primary-faded: var(--primary-faded);
+  --color-primary-bg: var(--primary-bg);
   --color-bg-faded: var(--bg-faded);
   --color-success-bg: var(--success-bg);
   --color-info-bg: var(--info-bg);
@@ -95,7 +95,7 @@
   --chart-5: oklch(0.51 0.10 166);
 
   --success: oklch(0.746 0.181 152.327);
-  --primary-faded: oklch(0.748 0.121 192.155 / 10%);
+  --primary-bg: oklch(0.748 0.121 192.155 / 10%);
   --bg-faded: oklch(0.941 0.003 286.348);
   --success-bg: oklch(0.959 0.021 156.822);
   --info-bg: oklch(0.630 0.180 259.956 / 20%);
