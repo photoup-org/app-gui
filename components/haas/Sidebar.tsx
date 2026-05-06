@@ -10,6 +10,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group"
 import { Kbd } from "../ui/kbd";
 import { useApp } from "@/contexts/AppContext";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { PlanUsageWidget } from "./PlanUsageWidget";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     toggleSidebar: () => void;
@@ -20,7 +21,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Sidebar({ className, toggleSidebar, collapsed }: SidebarProps) {
 
     return (
-        <div className={cn("pb-12 px-4 h-screen", className)}>
+        <div className={cn("p-4 h-screen", className)}>
             <div className="flex flex-col justify-between h-full">
                 <div className="">
                     <NavigationHeader toggleSidebar={toggleSidebar} collapsed={collapsed} />
@@ -119,7 +120,7 @@ const NavigationItem = ({ route, collapsed }: { route: TRoute, collapsed: boolea
 
 const NavigationFooter = ({ collapsed }: { collapsed: boolean }) => {
     return <div className="space-y-3">
-        <PlanLimits />
+        <PlanUsageWidget />
         <FooterNavigation collapsed={collapsed} />
         <UserMenu collapsed={collapsed} />
     </div>

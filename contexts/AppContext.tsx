@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, ReactNode } from "react";
 import { Role, LabProfile } from "@prisma/client";
+import { PlanUsageStats } from "@/lib/services/billing";
 
 /**
  * AppState represents the lean user and workspace context
@@ -21,6 +22,7 @@ export interface AppState {
         role: Role;
         planName: string | null;
         labProfile: LabProfile | null;
+        planStats: PlanUsageStats;
     };
 }
 

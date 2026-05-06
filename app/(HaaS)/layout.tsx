@@ -8,6 +8,8 @@ import { hasRequiredRole } from "@/lib/auth/permissions";
 import { Role } from "@prisma/client";
 import AppTemplate from "@/components/haas/AppTemplate";
 
+import { getPlanUsageStats } from "@/lib/services/billing";
+
 export default async function Layout({
   children,
 }: Readonly<{
@@ -33,6 +35,9 @@ export default async function Layout({
     redirect("/auth/logout");
   }
 
+  // Fetch plan usage stats for the widget
+  const planStats = await getPlanUsageStats(userContext.department.id);
+
   // Map the heavy Prisma object into our lean AppState for the client context
   const initialState: AppState = {
     user: {
@@ -48,6 +53,7 @@ export default async function Layout({
       role: userContext.role,
       planName: userContext.department.plan?.name || null,
       labProfile: userContext.department.labProfile,
+      planStats,
     },
   };
 
