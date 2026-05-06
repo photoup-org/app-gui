@@ -91,6 +91,19 @@ export async function provisionWorkspace(metadata: any, paymentIntent: string, c
             // 3. Create Department
             const departmentSlug = (metadata.departmentName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
+            // 3.1 Fetch the plan using the Stripe ID from metadata (passed as 'planId' in actions/stripe.ts)
+            let planId: string | undefined = undefined;
+            if (metadata.planId) {
+                const plan = await tx.planTier.findUnique({
+                    where: { stripeProductId: metadata.planId }
+                });
+                if (plan) {
+                    planId = plan.id;
+                } else {
+                    console.error(`[Webhook] CRITICAL: Plan not found for Stripe Product ID: ${metadata.planId}`);
+                }
+            }
+
             const department = await tx.department.create({
                 data: {
                     name: metadata.departmentName || 'Main Workspace',
@@ -102,6 +115,7 @@ export async function provisionWorkspace(metadata: any, paymentIntent: string, c
                     billingAddressId: billingAddress.id,
                     shippingAddressId: shippingAddressId,
                     subStatus: 'ACTIVE',
+                    planId: planId,
                 }
             });
 

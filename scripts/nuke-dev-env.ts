@@ -22,6 +22,8 @@ async function nukeDatabase() {
         console.log('   ✅ Organizations deleted');
         await prisma.address.deleteMany();
         console.log('   ✅ Addresses deleted');
+        await prisma.pendingCart.deleteMany();
+        console.log('   ✅ Pending Carts deleted');
         console.log('🎉 Database successfully wiped!');
     } catch (error) {
         console.error('❌ Error wiping database:', error);
