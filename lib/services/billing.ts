@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 export type PlanUsageStats = {
   planName: string;
   isTopTier: boolean;
-  gateways: {
+  users: {
     used: number;
     limit: number | null;
   };
@@ -14,7 +14,7 @@ export type PlanUsageStats = {
 };
 
 /**
- * DAL function to aggregate a department's hardware usage against their plan limits.
+ * DAL function to aggregate a department's hardware and user usage against their plan limits.
  * Fetches data directly from Prisma (Server Component pattern).
  */
 export async function getPlanUsageStats(departmentId: string): Promise<PlanUsageStats> {
@@ -22,6 +22,9 @@ export async function getPlanUsageStats(departmentId: string): Promise<PlanUsage
     where: { id: departmentId },
     include: {
       plan: true,
+      users: {
+        select: { id: true },
+      },
       devices: {
         include: {
           product: true,
@@ -34,20 +37,19 @@ export async function getPlanUsageStats(departmentId: string): Promise<PlanUsage
     throw new Error(`Department with ID ${departmentId} not found`);
   }
 
-  const { plan, devices } = department;
+  const { plan, devices, users } = department;
 
   if (!plan) {
     return {
       planName: "Nenhum Plano",
       isTopTier: false,
-      gateways: { used: 0, limit: 0 },
+      users: { used: 0, limit: 0 },
       sensors: { used: 0, limit: 0 },
     };
   }
 
-  // Aggregate usage by hardware type
-  // GATEWAY devices
-  const gatewaysUsed = devices.filter((d) => d.product.type === "GATEWAY").length;
+  // Aggregate usage
+  const usersUsed = users.length;
   
   // SENSOR_BASE and SENSOR_PREMIUM are both counted as sensors
   const sensorsUsed = devices.filter(
@@ -55,20 +57,18 @@ export async function getPlanUsageStats(departmentId: string): Promise<PlanUsage
   ).length;
 
   // Plan limits
-  // NOTE: Based on the prompt instructions, we use includedGateways and includedSensors.
-  // We check if it's the top tier 'Executivo' to potentially treat limits as unlimited (null)
   const isTopTier = plan.name.toLowerCase() === "executivo";
 
   return {
     planName: plan.name,
     isTopTier,
-    gateways: {
-      used: gatewaysUsed,
-      limit: plan.includedGateways,
+    users: {
+      used: usersUsed,
+      limit: plan.maxUsers,
     },
     sensors: {
       used: sensorsUsed,
-      limit: plan.includedSensors,
+      limit: plan.maxSensors,
     },
   };
 }
