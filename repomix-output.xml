@@ -81,6 +81,7 @@ components/forms/HardwareForm.tsx
 components/forms/VatInputExample.tsx
 components/haas/AppTemplate.tsx
 components/haas/MobileNav.tsx
+components/haas/PlanUsageWidget.tsx
 components/haas/Sidebar.tsx
 components/layout/MarketingFooter.tsx
 components/layout/MarketingNavBar.tsx
@@ -186,6 +187,7 @@ lib/repositories/department.ts
 lib/repositories/provisioning.ts
 lib/repositories/workspace.ts
 lib/services/auth0-handlers.ts
+lib/services/billing.ts
 lib/services/email.ts
 lib/services/hardware.ts
 lib/services/stripe-handlers.ts
@@ -6049,6 +6051,107 @@ export default function HardwareForm({
 }
 </file>
 
+<file path="components/haas/PlanUsageWidget.tsx">
+"use client";
+
+import Link from "next/link";
+import { ChevronRight, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useApp } from "@/contexts/AppContext";
+
+/**
+ * PlanUsageWidget displays the current hardware and user usage
+ * against the department's plan limits in the sidebar.
+ */
+export function PlanUsageWidget() {
+  const { state } = useApp();
+  const { user, workspace } = state;
+  const { planName, isTopTier, sensors, users } = workspace.planStats;
+
+  const calculateProgress = (used: number, limit: number | null) => {
+    if (limit === null || limit === 0) return 100;
+    const percentage = (used / limit) * 100;
+    return Math.min(percentage, 100);
+  };
+
+  const renderLimitText = (limit: number | null) => {
+    return limit === null ? "Ilimitado" : limit;
+  };
+
+  return (
+    <div className="p-4 bg-primary-bg dark:bg-cyan-950/20 rounded-2xl transition-all">
+      {/* Header Link */}
+      <Link
+        href="/dashboard/settings/plan"
+        className="flex items-center justify-between mb-3 group/header"
+      >
+        <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
+          {planName}
+        </span>
+        <ChevronRight className="w-3.5 h-3.5 text-cyan-600/50 group-hover/header:translate-x-0.5 transition-transform" />
+      </Link>
+
+
+
+
+      {/* Users Tracker */}
+      <div className="mb-4">
+        <div className="flex justify-between text-xs mb-1.5 font-semibold">
+          <span className="text-slate-500 dark:text-slate-400">Utilizadores</span>
+          <span className="text-slate-700 dark:text-slate-200">
+            {users.used}/{renderLimitText(users.limit)}
+          </span>
+        </div>
+        <div className="h-1.5 w-full bg-white dark:bg-slate-800 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-cyan-500 dark:bg-cyan-400 rounded-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(6,182,212,0.4)]"
+            style={{ width: `${calculateProgress(users.used, users.limit)}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Sensors Tracker */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center text-xs mb-1.5 font-semibold">
+          <span className="text-slate-500 dark:text-slate-400">Sensores</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-slate-700 dark:text-slate-200">
+              {sensors.used}/{renderLimitText(sensors.limit)}
+            </span>
+            <Link
+              href="/dashboard/inventory"
+              className="p-1 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 rounded-md transition-colors text-cyan-600 dark:text-cyan-400"
+              title="Ver Inventário"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            </Link>
+          </div>
+        </div>
+        <div className="h-1.5 w-full bg-white dark:bg-slate-800 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-cyan-500 dark:bg-cyan-400 rounded-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(6,182,212,0.4)]"
+            style={{ width: `${calculateProgress(sensors.used, sensors.limit)}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Upgrade Button */}
+      {!isTopTier && (
+        <Button
+          asChild
+          variant="default"
+          className="w-full bg-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:hover:bg-cyan-500 text-white border-none h-10 text-sm font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <Link href="/dashboard/settings/plan">
+            Upgrade para Executivo
+          </Link>
+        </Button>
+      )}
+    </div>
+  );
+}
+</file>
+
 <file path="components/marketing/checkout/AddressForm.tsx">
 import React from 'react';
 import { FormField } from "./FormField";
@@ -7741,6 +7844,83 @@ export default prisma;
 if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma;
 </file>
 
+<file path="lib/services/billing.ts">
+import prisma from "@/lib/prisma";
+
+export type PlanUsageStats = {
+  planName: string;
+  isTopTier: boolean;
+  users: {
+    used: number;
+    limit: number | null;
+  };
+  sensors: {
+    used: number;
+    limit: number | null;
+  };
+};
+
+/**
+ * DAL function to aggregate a department's hardware and user usage against their plan limits.
+ * Fetches data directly from Prisma (Server Component pattern).
+ */
+export async function getPlanUsageStats(departmentId: string): Promise<PlanUsageStats> {
+  const department = await prisma.department.findUnique({
+    where: { id: departmentId },
+    include: {
+      plan: true,
+      users: {
+        select: { id: true },
+      },
+      devices: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  });
+
+  if (!department) {
+    throw new Error(`Department with ID ${departmentId} not found`);
+  }
+
+  const { plan, devices, users } = department;
+
+  if (!plan) {
+    return {
+      planName: "Nenhum Plano",
+      isTopTier: false,
+      users: { used: 0, limit: 0 },
+      sensors: { used: 0, limit: 0 },
+    };
+  }
+
+  // Aggregate usage
+  const usersUsed = users.length;
+  
+  // SENSOR_BASE and SENSOR_PREMIUM are both counted as sensors
+  const sensorsUsed = devices.filter(
+    (d) => d.product.type === "SENSOR_BASE" || d.product.type === "SENSOR_PREMIUM"
+  ).length;
+
+  // Plan limits
+  const isTopTier = plan.name.toLowerCase() === "executivo";
+
+  return {
+    planName: plan.name,
+    isTopTier,
+    users: {
+      used: usersUsed,
+      limit: plan.maxUsers,
+    },
+    sensors: {
+      used: sensorsUsed,
+      limit: plan.maxSensors,
+    },
+  };
+}
+</file>
+
 <file path="lib/services/stripe.ts">
 import { stripe } from '@/lib/stripe';
 
@@ -8567,182 +8747,6 @@ const ProfileTypeCard = ({ icon, title, features, onClick, textColor, bgColor }:
 }
 </file>
 
-<file path="components/haas/Sidebar.tsx">
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { LayoutDashboard, Folder, Boxes, Book, TriangleAlert, PanelRightOpen, PanelLeftOpen, SearchIcon, LucideIcon, Settings, MessageCircleQuestion } from "lucide-react";
-import { BrandLogo } from "../resources/logos";
-import { Button } from "../ui/button";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group";
-import { Kbd } from "../ui/kbd";
-import { useApp } from "@/contexts/AppContext";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-    toggleSidebar: () => void;
-    collapsed: boolean;
-    className?: string;
-}
-
-export function Sidebar({ className, toggleSidebar, collapsed }: SidebarProps) {
-
-    return (
-        <div className={cn("pb-12 px-4 h-screen", className)}>
-            <div className="flex flex-col justify-between h-full">
-                <div className="">
-                    <NavigationHeader toggleSidebar={toggleSidebar} collapsed={collapsed} />
-                    <NavigationSearchBar />
-                    <NavigationItemList className="mt-14" collapsed={collapsed} />
-                </div>
-                <NavigationFooter collapsed={collapsed} />
-            </div>
-        </div>
-    );
-}
-
-const NavigationHeader = ({ toggleSidebar, collapsed }: { toggleSidebar: () => void; collapsed: boolean }) => {
-    return <div className={cn("w-full flex items-center transition-all duration-300", collapsed ? "justify-center" : "justify-between mb-4")}>
-        {!collapsed && <BrandLogo height={40} className="transition-opacity duration-300" />}
-        <Button size="icon" variant="ghost" className="text-muted-foreground shrink-0" onClick={toggleSidebar}>
-            {collapsed ? <PanelLeftOpen size={24} /> : <PanelRightOpen size={24} />}
-        </Button>
-    </div>
-}
-
-const NavigationSearchBar = () => {
-    return <InputGroup className="max-w-sm">
-        <InputGroupInput placeholder="Pesquisar..." />
-        <InputGroupAddon>
-            <SearchIcon className="text-muted-foreground" />
-        </InputGroupAddon>
-        <InputGroupAddon align="inline-end">
-            <Kbd>⌘</Kbd>
-            <Kbd>K</Kbd>
-        </InputGroupAddon>
-    </InputGroup>
-}
-
-type TRoute = {
-    label: string,
-    icon: LucideIcon,
-    href: string,
-    active: boolean,
-}
-
-const NavigationItemList = ({ className, collapsed }: { className?: string, collapsed: boolean }) => {
-    const pathname = usePathname();
-
-    const routes: TRoute[] = [
-        {
-            label: "Visão Geral",
-            icon: LayoutDashboard,
-            href: "/dashboard",
-            active: pathname === "/dashboard",
-        },
-        {
-            label: "Projetos",
-            icon: Folder,
-            href: "/projects",
-            active: pathname === "/projects",
-        },
-        {
-            label: "Inventário",
-            icon: Boxes,
-            href: "/inventory",
-            active: pathname === "/inventory",
-        },
-        {
-            label: "Relatórios",
-            icon: Book,
-            href: "/reports",
-            active: pathname === "/reports",
-        },
-        {
-            label: "Incidentes",
-            icon: TriangleAlert,
-            href: "/alerts",
-            active: pathname === "/alerts",
-        },
-    ];
-    return <div className={cn("space-y-1", className)}>
-        {routes.map((route) => <NavigationItem key={route.href} route={route} collapsed={collapsed} />)}
-    </div>
-}
-
-const NavigationItem = ({ route, collapsed }: { route: TRoute, collapsed: boolean }) => {
-    return <Link
-        key={route.href}
-        href={route.href}
-        className={cn(
-            "flex items-center rounded-md p-3 text-sm font-medium hover:bg-primary-bg hover:text-slate-900 transition-all duration-300",
-            route.active ? "bg-primary-bg text-slate-900 font-bold" : "text-muted-foreground",
-            collapsed ? "justify-center px-2" : "justify-start"
-        )}
-    >
-        <route.icon strokeWidth={route.active ? 3 : 2} className={cn("h-5 w-5 shrink-0", route.active ? "text-slate-900" : "text-slate-500", !collapsed && "mr-3")} />
-        {!collapsed && <span className="truncate opacity-100 transition-opacity duration-300">{route.label}</span>}
-    </Link>
-}
-
-const NavigationFooter = ({ collapsed }: { collapsed: boolean }) => {
-    return <div className="space-y-3">
-        <PlanLimits />
-        <FooterNavigation collapsed={collapsed} />
-        <UserMenu collapsed={collapsed} />
-    </div>
-}
-
-
-const PlanLimits = () => {
-    return <div className="w-full p-4 bg-primary-bg">
-        <div className="flex justify-between">
-            <h6>Plano</h6>
-        </div>
-    </div>
-}
-
-const FooterNavigation = ({ collapsed }: { collapsed: boolean }) => {
-
-    const routes = [
-        {
-            label: "Definições",
-            icon: Settings,
-            href: "/settings",
-            active: false,
-        },
-        {
-            label: "Apoio ao Cliente",
-            icon: MessageCircleQuestion,
-            href: "/support",
-            active: false,
-        },
-    ]
-    return <div className="space-y-1">
-        {routes.map((route) => <NavigationItem key={route.href} route={route} collapsed={collapsed} />)}
-    </div>
-}
-
-const UserMenu = ({ collapsed }: { collapsed: boolean }) => {
-    const { state } = useApp();
-    const { name, email } = state.user;
-    console.log(state)
-
-    return <div className="w-full px-3 py-2 bg-muted/80 rounded-xl space-x-3 flex items-center cursor-pointer hover:bg-primary-bg transition-colors duration-300">
-        <Avatar>
-            <AvatarImage src={state.user.picture!} />
-            <AvatarFallback>{name ? name.charAt(0).toUpperCase() : ""}</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col space-y-1">
-            <div className="text-sm font-semibold">Olá {name!.split(" ")[0]!}</div>
-            <div className="text-xs text-muted-foreground">{email}</div>
-        </div>
-    </div>
-}
-</file>
-
 <file path="components/marketing/checkout/hardware/StickyCheckoutBar.tsx">
 import React from 'react';
 import { Button } from '@/components/ui/button';
@@ -9239,68 +9243,6 @@ export function AddToCartButton({
 export default AddToCartButton;
 </file>
 
-<file path="contexts/AppContext.tsx">
-"use client";
-
-import React, { createContext, useContext, ReactNode } from "react";
-import { Role, LabProfile } from "@prisma/client";
-
-/**
- * AppState represents the lean user and workspace context
- * used for client-side UI state and authorization checks.
- */
-export interface AppState {
-    user: {
-        id: string;
-        name: string | null;
-        email: string;
-        picture: string | null;
-    };
-    workspace: {
-        departmentId: string;
-        organizationName: string;
-        departmentName: string;
-        role: Role;
-        planName: string | null;
-        labProfile: LabProfile | null;
-    };
-}
-
-interface AppContextType {
-    state: AppState;
-}
-
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
-/**
- * AppProvider provides the initial server-fetched context to the client component tree.
- */
-export function AppProvider({
-    children,
-    initialState,
-}: {
-    children: ReactNode;
-    initialState: AppState;
-}) {
-    return (
-        <AppContext.Provider value={{ state: initialState }}>
-            {children}
-        </AppContext.Provider>
-    );
-}
-
-/**
- * Hook to access the unified app context.
- */
-export function useApp() {
-    const context = useContext(AppContext);
-    if (context === undefined) {
-        throw new Error("useApp must be used within an AppProvider");
-    }
-    return context;
-}
-</file>
-
 <file path="lib/api/products.ts">
 import prisma from "@/lib/prisma";
 import { HardwareProduct as PrismaHardwareProduct } from "@prisma/client";
@@ -9476,6 +9418,183 @@ describe('Server Actions Authorization Boundaries', () => {
         expect(result).toEqual({ success: true, data: 'Protected Record' });
     });
 });
+</file>
+
+<file path="components/haas/Sidebar.tsx">
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { LayoutDashboard, Folder, Boxes, Book, TriangleAlert, PanelRightOpen, PanelLeftOpen, SearchIcon, LucideIcon, Settings, MessageCircleQuestion } from "lucide-react";
+import { BrandLogo } from "../resources/logos";
+import { Button } from "../ui/button";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group";
+import { Kbd } from "../ui/kbd";
+import { useApp } from "@/contexts/AppContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { PlanUsageWidget } from "./PlanUsageWidget";
+
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+    toggleSidebar: () => void;
+    collapsed: boolean;
+    className?: string;
+}
+
+export function Sidebar({ className, toggleSidebar, collapsed }: SidebarProps) {
+
+    return (
+        <div className={cn("p-4 h-screen", className)}>
+            <div className="flex flex-col justify-between h-full">
+                <div className="">
+                    <NavigationHeader toggleSidebar={toggleSidebar} collapsed={collapsed} />
+                    <NavigationSearchBar />
+                    <NavigationItemList className="mt-14" collapsed={collapsed} />
+                </div>
+                <NavigationFooter collapsed={collapsed} />
+            </div>
+        </div>
+    );
+}
+
+const NavigationHeader = ({ toggleSidebar, collapsed }: { toggleSidebar: () => void; collapsed: boolean }) => {
+    return <div className={cn("w-full flex items-center transition-all duration-300", collapsed ? "justify-center" : "justify-between mb-4")}>
+        {!collapsed && <BrandLogo height={40} className="transition-opacity duration-300" />}
+        <Button size="icon" variant="ghost" className="text-muted-foreground shrink-0" onClick={toggleSidebar}>
+            {collapsed ? <PanelLeftOpen size={24} /> : <PanelRightOpen size={24} />}
+        </Button>
+    </div>
+}
+
+const NavigationSearchBar = () => {
+    return <InputGroup className="max-w-sm">
+        <InputGroupInput placeholder="Pesquisar..." />
+        <InputGroupAddon>
+            <SearchIcon className="text-muted-foreground" />
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-end">
+            <Kbd>⌘</Kbd>
+            <Kbd>K</Kbd>
+        </InputGroupAddon>
+    </InputGroup>
+}
+
+type TRoute = {
+    label: string,
+    icon: LucideIcon,
+    href: string,
+    active: boolean,
+}
+
+const NavigationItemList = ({ className, collapsed }: { className?: string, collapsed: boolean }) => {
+    const pathname = usePathname();
+
+    const routes: TRoute[] = [
+        {
+            label: "Visão Geral",
+            icon: LayoutDashboard,
+            href: "/dashboard",
+            active: pathname === "/dashboard",
+        },
+        {
+            label: "Projetos",
+            icon: Folder,
+            href: "/projects",
+            active: pathname === "/projects",
+        },
+        {
+            label: "Inventário",
+            icon: Boxes,
+            href: "/inventory",
+            active: pathname === "/inventory",
+        },
+        {
+            label: "Relatórios",
+            icon: Book,
+            href: "/reports",
+            active: pathname === "/reports",
+        },
+        {
+            label: "Incidentes",
+            icon: TriangleAlert,
+            href: "/alerts",
+            active: pathname === "/alerts",
+        },
+    ];
+    return <div className={cn("space-y-1", className)}>
+        {routes.map((route) => <NavigationItem key={route.href} route={route} collapsed={collapsed} />)}
+    </div>
+}
+
+const NavigationItem = ({ route, collapsed }: { route: TRoute, collapsed: boolean }) => {
+    return <Link
+        key={route.href}
+        href={route.href}
+        className={cn(
+            "flex items-center rounded-md p-3 text-sm font-medium hover:bg-primary-bg hover:text-slate-900 transition-all duration-300",
+            route.active ? "bg-primary-bg text-slate-900 font-bold" : "text-muted-foreground",
+            collapsed ? "justify-center px-2" : "justify-start"
+        )}
+    >
+        <route.icon strokeWidth={route.active ? 3 : 2} className={cn("h-5 w-5 shrink-0", route.active ? "text-slate-900" : "text-slate-500", !collapsed && "mr-3")} />
+        {!collapsed && <span className="truncate opacity-100 transition-opacity duration-300">{route.label}</span>}
+    </Link>
+}
+
+const NavigationFooter = ({ collapsed }: { collapsed: boolean }) => {
+    return <div className="space-y-3">
+        <PlanUsageWidget />
+        <FooterNavigation collapsed={collapsed} />
+        <UserMenu collapsed={collapsed} />
+    </div>
+}
+
+
+const PlanLimits = () => {
+    return <div className="w-full p-4 bg-primary-bg">
+        <div className="flex justify-between">
+            <h6>Plano</h6>
+        </div>
+    </div>
+}
+
+const FooterNavigation = ({ collapsed }: { collapsed: boolean }) => {
+
+    const routes = [
+        {
+            label: "Definições",
+            icon: Settings,
+            href: "/settings",
+            active: false,
+        },
+        {
+            label: "Apoio ao Cliente",
+            icon: MessageCircleQuestion,
+            href: "/support",
+            active: false,
+        },
+    ]
+    return <div className="space-y-1">
+        {routes.map((route) => <NavigationItem key={route.href} route={route} collapsed={collapsed} />)}
+    </div>
+}
+
+const UserMenu = ({ collapsed }: { collapsed: boolean }) => {
+    const { state } = useApp();
+    const { name, email } = state.user;
+    console.log(state)
+
+    return <div className="w-full px-3 py-2 bg-muted/80 rounded-xl space-x-3 flex items-center cursor-pointer hover:bg-primary-bg transition-colors duration-300">
+        <Avatar>
+            <AvatarImage src={state.user.picture!} />
+            <AvatarFallback>{name ? name.charAt(0).toUpperCase() : ""}</AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col space-y-1">
+            <div className="text-sm font-semibold">Olá {name!.split(" ")[0]!}</div>
+            <div className="text-xs text-muted-foreground">{email}</div>
+        </div>
+    </div>
+}
 </file>
 
 <file path="components/layout/MarketingNavBar.tsx">
@@ -10157,6 +10276,70 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
 };
 
 export default ProductDialog;
+</file>
+
+<file path="contexts/AppContext.tsx">
+"use client";
+
+import React, { createContext, useContext, ReactNode } from "react";
+import { Role, LabProfile } from "@prisma/client";
+import { PlanUsageStats } from "@/lib/services/billing";
+
+/**
+ * AppState represents the lean user and workspace context
+ * used for client-side UI state and authorization checks.
+ */
+export interface AppState {
+    user: {
+        id: string;
+        name: string | null;
+        email: string;
+        picture: string | null;
+    };
+    workspace: {
+        departmentId: string;
+        organizationName: string;
+        departmentName: string;
+        role: Role;
+        planName: string | null;
+        labProfile: LabProfile | null;
+        planStats: PlanUsageStats;
+    };
+}
+
+interface AppContextType {
+    state: AppState;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+/**
+ * AppProvider provides the initial server-fetched context to the client component tree.
+ */
+export function AppProvider({
+    children,
+    initialState,
+}: {
+    children: ReactNode;
+    initialState: AppState;
+}) {
+    return (
+        <AppContext.Provider value={{ state: initialState }}>
+            {children}
+        </AppContext.Provider>
+    );
+}
+
+/**
+ * Hook to access the unified app context.
+ */
+export function useApp() {
+    const context = useContext(AppContext);
+    if (context === undefined) {
+        throw new Error("useApp must be used within an AppProvider");
+    }
+    return context;
+}
 </file>
 
 <file path="lib/auth/syncUser.ts">
@@ -11165,82 +11348,6 @@ export default async function Page() {
 }
 </file>
 
-<file path="app/(HaaS)/layout.tsx">
-import { getAppSession } from "@/lib/auth/session";
-import { getUserWorkspaceContext } from "@/lib/services/workspace";
-import { AppProvider, AppState } from "@/contexts/AppContext";
-import { redirect } from "next/navigation";
-import { WelcomeScreen } from "@/components/dashboard/WelcomeScreen";
-import { HardwarePendingScreen } from "@/components/dashboard/HardwarePendingScreen";
-import { hasRequiredRole } from "@/lib/auth/permissions";
-import { Role } from "@prisma/client";
-import AppTemplate from "@/components/haas/AppTemplate";
-
-export default async function Layout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const session = await getAppSession();
-
-  // Safeguard: session should be handled by middleware, but we check anyway
-  if (!session?.user) {
-    redirect("/");
-  }
-
-  // Fetch the aggregated workspace context from the DAL
-  const userContext = await getUserWorkspaceContext(session.user.sub);
-
-  if (!userContext || !userContext.department) {
-    // If the user doesn't exist in our DB yet, force a logout/re-sync
-    redirect("/auth/logout");
-  }
-
-  // Role-based access control (RBAC) - Ensure minimum OPERATOR role for dashboard access
-  if (!hasRequiredRole(userContext.role, Role.OPERATOR)) {
-    redirect("/auth/logout");
-  }
-
-  // Map the heavy Prisma object into our lean AppState for the client context
-  const initialState: AppState = {
-    user: {
-      id: userContext.id,
-      name: userContext.name,
-      email: userContext.email,
-      picture: session.user?.picture || "",
-    },
-    workspace: {
-      organizationName: userContext.department.organization.name,
-      departmentId: userContext.department.id,
-      departmentName: userContext.department.name,
-      role: userContext.role,
-      planName: userContext.department.plan?.name || null,
-      labProfile: userContext.department.labProfile,
-    },
-  };
-
-  const { department } = userContext;
-  const labProfile = department.labProfile;
-  const deviceCount = department._count.devices;
-  const latestOrder = department.orders[0] || null;
-
-  // --- Onboarding State Machine (Server-Side) ---
-
-  // State 1: Pick a Lab Profile (First-time login) - NO DashboardShell
-  if (!labProfile) return <WelcomeScreen />
-
-
-
-  return (
-    <AppProvider initialState={initialState}>
-      <AppTemplate>
-        {deviceCount === 0 ? <HardwarePendingScreen latestOrder={latestOrder} /> : children}
-      </AppTemplate>
-    </AppProvider>
-  );
-}
-</file>
-
 <file path="app/(marketing)/products/page.tsx">
 import MainPageSection from '@/components/marketing/MainPageSection'
 import TechFAQSection from '@/components/marketing/technology/TechFAQSection'
@@ -12056,6 +12163,88 @@ export function useCart() {
         ...stateContext,
         ...dispatchContext
     };
+}
+</file>
+
+<file path="app/(HaaS)/layout.tsx">
+import { getAppSession } from "@/lib/auth/session";
+import { getUserWorkspaceContext } from "@/lib/services/workspace";
+import { AppProvider, AppState } from "@/contexts/AppContext";
+import { redirect } from "next/navigation";
+import { WelcomeScreen } from "@/components/dashboard/WelcomeScreen";
+import { HardwarePendingScreen } from "@/components/dashboard/HardwarePendingScreen";
+import { hasRequiredRole } from "@/lib/auth/permissions";
+import { Role } from "@prisma/client";
+import AppTemplate from "@/components/haas/AppTemplate";
+
+import { getPlanUsageStats } from "@/lib/services/billing";
+
+export default async function Layout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const session = await getAppSession();
+
+  // Safeguard: session should be handled by middleware, but we check anyway
+  if (!session?.user) {
+    redirect("/");
+  }
+
+  // Fetch the aggregated workspace context from the DAL
+  const userContext = await getUserWorkspaceContext(session.user.sub);
+
+  if (!userContext || !userContext.department) {
+    // If the user doesn't exist in our DB yet, force a logout/re-sync
+    redirect("/auth/logout");
+  }
+
+  // Role-based access control (RBAC) - Ensure minimum OPERATOR role for dashboard access
+  if (!hasRequiredRole(userContext.role, Role.OPERATOR)) {
+    redirect("/auth/logout");
+  }
+
+  // Fetch plan usage stats for the widget
+  const planStats = await getPlanUsageStats(userContext.department.id);
+
+  // Map the heavy Prisma object into our lean AppState for the client context
+  const initialState: AppState = {
+    user: {
+      id: userContext.id,
+      name: userContext.name,
+      email: userContext.email,
+      picture: session.user?.picture || "",
+    },
+    workspace: {
+      organizationName: userContext.department.organization.name,
+      departmentId: userContext.department.id,
+      departmentName: userContext.department.name,
+      role: userContext.role,
+      planName: userContext.department.plan?.name || null,
+      labProfile: userContext.department.labProfile,
+      planStats,
+    },
+  };
+
+  const { department } = userContext;
+  const labProfile = department.labProfile;
+  const deviceCount = department._count.devices;
+  const latestOrder = department.orders[0] || null;
+
+  // --- Onboarding State Machine (Server-Side) ---
+
+  // State 1: Pick a Lab Profile (First-time login) - NO DashboardShell
+  if (!labProfile) return <WelcomeScreen />
+
+
+
+  return (
+    <AppProvider initialState={initialState}>
+      <AppTemplate>
+        {deviceCount === 0 ? <HardwarePendingScreen latestOrder={latestOrder} /> : children}
+      </AppTemplate>
+    </AppProvider>
+  );
 }
 </file>
 

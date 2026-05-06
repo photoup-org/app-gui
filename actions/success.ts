@@ -62,9 +62,19 @@ export async function processSuccessPageData(rawSearchParams: any) {
 
             // Extract & Parse Metadata (For graceful fallback)
             const rawMetadata = intent.metadata || {};
+            let cartItems = [];
+            if (rawMetadata.pendingCartId) {
+                const pendingCart = await prisma.pendingCart.findUnique({
+                    where: { id: rawMetadata.pendingCartId }
+                });
+                if (pendingCart) cartItems = pendingCart.items as any[];
+            } else {
+                cartItems = safeParseJSON(rawMetadata.cartItems, []);
+            }
+
             parsedMetadata = {
                 ...rawMetadata,
-                cartItems: safeParseJSON(rawMetadata.cartItems, []),
+                cartItems,
                 shippingAddress: safeParseJSON(rawMetadata.shippingAddress, null),
                 billingAddress: safeParseJSON(rawMetadata.billingAddress, null),
                 userEmail: latest_charge?.billing_details?.email || rawMetadata.userEmail || null,

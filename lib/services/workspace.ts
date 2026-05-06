@@ -105,9 +105,10 @@ export async function provisionWorkspace(metadata: any, paymentIntent: string, c
                 }
             });
 
+            let createdUserId: string | null = null;
             if (metadata.userEmail) {
                 const userName = metadata.userName || 'Admin';
-                await tx.user.create({
+                const user = await tx.user.create({
                     data: {
                         email: metadata.userEmail,
                         name: userName,
@@ -115,21 +116,26 @@ export async function provisionWorkspace(metadata: any, paymentIntent: string, c
                         departmentId: department.id,
                     }
                 });
+                createdUserId = user.id;
             }
 
             console.log(`[Webhook] Optimistically provisioned Org and Dept for customer ${customerId}`);
 
             let cart: any[] = [];
-            try {
-                if (metadata.cartItems) {
-                    cart = JSON.parse(metadata.cartItems);
+            if (metadata.pendingCartId) {
+                const pendingCart = await tx.pendingCart.findUnique({
+                    where: { id: metadata.pendingCartId }
+                });
+                if (pendingCart) {
+                    cart = pendingCart.items as any[];
                 }
-            } catch (e) {
-                console.error('[CRITICAL] Failed to parse cartItems metadata:', e);
+            } else if (metadata.cartItems) {
+                // Backward compatibility fallback
+                try { cart = JSON.parse(metadata.cartItems); } catch (e) { }
             }
 
             if (cart.length > 0) {
-                await createHardwareOrderTx(tx, department.id, cart, paymentIntent, metadata.userEmail);
+                await createHardwareOrderTx(tx, department.id, cart, paymentIntent, metadata.userEmail, createdUserId);
             }
 
             // 4. Invite the Admin User

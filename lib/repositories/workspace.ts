@@ -155,7 +155,8 @@ export async function createHardwareOrderTx(
     departmentId: string,
     cartItemsRaw: any[],
     intentId: string,
-    customerEmail: string
+    customerEmail: string,
+    userId: string | null = null
 ) {
     const cartItems = OrderItemsSchema.parse(cartItemsRaw);
     if (cartItems.length > 0) {
@@ -164,7 +165,8 @@ export async function createHardwareOrderTx(
                 departmentId: departmentId,
                 status: 'PAID_UNSHIPPED',
                 stripeIntentId: intentId,
-                customerEmail: customerEmail
+                customerEmail: customerEmail,
+                userId: userId
             },
         });
 

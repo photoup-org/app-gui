@@ -3,8 +3,7 @@ import SuccessSummary from "@/components/checkout/SuccessSummary";
 import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-
-
+import { ClearCartEffect } from "@/components/checkout/ClearCartEffect";
 
 export default async function SuccessPage({
     searchParams
@@ -30,6 +29,7 @@ export default async function SuccessPage({
 
     return (
         <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+            <ClearCartEffect />
             <SuccessSummary
                 orderId={result.orderId as string}
                 documentUrl={result.documentUrl as string}

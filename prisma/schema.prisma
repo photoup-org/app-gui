@@ -200,3 +200,9 @@ enum LabProfile {
   CONTINUOUS
   PROJECTS
 }
+
+model PendingCart {
+  id        String   @id @default(cuid())
+  items     Json     // Store the raw cart items array here
+  createdAt DateTime @default(now())
+}

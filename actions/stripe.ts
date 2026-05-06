@@ -70,7 +70,7 @@ export async function createSubscriptionIntent(
             selectedHardware
         );
 
-        let cartItemsParsed = '[]';
+        let pendingCartId = '';
         if (tier) {
             const mandatoryGateway = await prisma.hardwareProduct.findUnique({ where: { sku: 'GW-TRB142' } });
             const mandatoryGatewayId = mandatoryGateway?.id || "cmlsocydi0003ecbgy59cs8ow";
@@ -79,7 +79,11 @@ export async function createSubscriptionIntent(
                 { productId: mandatoryGatewayId, quantity: 1, type: 'gateway' },
                 ...selectedHardware.map(hw => ({ productId: hw.productId, quantity: hw.quantity, type: hw.type }))
             ];
-            cartItemsParsed = JSON.stringify(cartItems);
+            
+            const pendingCart = await prisma.pendingCart.create({
+                data: { items: cartItems }
+            });
+            pendingCartId = pendingCart.id;
         }
 
         // 1. Get or Create Customer
@@ -127,7 +131,7 @@ export async function createSubscriptionIntent(
                 metadata: {
                     ...metadata,
                     planId: planIdCandidate!, // ensure Plan ID is logged using the unified DB system
-                    cartItems: cartItemsParsed
+                    pendingCartId: pendingCartId
                 },
             };
 
@@ -186,7 +190,10 @@ export async function createSubscriptionIntent(
                 amount: totalOneTimeAmount,
                 currency: 'eur', // TODO: Dynamically fetch currency or enforce EUR
                 customer: customerId,
-                metadata: metadata,
+                metadata: {
+                    ...metadata,
+                    pendingCartId: pendingCartId
+                },
                 automatic_payment_methods: { enabled: true },
             });
 
