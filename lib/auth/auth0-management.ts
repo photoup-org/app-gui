@@ -229,3 +229,56 @@ export async function deleteAllUsers() {
         }
     }
 }
+
+export async function createOrgInvitation(orgId: string, inviterName: string, inviteeEmail: string, roleIds: string[], sendEmail: boolean = true) {
+    const token = await getManagementToken();
+    const clientId = process.env.AUTH0_CLIENT_ID;
+    
+    if (!clientId) {
+        throw new Error('AUTH0_CLIENT_ID is not defined. It is required to generate the invitation link.');
+    }
+
+    const response = await fetch(`${getBaseUrl()}/api/v2/organizations/${orgId}/invitations`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            inviter: { name: inviterName },
+            invitee: { email: inviteeEmail },
+            client_id: clientId,
+            send_invitation_email: sendEmail, // Configurable silent generation
+            roles: roleIds
+        }),
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to create organization invitation: ${error.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    return {
+        id: data.id,
+        invitation_url: data.invitation_url
+    };
+}
+
+export async function getOrgInvitations(orgId: string) {
+    const token = await getManagementToken();
+    const response = await fetch(`${getBaseUrl()}/api/v2/organizations/${orgId}/invitations`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Failed to get organization invitations: ${error.message || response.statusText}`);
+    }
+
+    return await response.json();
+}

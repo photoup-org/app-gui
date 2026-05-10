@@ -3,7 +3,6 @@ import { TrackingWidget } from "./TrackingWidget";
 import { Suspense } from "react";
 import { TrackingWidgetSkeleton } from "./TrackingWidgetSkeleton";
 import { TeamWidget } from "./TeamWidget";
-import { ContactWidget } from "./ContactWidget";
 
 interface HardwarePendingScreenProps {
     latestOrder: any; // Order with items and products
