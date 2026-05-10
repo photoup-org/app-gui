@@ -100,10 +100,11 @@ export function InviteTeamDialog({ children, className }: { children: React.Reac
                 await navigator.clipboard.writeText(result.invitationUrl);
                 toast.success(`Link gerado e copiado para ${targetEmail}!`);
 
-                // Save the URL to the state so next click is instant
-                setInvites(invites.map(inv =>
-                    inv.id === id ? { ...inv, url: result.invitationUrl } : inv
-                ));
+                removeInvite(id); // Instantly clear the draft
+                
+                if (invites.length === 1) {
+                    setOpen(false);
+                }
             } else {
                 toast.error(`Erro ao gerar link: ${result.error}`);
             }
@@ -187,13 +188,13 @@ export function InviteTeamDialog({ children, className }: { children: React.Reac
                                             type="button"
                                             onClick={() => handleCopySingleLink(invite.id, invite.email, invite.role, invite.url)}
                                             disabled={isPending || copyingId === invite.id}
-                                            className="text-slate-300 hover:text-cyan-600 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                                            className="text-slate-300 hover:text-primary transition-colors  disabled:opacity-50 cursor-pointer"
                                             title="Gerar e Copiar Link"
                                         >
                                             {copyingId === invite.id ? (
-                                                <Loader2 size={16} className="animate-spin text-cyan-600" />
+                                                <Loader2 size={16} className="animate-spin text-primary" />
                                             ) : invite.url ? (
-                                                <LinkIcon size={16} className="text-cyan-600" /> // Highlighted state indicating it's ready
+                                                <LinkIcon size={16} className="text-primary" /> // Highlighted state indicating it's ready
                                             ) : (
                                                 <LinkIcon size={16} /> // Default state
                                             )}
@@ -202,7 +203,7 @@ export function InviteTeamDialog({ children, className }: { children: React.Reac
                                             type="button"
                                             onClick={() => removeInvite(invite.id)}
                                             disabled={isPending}
-                                            className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                                            className="text-slate-300 hover:text-red-500 transition-colors  disabled:opacity-50 cursor-pointer"
                                         >
                                             <X size={16} />
                                         </button>
