@@ -1,5 +1,6 @@
 import { Order, OrderStatus } from "@prisma/client";
 import { OrderIlustration } from "../resources/ilustrations";
+import { TrackingWidget } from "./TrackingWidget";
 
 interface HardwarePendingScreenProps {
     latestOrder: any; // Order with items and products
@@ -9,11 +10,13 @@ interface HardwarePendingScreenProps {
  * Placeholder component for users who have ordered hardware but haven't registered any devices yet.
  */
 export function HardwarePendingScreen({ latestOrder }: HardwarePendingScreenProps) {
+    console.log(latestOrder)
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8">
             <PendingHardwareHeader />
             <div className="flex items-center space-x-3 justify-center">
-                <OrderWidgetCard latestOrder={latestOrder} />
+                {/* <OrderWidgetCard latestOrder={latestOrder} /> */}
+                <TrackingWidget trackingNumber={latestOrder?.trackingNumber} />
                 <TeamWdiget />
             </div>
         </div>

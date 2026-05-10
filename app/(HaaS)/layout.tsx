@@ -55,7 +55,8 @@ export default async function Layout({
       planName: userContext.department.plan?.name || null,
       labProfile: userContext.department.labProfile,
       planStats,
-      trackingNumber: userContext.department.orders[0]?.trackingNumber || null,
+      trackingNumber: (userContext.department.orders[0] as any)?.trackingNumber || null,
+
     },
   };
 
@@ -70,7 +71,7 @@ export default async function Layout({
   // State 1: Pick a Lab Profile (First-time login) - NO DashboardShell
   if (!labProfile) return <WelcomeScreen />
 
-
+  console.log(department)
 
   return (
     <AppProvider initialState={initialState}>

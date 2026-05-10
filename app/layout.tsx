@@ -1,7 +1,6 @@
 import './globals.css';
 import type { Metadata } from "next";
 import { Anek_Latin } from "next/font/google";
-import { getAppSession } from "@/lib/auth/session";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -22,7 +21,6 @@ export default async function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const session = await getAppSession();
 
     return (
         <html lang="pt" suppressHydrationWarning>
