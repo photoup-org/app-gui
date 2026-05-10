@@ -27,3 +27,21 @@ export const isValidNIF = (nif: string) => {
 
   return checkDigit === parseInt(cleanNif.charAt(8), 10);
 };
+
+/**
+ * Formats a cent-based amount into a EUR currency string for pt-PT locale.
+ */
+export function formatCentsToEur(cents: number): string {
+  return new Intl.NumberFormat("pt-PT", {
+    style: "currency",
+    currency: "EUR",
+  }).format(cents / 100);
+}
+
+/**
+ * Calculates the monthly cost from an annual total in cents.
+ */
+export function calculateMonthlyFromAnnualCents(annualCents: number): number {
+  return Math.round(annualCents / 12);
+}
+

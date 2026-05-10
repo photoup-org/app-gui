@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/contexts/AppContext";
+import { UsageBar } from "./UsageBar";
 
 /**
  * PlanUsageWidget displays the current hardware and user usage
@@ -11,17 +12,11 @@ import { useApp } from "@/contexts/AppContext";
  */
 export function PlanUsageWidget() {
   const { state } = useApp();
-  const { user, workspace } = state;
+  const { workspace } = state;
   const { planName, isTopTier, sensors, users } = workspace.planStats;
 
-  const calculateProgress = (used: number, limit: number | null) => {
-    if (limit === null || limit === 0) return 100;
-    const percentage = (used / limit) * 100;
-    return Math.min(percentage, 100);
-  };
-
-  const renderLimitText = (limit: number | null) => {
-    return limit === null ? "Ilimitado" : limit;
+  const getUpgradeLabel = () => {
+    return planName.toLowerCase() === "starter" ? "Industrial Pro" : "Executivo";
   };
 
   return (
@@ -37,62 +32,39 @@ export function PlanUsageWidget() {
         <ChevronRight className="w-3.5 h-3.5 text-cyan-600/50 group-hover/header:translate-x-0.5 transition-transform" />
       </Link>
 
-
-
-
       {/* Users Tracker */}
-      <div className="mb-4">
-        <div className="flex justify-between text-xs mb-1.5 font-semibold">
-          <span className="text-slate-500 dark:text-slate-400">Utilizadores</span>
-          <span className="text-slate-700 dark:text-slate-200">
-            {users.used}/{renderLimitText(users.limit)}
-          </span>
-        </div>
-        <div className="h-1.5 w-full bg-white dark:bg-slate-800 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-cyan-500 dark:bg-cyan-400 rounded-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(6,182,212,0.4)]"
-            style={{ width: `${calculateProgress(users.used, users.limit)}%` }}
-          />
-        </div>
-      </div>
+      <UsageBar label="Utilizadores" used={users.used} limit={users.limit} />
 
       {/* Sensors Tracker */}
-      <div className="mb-6">
-        <div className="flex justify-between items-center text-xs mb-1.5 font-semibold">
-          <span className="text-slate-500 dark:text-slate-400">Sensores</span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-slate-700 dark:text-slate-200">
-              {sensors.used}/{renderLimitText(sensors.limit)}
-            </span>
-            <Link
-              href="/dashboard/inventory"
-              className="p-1 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 rounded-md transition-colors text-cyan-600 dark:text-cyan-400"
-              title="Ver Inventário"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            </Link>
-          </div>
-        </div>
-        <div className="h-1.5 w-full bg-white dark:bg-slate-800 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-cyan-500 dark:bg-cyan-400 rounded-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(6,182,212,0.4)]"
-            style={{ width: `${calculateProgress(sensors.used, sensors.limit)}%` }}
-          />
-        </div>
-      </div>
+      <UsageBar
+        label="Sensores"
+        used={sensors.used}
+        limit={sensors.limit}
+        className="mb-6"
+        suffix={
+          <Link
+            href="/dashboard/inventory"
+            className="p-1 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 rounded-md transition-colors text-cyan-600 dark:text-cyan-400"
+            title="Ver Inventário"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+          </Link>
+        }
+      />
 
       {/* Upgrade Button */}
       {!isTopTier && (
         <Button
           asChild
           variant="default"
-          className="w-full bg-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:hover:bg-cyan-500 text-white border-none h-10 text-sm font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full bg-primary text-white border-none h-10 text-sm font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <Link href="/dashboard/settings/plan">
-            Upgrade para Executivo
+            Upgrade para {getUpgradeLabel()}
           </Link>
         </Button>
       )}
     </div>
   );
 }
+

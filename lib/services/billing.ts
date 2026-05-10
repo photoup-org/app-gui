@@ -14,30 +14,11 @@ export type PlanUsageStats = {
 };
 
 /**
- * DAL function to aggregate a department's hardware and user usage against their plan limits.
- * Fetches data directly from Prisma (Server Component pattern).
+ * Pure utility function to calculate a department's usage stats from a pre-fetched department object.
+ * Expects the department object to have 'plan' and '_count' (with users and devices) included.
  */
-export async function getPlanUsageStats(departmentId: string): Promise<PlanUsageStats> {
-  const department = await prisma.department.findUnique({
-    where: { id: departmentId },
-    include: {
-      plan: true,
-      users: {
-        select: { id: true },
-      },
-      devices: {
-        include: {
-          product: true,
-        },
-      },
-    },
-  });
-
-  if (!department) {
-    throw new Error(`Department with ID ${departmentId} not found`);
-  }
-
-  const { plan, devices, users } = department;
+export function getPlanUsageStats(department: any): PlanUsageStats {
+  const { plan, _count } = department;
 
   if (!plan) {
     return {
@@ -48,13 +29,9 @@ export async function getPlanUsageStats(departmentId: string): Promise<PlanUsage
     };
   }
 
-  // Aggregate usage
-  const usersUsed = users.length;
-  
-  // SENSOR_BASE and SENSOR_PREMIUM are both counted as sensors
-  const sensorsUsed = devices.filter(
-    (d) => d.product.type === "SENSOR_BASE" || d.product.type === "SENSOR_PREMIUM"
-  ).length;
+  // Aggregate usage using Prisma _count (already fetched in getUserWorkspaceContext)
+  const usersUsed = _count?.users || 0;
+  const sensorsUsed = _count?.devices || 0;
 
   // Plan limits
   const isTopTier = plan.name.toLowerCase() === "executivo";
@@ -72,3 +49,4 @@ export async function getPlanUsageStats(departmentId: string): Promise<PlanUsage
     },
   };
 }
+

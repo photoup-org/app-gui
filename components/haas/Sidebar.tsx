@@ -126,15 +126,6 @@ const NavigationFooter = ({ collapsed }: { collapsed: boolean }) => {
     </div>
 }
 
-
-const PlanLimits = () => {
-    return <div className="w-full p-4 bg-primary-bg">
-        <div className="flex justify-between">
-            <h6>Plano</h6>
-        </div>
-    </div>
-}
-
 const FooterNavigation = ({ collapsed }: { collapsed: boolean }) => {
 
     const routes = [

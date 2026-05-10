@@ -73,6 +73,7 @@ components.json
 components/auth/LoginForm.tsx
 components/auth/PlanGate.tsx
 components/auth/RoleGate.tsx
+components/checkout/ClearCartEffect.tsx
 components/checkout/SuccessSummary.tsx
 components/dashboard/HardwarePendingScreen.tsx
 components/dashboard/ProjectsDashboard.tsx
@@ -126,6 +127,7 @@ components/marketing/technology/SensorSection.tsx
 components/marketing/technology/TechFAQSection.tsx
 components/marketing/technology/TitleComponent.tsx
 components/marketing/TitleSection.tsx
+components/resources/ilustrations.tsx
 components/resources/images/home/hardware.png
 components/resources/images/home/landing_industry.png
 components/resources/images/home/landing_lab.png
@@ -221,8 +223,6 @@ scripts/check-price.js
 scripts/check-sub.js
 scripts/debug-stripe.js
 scripts/nuke-dev-env.ts
-scripts/out.json
-scripts/out2.json
 scripts/test-sub-create.js
 test_db.mjs
 tests/e2e/auth-routing.spec.ts
@@ -236,12 +236,77 @@ types/checkout.ts
 types/hardware.ts
 types/pricing.ts
 types/stripe.ts
+types/svg.tsx
 types/ui.ts
 vitest.config.ts
 </directory_structure>
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="components/resources/ilustrations.tsx">
+import { TSVGProps } from "@/types/svg"
+
+export const OrderIlustration = ({ width, height, className }: TSVGProps) => {
+    return <svg width={width} height={height} className={className} viewBox="0 0 261 205" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clipPath="url(#clip0_439_13747)">
+            <path d="M62.6613 111.148C60.5783 100.032 63.8578 87.3846 72.9729 80.6558C72.4563 92.9431 76.3151 105.017 83.8664 114.74C86.7922 118.48 90.437 122.335 90.3238 127.077C90.2534 130.027 88.6532 132.775 86.5445 134.846C84.4356 136.917 81.838 138.41 79.2714 139.879L78.8719 140.499C71.3481 132.037 64.7443 122.265 62.6613 111.148Z" fill="#F0F0F0" />
+            <path d="M73.139 80.8255C69.3094 89.3718 68.2777 98.904 70.1905 108.068C70.5672 110.048 71.2545 111.957 72.2271 113.724C73.2304 115.414 74.6694 116.806 76.3945 117.754C77.9852 118.671 79.7188 119.425 81.0584 120.711C81.7343 121.379 82.2608 122.183 82.6035 123.068C82.9461 123.954 83.0972 124.902 83.0467 125.85C82.9826 128.215 82.0699 130.416 81.1025 132.538C80.0283 134.893 78.8751 137.323 78.9447 139.972C78.9532 140.293 78.4533 140.287 78.4449 139.967C78.3237 135.359 81.6646 131.658 82.409 127.237C82.7563 125.174 82.4823 122.994 81.0277 121.394C79.7557 119.996 77.9687 119.217 76.35 118.303C74.6535 117.402 73.2039 116.101 72.128 114.513C71.0682 112.802 70.3083 110.923 69.8808 108.957C68.8474 104.546 68.516 100.001 68.8986 95.4881C69.3066 90.3349 70.5957 85.2892 72.71 80.5694C72.841 80.2773 73.2691 80.5353 73.139 80.8255Z" fill="white" />
+            <path d="M69.4003 105.153C67.8147 105.265 66.2412 104.81 64.9606 103.872C63.68 102.933 62.7757 101.571 62.4094 100.028C62.3363 99.716 62.8196 99.5882 62.8927 99.9009C63.2312 101.338 64.0737 102.606 65.2679 103.478C66.4622 104.35 67.9297 104.767 69.4055 104.655C69.7262 104.631 69.7192 105.13 69.4003 105.153Z" fill="white" />
+            <path d="M75.5264 117.396C77.6788 114.969 78.8347 111.822 78.7637 108.583C78.7564 108.262 79.2562 108.267 79.2635 108.588C79.3311 111.959 78.1216 115.231 75.8762 117.752C75.662 117.992 75.3134 117.634 75.5264 117.396Z" fill="white" />
+            <path d="M69.8922 90.6441C70.5147 90.7285 71.1484 90.6575 71.7365 90.4373C72.3247 90.2171 72.8487 89.8547 73.2617 89.3827C73.4727 89.14 73.8211 89.4977 73.6114 89.7388C73.1527 90.2582 72.5735 90.6577 71.9242 90.9024C71.275 91.1471 70.5755 91.2296 69.887 91.1425C69.8214 91.1398 69.7593 91.1122 69.7134 91.0654C69.6674 91.0186 69.6411 90.9562 69.6396 90.8907C69.6407 90.8247 69.6678 90.7618 69.7151 90.7157C69.7624 90.6695 69.826 90.6438 69.8922 90.6441Z" fill="white" />
+            <path d="M110.249 89.8505C110.121 90.0058 109.994 90.1611 109.868 90.3205C108.165 92.417 106.636 94.648 105.296 96.9914C105.189 97.1709 105.084 97.3545 104.983 97.5367C101.814 103.217 99.7308 109.434 98.8384 115.873C98.4857 118.435 98.3289 121.021 98.3696 123.607C98.4259 127.178 98.7719 131.046 97.674 134.331C97.5633 134.675 97.4314 135.012 97.2789 135.339L79.661 140.937C79.6145 140.929 79.5692 140.926 79.5225 140.919L78.8294 141.174C78.8179 141.041 78.8089 140.903 78.7975 140.77C78.7905 140.692 78.7875 140.614 78.7805 140.537C78.7771 140.485 78.7739 140.433 78.7679 140.386C78.7667 140.369 78.7657 140.351 78.7658 140.338C78.7597 140.291 78.7591 140.248 78.7543 140.205C78.7019 139.431 78.6535 138.656 78.6132 137.879C78.612 137.875 78.612 137.875 78.6146 137.87C78.3122 131.948 78.5029 125.949 79.6007 120.17C79.6338 119.996 79.6654 119.818 79.7065 119.642C80.2158 117.04 80.9376 114.483 81.8646 111.998C82.3766 110.639 82.9572 109.307 83.6043 108.006C85.2828 104.649 87.4804 101.576 90.1165 98.9C95.3725 93.5657 102.281 89.967 109.683 89.8537C109.873 89.8509 110.058 89.8493 110.249 89.8505Z" fill="#F0F0F0" />
+            <path d="M110.28 90.0864C102.062 94.611 95.4833 101.603 91.4772 110.068C90.5823 111.875 89.9787 113.812 89.6886 115.806C89.469 117.758 89.7776 119.734 90.5824 121.526C91.2991 123.213 92.2281 124.856 92.5211 126.687C92.6571 127.626 92.5925 128.584 92.3313 129.497C92.0702 130.41 91.6185 131.257 91.0058 131.984C89.5265 133.834 87.4688 135.043 85.4152 136.157C83.1352 137.393 80.7473 138.64 79.2038 140.797C79.0168 141.058 78.6212 140.754 78.8079 140.493C81.4933 136.741 86.3952 135.792 89.6592 132.708C91.1822 131.27 92.2797 129.365 92.0838 127.214C91.9126 125.334 90.956 123.639 90.2156 121.938C89.4048 120.2 89.033 118.291 89.1327 116.377C89.32 114.374 89.8478 112.418 90.6934 110.592C92.5314 106.45 95.011 102.622 98.0415 99.248C101.479 95.3784 105.555 92.1236 110.093 89.6244C110.373 89.4698 110.56 89.9328 110.28 90.0864Z" fill="white" />
+            <path d="M92.6063 107.266C91.2731 106.403 90.2911 105.096 89.8354 103.577C89.3798 102.059 89.4803 100.429 90.1189 98.9772C90.2492 98.684 90.7122 98.872 90.5818 99.1656C89.9846 100.516 89.8912 102.035 90.3183 103.448C90.7455 104.861 91.6652 106.075 92.9114 106.871C93.182 107.045 92.8753 107.439 92.6063 107.266Z" fill="white" />
+            <path d="M90.106 120.719C93.29 120.073 96.113 118.254 98.012 115.625C98.1999 115.365 98.5956 115.669 98.4079 115.93C96.4266 118.662 93.4851 120.548 90.1702 121.213C89.8543 121.276 89.7917 120.781 90.106 120.719Z" fill="white" />
+            <path d="M101.759 95.9766C102.205 96.4177 102.754 96.7415 103.357 96.9187C103.959 97.096 104.597 97.1213 105.211 96.9923C105.526 96.9252 105.589 97.42 105.276 97.4866C104.596 97.6259 103.892 97.5972 103.226 97.4028C102.56 97.2084 101.952 96.8543 101.454 96.3714C101.404 96.3298 101.371 96.2705 101.362 96.2056C101.354 96.1407 101.37 96.075 101.409 96.0219C101.45 95.9698 101.509 95.9358 101.575 95.9274C101.64 95.9189 101.707 95.9366 101.759 95.9766Z" fill="white" />
+            <path d="M137.923 29.0611C137.982 29.3198 138.02 29.5828 138.038 29.8475L158.694 41.7301L163.715 38.848L169.068 45.8352L160.676 51.7988C159.998 52.2806 159.182 52.5301 158.35 52.5099C157.518 52.4897 156.715 52.2008 156.061 51.6867L134.761 34.9307C133.799 35.2855 132.752 35.3401 131.759 35.0872C130.766 34.8342 129.874 34.2858 129.201 33.5148C128.528 32.7439 128.106 31.7869 127.992 30.7711C127.878 29.7554 128.077 28.7291 128.562 27.8286C129.047 26.9282 129.795 26.1964 130.708 25.7305C131.62 25.2646 132.653 25.0868 133.669 25.2206C134.685 25.3544 135.637 25.7935 136.396 26.4795C137.156 27.1656 137.689 28.066 137.923 29.0611Z" fill="#FFB6B6" />
+            <path d="M158.981 40.4183C159.046 40.1152 159.177 39.8298 159.363 39.5815C159.549 39.3332 159.787 39.1279 160.06 38.9796L169.597 33.7983C170.867 32.8425 172.465 32.4279 174.041 32.6455C175.617 32.8631 177.042 33.695 178.004 34.9589C178.966 36.2228 179.386 37.8154 179.172 39.3875C178.958 40.9597 178.127 42.383 176.862 43.3453L169.219 51.088C169.001 51.3089 168.737 51.4804 168.447 51.5907C168.156 51.701 167.845 51.7476 167.535 51.7273C167.224 51.7069 166.922 51.6201 166.649 51.4728C166.375 51.3255 166.136 51.1211 165.949 50.8735L159.368 42.1732C159.181 41.9257 159.049 41.6408 158.982 41.3379C158.916 41.0351 158.915 40.7214 158.981 40.4183Z" fill="#3F3D56" />
+            <path d="M176.019 10.296C177.391 5.93555 180.511 1.93629 184.826 0.462207C189.142 -1.01187 195.461 1.23363 198.705 4.45774C204.64 10.3553 206.088 30.6155 202.011 37.018C201.2 36.9752 198.401 36.9435 197.581 36.9129L196.42 33.0539V36.8748C190.013 36.6774 183.343 36.801 176.67 36.9288C176.071 32.3958 174.647 14.6565 176.019 10.296Z" fill="#2F2E41" />
+            <path d="M174.183 193.326H168.339L165.56 170.851L174.184 170.851L174.183 193.326Z" fill="#FFB6B6" />
+            <path d="M225.336 189.702L219.682 191.172L211.306 170.123L219.652 167.955L225.336 189.702Z" fill="#FFB6B6" />
+            <path d="M193.134 55.2889L194.458 58.7215L194.193 62.1541L168.28 71.1037L169.566 56.081L172.479 52.6479L193.134 55.2889Z" fill="#FFB6B6" />
+            <path d="M184.941 24.3983C190.052 24.3983 194.196 20.2664 194.196 15.1696C194.196 10.0727 190.052 5.94092 184.941 5.94092C179.829 5.94092 175.686 10.0727 175.686 15.1696C175.686 20.2664 179.829 24.3983 184.941 24.3983Z" fill="#FFB7B7" />
+            <path d="M178.581 3.15219C180.36 2.07116 182.397 1.48639 184.479 1.45902C186.562 1.43164 188.613 1.96266 190.42 2.99657C192.226 4.03047 193.721 5.52928 194.747 7.33628C195.774 9.14328 196.294 11.1921 196.255 13.2685C191.21 14.5542 185.834 15.092 180.137 13.5782L178.834 10.3999L178.067 13.5805C176.324 14.8031 174.641 14.8009 173.02 13.5739C172.951 11.5034 173.428 9.45108 174.404 7.62223C175.38 5.79337 176.821 4.252 178.581 3.15219Z" fill="#2F2E41" />
+            <path d="M176.797 204.39H172.65L171.91 200.486L170.014 204.39H159.017C158.49 204.39 157.977 204.222 157.552 203.91C157.127 203.599 156.814 203.16 156.657 202.658C156.5 202.156 156.508 201.618 156.68 201.121C156.852 200.624 157.179 200.195 157.612 199.896L166.395 193.848V189.902L175.632 190.452L176.797 204.39Z" fill="#2F2E41" />
+            <path d="M231.177 199.618L227.164 200.661L225.461 197.069L224.614 201.324L213.972 204.09C213.462 204.222 212.923 204.189 212.433 203.994C211.943 203.799 211.529 203.454 211.25 203.008C210.971 202.562 210.843 202.038 210.884 201.514C210.924 200.99 211.132 200.493 211.476 200.095L218.444 192.033L217.446 188.215L226.524 186.423L231.177 199.618Z" fill="#2F2E41" />
+            <path d="M224.619 175.569L207.49 140.466L202.113 97.7403C205.821 90.875 198.936 76.9054 198.936 76.9054V71.04L172.265 76.0572C166.81 90.8932 164.165 106.61 164.464 122.409L165.538 179.203H165.201C164.642 179.203 164.105 179.425 163.71 179.819C163.314 180.213 163.092 180.748 163.092 181.306C163.092 181.864 163.314 182.399 163.71 182.794C164.105 183.188 164.642 183.41 165.201 183.41H175.748C176.307 183.41 176.844 183.188 177.239 182.794C177.635 182.399 177.857 181.864 177.857 181.306C177.857 180.748 177.635 180.213 177.239 179.819C176.844 179.425 176.307 179.203 175.748 179.203H175.476L183.047 106.951L191.851 142.606L213.125 175.434C212.583 175.476 212.078 175.726 211.716 176.132C211.355 176.538 211.165 177.067 211.187 177.61C211.208 178.152 211.44 178.665 211.833 179.04C212.226 179.416 212.75 179.625 213.294 179.624H223.841C224.331 179.624 224.807 179.454 225.185 179.143C225.563 178.831 225.821 178.398 225.913 177.917C226.005 177.437 225.926 176.939 225.69 176.511C225.454 176.082 225.075 175.749 224.619 175.569Z" fill="#2F2E41" />
+            <path d="M201.347 80.5013C201.26 80.1581 201.065 79.8514 200.792 79.6251C200.519 79.3988 200.181 79.2645 199.826 79.2415C199.475 75.2338 197.152 49.5306 197.063 48.7765L197.06 48.7446L196.387 34.4178C196.363 33.8974 196.147 33.4043 195.781 33.0326C195.415 32.6609 194.925 32.4366 194.404 32.4026L190.851 32.1711C190.802 32.1695 190.756 32.149 190.722 32.1141C190.688 32.0791 190.669 32.0324 190.669 31.9838C190.669 31.5926 190.592 31.2052 190.442 30.8438C190.292 30.4824 190.072 30.154 189.794 29.8774C189.517 29.6008 189.188 29.3814 188.825 29.2316C188.463 29.0819 188.074 29.0049 187.682 29.0049H177.164C176.483 29.0052 175.825 29.2534 175.315 29.7029C174.804 30.1524 174.475 30.7723 174.39 31.4463C174.386 31.4928 174.364 31.5357 174.329 31.5666C174.294 31.5975 174.248 31.614 174.201 31.613L174.2 31.613C173.005 31.5884 171.841 31.9919 170.918 32.7501C169.996 33.5084 169.377 34.5712 169.173 35.7457C167.735 44.0879 164.854 63.0215 166.279 73.5475C166.774 77.2118 166.549 82.7228 166.361 85.7887C166.343 86.085 166.383 86.382 166.48 86.6628C166.576 86.9436 166.728 87.2025 166.925 87.4249C166.506 87.5455 166.149 87.8238 165.932 88.201C165.714 88.5783 165.652 89.0251 165.758 89.4473C165.867 89.8801 166.145 90.2517 166.529 90.4806C166.913 90.7094 167.373 90.7767 167.807 90.6676L200.123 82.5443C200.557 82.4352 200.93 82.1587 201.16 81.7755C201.389 81.3924 201.457 80.9341 201.347 80.5013Z" fill="#3F3D56" />
+            <path d="M147.936 140.733C147.93 139.792 147.59 138.884 146.977 138.169C146.363 137.455 145.516 136.98 144.584 136.829L87.2883 127.447C86.7389 127.356 86.1765 127.381 85.6373 127.52L72.2097 130.982L64.5053 132.971L50.2872 136.636C49.4289 136.858 48.6688 137.358 48.1262 138.058C47.5836 138.757 47.2891 139.616 47.2888 140.5V200.367C47.2931 201.28 47.6094 202.163 48.1854 202.873C48.7615 203.582 49.5629 204.074 50.4573 204.268L108.817 203.609C109.091 203.668 109.371 203.697 109.651 203.695C110.059 203.696 110.465 203.634 110.855 203.513L145.528 204.373C146.346 204.118 147.061 203.607 147.565 202.916C148.069 202.225 148.336 201.39 148.326 200.535L147.936 140.733Z" fill="white" />
+            <path d="M147.936 140.733C147.93 139.792 147.59 138.884 146.977 138.169C146.363 137.455 145.516 136.98 144.584 136.829L87.2883 127.447C86.7389 127.356 86.1765 127.381 85.6373 127.52L72.2097 130.982L64.5053 132.971L50.2872 136.636C49.4289 136.858 48.6688 137.358 48.1262 138.058C47.5836 138.757 47.2891 139.616 47.2888 140.5V200.367C47.2931 201.28 47.6094 202.163 48.1854 202.873C48.7615 203.582 49.5629 204.074 50.4573 204.268L108.817 203.609C109.091 203.668 109.371 203.697 109.651 203.695C110.059 203.696 110.465 203.634 110.855 203.513L145.528 204.373C146.346 204.118 147.061 203.607 147.565 202.916C148.069 202.225 148.336 201.39 148.326 200.535L147.936 140.733ZM145.228 203.422L110.555 204.244C110.06 204.398 109.534 204.423 109.027 204.317L50.6641 203.294C49.9935 203.148 49.3928 202.778 48.9611 202.246C48.5293 201.714 48.2924 201.051 48.2894 200.367V140.5C48.2898 139.888 48.4787 139.29 48.8306 138.787C49.1824 138.285 49.6803 137.902 50.2572 137.69C50.3488 137.656 50.4423 137.627 50.5373 137.604L65.5792 133.726L74.4743 131.431L85.8875 128.488C86.1322 128.423 86.3846 128.39 86.6379 128.391C86.801 128.391 86.9639 128.405 87.1248 128.431L144.421 137.813C144.882 137.889 145.319 138.07 145.698 138.343C146.076 138.616 146.386 138.973 146.602 139.386C146.818 139.805 146.933 140.269 146.936 140.74L147.326 200.542C147.333 201.183 147.133 201.809 146.755 202.328C146.377 202.847 145.842 203.23 145.228 203.422Z" fill="#CCCCCC" />
+            <path d="M146.602 139.386C146.563 139.412 146.52 139.431 146.475 139.443L129.622 143.986L124.376 145.399L109.454 149.42C109.412 149.43 109.368 149.436 109.324 149.436C109.294 149.436 109.264 149.434 109.234 149.43L49.0665 138.492L48.8664 138.455C48.7361 138.431 48.6207 138.356 48.5456 138.247C48.4704 138.138 48.4416 138.004 48.4654 137.873C48.4892 137.743 48.5637 137.628 48.6726 137.552C48.7815 137.477 48.9159 137.447 49.0465 137.471L50.2572 137.69L109.304 148.425L122.165 144.96L129.359 143.021L145.952 138.548L146.215 138.478C146.329 138.448 146.45 138.459 146.557 138.509C146.663 138.559 146.749 138.645 146.799 138.751C146.812 138.776 146.822 138.803 146.829 138.831C146.856 138.935 146.849 139.046 146.808 139.146C146.767 139.246 146.695 139.33 146.602 139.386Z" fill="#CCCCCC" />
+            <path d="M109.824 203.811C109.55 203.811 109.327 203.591 109.324 205L108.824 150.625C108.821 148.666 109.043 148.441 109.319 148.438H109.324C109.598 148.438 109.822 148.659 109.824 150.615L110.325 204.991C110.327 203.583 110.105 203.809 109.829 203.811H109.824Z" fill="#CCCCCC" />
+            <path d="M129.764 204.443L124.376 204.499L122.165 144.96L65.7427 133.766C65.6875 133.756 65.6329 133.742 65.5793 133.726C65.1459 133.603 64.7673 133.336 64.5054 132.971L72.2097 130.982L74.4744 131.431L128.012 142.05C128.293 142.105 128.559 142.221 128.792 142.388C129.024 142.556 129.218 142.772 129.359 143.021C129.526 143.31 129.761 204.097 129.764 204.443Z" fill="#CCCCCC" />
+            <path d="M172.923 31.7556C172.918 31.0466 172.662 30.362 172.199 29.8234C171.737 29.2848 171.098 28.9268 170.396 28.8131L127.215 21.7424C126.801 21.6741 126.377 21.6929 125.971 21.7976L115.851 24.4068L110.045 25.9056L99.3291 28.6677C98.6822 28.8352 98.1094 29.212 97.7004 29.7391C97.2915 30.2662 97.0695 30.9137 97.0693 31.5802V66.8706C97.0726 67.5585 97.3109 68.2247 97.7451 68.7592C98.1792 69.2937 98.7832 69.6646 99.4573 69.8107L143.44 79.1422C143.647 79.1864 143.858 79.2082 144.069 79.2073C144.377 79.2079 144.683 79.1614 144.976 79.0695L171.108 70.8409C171.724 70.649 172.263 70.2639 172.643 69.7429C173.022 69.2218 173.224 68.5926 173.217 67.9484L172.923 31.7556Z" fill="white" />
+            <path d="M126.726 24.334C126.695 24.3339 126.663 24.338 126.633 24.346L99.9909 31.2161C99.9102 31.237 99.8386 31.284 99.7875 31.3498C99.7365 31.4156 99.7087 31.4964 99.7087 31.5796V66.8696C99.7091 66.9555 99.7388 67.0388 99.793 67.1056C99.8472 67.1724 99.9226 67.2188 100.007 67.237L143.99 76.5683C144.054 76.5817 144.12 76.5784 144.182 76.559L170.314 68.3306C170.391 68.3067 170.458 68.2586 170.505 68.1935C170.553 68.1284 170.578 68.0498 170.577 67.9693L170.284 31.7767C170.283 31.6881 170.251 31.6026 170.193 31.5354C170.136 31.4682 170.056 31.4235 169.968 31.4093L126.787 24.3389C126.767 24.3357 126.747 24.334 126.726 24.334Z" fill="#2AC5C1" />
+            <path d="M172.923 31.7556C172.918 31.0466 172.662 30.362 172.199 29.8234C171.737 29.2848 171.098 28.9268 170.396 28.8131L127.215 21.7424C126.801 21.6741 126.377 21.6929 125.971 21.7976L115.851 24.4068L110.045 25.9056L99.3291 28.6677C98.6822 28.8352 98.1094 29.212 97.7004 29.7391C97.2915 30.2662 97.0695 30.9137 97.0693 31.5802V66.8706C97.0726 67.5585 97.3109 68.2247 97.7451 68.7592C98.1792 69.2937 98.7832 69.6646 99.4573 69.8107L143.44 79.1422C143.647 79.1864 143.858 79.2082 144.069 79.2073C144.377 79.2079 144.683 79.1614 144.976 79.0695L171.108 70.8409C171.724 70.649 172.263 70.2639 172.643 69.7429C173.022 69.2218 173.224 68.5926 173.217 67.9484L172.923 31.7556ZM170.881 70.124L144.75 78.3526C144.377 78.4684 143.981 78.4874 143.599 78.4077L99.6131 69.0763C99.1077 68.9664 98.655 68.688 98.3296 68.2871C98.0043 67.8861 97.8257 67.3865 97.8234 66.8707V31.5802C97.8237 31.1183 97.9661 30.6676 98.2313 30.2889C98.4965 29.9102 98.8717 29.6217 99.3064 29.4622C99.3755 29.4364 99.446 29.4146 99.5176 29.3971L110.854 26.4746L117.558 24.7451L126.159 22.527C126.344 22.4779 126.534 22.4534 126.725 22.4543C126.848 22.4542 126.971 22.4643 127.092 22.4843L170.273 29.555C170.621 29.6118 170.95 29.7486 171.235 29.9543C171.521 30.1601 171.754 30.4293 171.917 30.7405C172.08 31.0561 172.166 31.4056 172.168 31.7606L172.463 67.9535C172.468 68.4367 172.317 68.9087 172.032 69.2997C171.748 69.6907 171.344 69.9797 170.881 70.124Z" fill="#3F3D56" />
+            <path d="M171.917 30.7406C171.888 30.7598 171.856 30.7742 171.822 30.7832L159.12 34.2069L155.166 35.2722L143.921 38.3024C143.889 38.3103 143.856 38.3145 143.823 38.315C143.8 38.3145 143.777 38.3129 143.755 38.31L98.4092 30.0663L98.2584 30.0387C98.1601 30.0204 98.0731 29.964 98.0164 29.8819C97.9597 29.7997 97.9379 29.6985 97.9558 29.6004C97.9738 29.5023 98.03 29.4153 98.1121 29.3584C98.1943 29.3015 98.2957 29.2794 98.3941 29.2968L99.3066 29.4623L143.808 37.553L153.5 34.9413L158.922 33.48L171.427 30.1089L171.626 30.0563C171.711 30.0337 171.803 30.0419 171.883 30.0795C171.963 30.1171 172.028 30.1816 172.065 30.2618C172.075 30.281 172.083 30.3011 172.088 30.322C172.109 30.4008 172.103 30.4842 172.073 30.5596C172.042 30.6351 171.987 30.6986 171.917 30.7406Z" fill="#3F3D56" />
+            <path d="M144.199 79.295C144.1 79.295 144.005 79.2559 143.934 79.1861C143.863 79.1164 143.823 79.0216 143.822 78.9225L143.445 37.9424C143.444 37.8427 143.483 37.7467 143.553 37.6756C143.623 37.6044 143.719 37.5639 143.819 37.563H143.822C143.922 37.563 144.017 37.6021 144.088 37.6719C144.158 37.7417 144.199 37.8364 144.199 37.9355L144.576 78.9156C144.577 79.0153 144.538 79.1113 144.468 79.1825C144.398 79.2536 144.303 79.2941 144.203 79.295H144.199Z" fill="#3F3D56" />
+            <path d="M159.12 74.3097L155.167 75.3749L153.5 34.9412L110.977 26.5046C110.936 26.4972 110.894 26.4872 110.854 26.4745C110.527 26.3818 110.242 26.1812 110.045 25.9056L115.851 24.4067L117.558 24.7451L157.906 32.7481C158.118 32.7899 158.319 32.877 158.494 33.0033C158.67 33.1296 158.815 33.2922 158.922 33.48C159.048 33.698 159.118 74.0491 159.12 74.3097Z" fill="#3F3D56" />
+            <path d="M157.349 51.2562C157.551 51.4286 157.739 51.6167 157.912 51.8187L181.598 49.0603L183.902 43.7598L192.379 46.1809L189.215 55.9596C188.96 56.7496 188.454 57.4356 187.774 57.9146C187.094 58.3936 186.277 58.6398 185.445 58.6163L158.325 57.8475C157.766 58.7043 156.959 59.371 156.01 59.7591C155.062 60.1472 154.018 60.2383 153.016 60.0201C152.015 59.802 151.104 59.285 150.404 58.5379C149.705 57.7909 149.25 56.8491 149.1 55.838C148.951 54.8269 149.113 53.7942 149.566 52.8775C150.02 51.9607 150.742 51.2033 151.637 50.7059C152.533 50.2085 153.559 49.9947 154.579 50.093C155.6 50.1913 156.566 50.597 157.349 51.2562Z" fill="#FFB6B6" />
+            <path d="M181.043 47.8368C180.914 47.5547 180.848 47.2481 180.849 46.938C180.85 46.6279 180.918 46.3217 181.048 46.0402L185.599 36.2075C186.046 34.6849 187.08 33.4013 188.475 32.638C189.87 31.8747 191.511 31.6942 193.039 32.1359C194.568 32.5776 195.858 33.6055 196.627 34.9942C197.396 36.383 197.582 38.0192 197.143 39.5442L195.644 50.3054C195.601 50.6125 195.492 50.9068 195.325 51.1683C195.158 51.4297 194.936 51.6522 194.675 51.8205C194.414 51.9888 194.12 52.0991 193.812 52.1437C193.504 52.1883 193.19 52.1663 192.892 52.0791L182.404 49.0144C182.106 48.9273 181.83 48.777 181.595 48.5738C181.36 48.3706 181.172 48.1192 181.043 47.8368Z" fill="#3F3D56" />
+            <path d="M260.498 204.881H0.502318C0.369349 204.88 0.241954 204.827 0.148066 204.733C0.0541782 204.64 0.00146484 204.512 0.00146484 204.38C0.00146484 204.247 0.0541782 204.12 0.148066 204.026C0.241954 203.932 0.369349 203.879 0.502318 203.879H260.498C260.631 203.879 260.759 203.932 260.853 204.026C260.947 204.12 261 204.247 261 204.38C261 204.513 260.947 204.64 260.853 204.734C260.759 204.828 260.631 204.881 260.498 204.881Z" fill="#CACACA" />
+            <path d="M114.999 56.5793C114.952 56.5792 114.905 56.574 114.86 56.5637L101.782 53.619C101.618 53.582 101.476 53.4818 101.386 53.3404C101.297 53.1989 101.267 53.0279 101.304 52.8648C101.341 52.7016 101.442 52.5598 101.583 52.4704C101.725 52.3809 101.896 52.3513 102.06 52.3878L115.138 55.3325C115.29 55.3667 115.424 55.4555 115.514 55.5819C115.604 55.7083 115.645 55.8635 115.628 56.0178C115.61 56.172 115.537 56.3146 115.421 56.4182C115.305 56.5217 115.155 56.5791 114.999 56.5793Z" fill="white" />
+            <path d="M64.6675 175.096C64.6215 175.105 64.5746 175.109 64.5276 175.109L51.1223 174.884C50.9547 174.88 50.7952 174.811 50.6788 174.691C50.5623 174.571 50.4985 174.409 50.5013 174.242C50.5041 174.075 50.5733 173.916 50.6936 173.8C50.814 173.683 50.9757 173.619 51.1433 173.622L64.5486 173.847C64.7042 173.849 64.8534 173.909 64.9677 174.015C65.0819 174.12 65.1532 174.264 65.168 174.418C65.1827 174.573 65.1398 174.727 65.0474 174.852C64.9551 174.977 64.8199 175.064 64.6675 175.096Z" fill="#E6E6E6" />
+            <path d="M69.3081 182.247C69.2621 182.256 69.2152 182.261 69.1682 182.26L55.7629 182.035C55.5953 182.032 55.4358 181.963 55.3194 181.842C55.203 181.722 55.1391 181.561 55.1419 181.394C55.1447 181.226 55.2139 181.067 55.3342 180.951C55.4546 180.835 55.6163 180.771 55.7839 180.773L69.1892 180.998C69.3449 181.001 69.4941 181.06 69.6083 181.166C69.7226 181.271 69.7939 181.415 69.8086 181.57C69.8233 181.724 69.7804 181.879 69.6881 182.004C69.5958 182.128 69.4605 182.215 69.3081 182.247Z" fill="#E6E6E6" />
+        </g>
+        <defs>
+            <clipPath id="clip0_439_13747">
+                <rect width="261" height="205" fill="white" />
+            </clipPath>
+        </defs>
+    </svg>
+
+}
+</file>
+
+<file path="types/svg.tsx">
+export type TSVGProps = {
+    width?: number;
+    height?: number;
+    className?: string;
+}
+</file>
 
 <file path=".gitignore">
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
@@ -540,8 +605,26 @@ export const RoleGate = ({ children, allowedRoles, userRole }: RoleGateProps) =>
 };
 </file>
 
+<file path="components/checkout/ClearCartEffect.tsx">
+'use client';
+
+import { useEffect } from 'react';
+import { useCartDispatch } from '@/contexts/CartContext';
+
+export function ClearCartEffect() {
+    const { clearCart } = useCartDispatch();
+
+    useEffect(() => {
+        clearCart();
+    }, [clearCart]);
+
+    return null;
+}
+</file>
+
 <file path="components/dashboard/HardwarePendingScreen.tsx">
 import { Order, OrderStatus } from "@prisma/client";
+import { OrderIlustration } from "../resources/ilustrations";
 
 interface HardwarePendingScreenProps {
     latestOrder: any; // Order with items and products
@@ -553,7 +636,7 @@ interface HardwarePendingScreenProps {
 export function HardwarePendingScreen({ latestOrder }: HardwarePendingScreenProps) {
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8">
-            <div className="h-20 w-20 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mb-4">
+            {/* <div className="h-20 w-20 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 mb-4">
                 <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
@@ -564,10 +647,10 @@ export function HardwarePendingScreen({ latestOrder }: HardwarePendingScreenProp
                 <p className="text-lg text-gray-600 max-w-xl mx-auto">
                     We've received your order. Once you receive and activate your devices, your dashboard will automatically come to life.
                 </p>
-            </div>
-
+            </div> */}
+            <OrderIlustration width={300} />
             {latestOrder && (
-                <div className="bg-white border rounded-xl p-6 w-full max-w-md shadow-sm">
+                <div className="bg-white border rounded-xl p-6 w-full max-w-md ">
                     <div className="flex justify-between items-center mb-4 border-b pb-4">
                         <span className="font-semibold text-gray-900">Order #{latestOrder.id.slice(-8).toUpperCase()}</span>
                         <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
@@ -5021,331 +5104,6 @@ async function checkSub() {
 checkSub();
 </file>
 
-<file path="scripts/out.json">
-{
-  "id": "sub_1T4R4m5Br3qnfEfNSyXzzSCq",
-  "object": "subscription",
-  "application": null,
-  "application_fee_percent": null,
-  "automatic_tax": {
-    "disabled_reason": null,
-    "enabled": false,
-    "liability": null
-  },
-  "billing_cycle_anchor": 1771960520,
-  "billing_cycle_anchor_config": null,
-  "billing_mode": {
-    "flexible": {
-      "proration_discounts": "included"
-    },
-    "type": "flexible",
-    "updated_at": 1771960520
-  },
-  "billing_thresholds": null,
-  "cancel_at": null,
-  "cancel_at_period_end": false,
-  "canceled_at": null,
-  "cancellation_details": {
-    "comment": null,
-    "feedback": null,
-    "reason": null
-  },
-  "collection_method": "charge_automatically",
-  "created": 1771960520,
-  "currency": "eur",
-  "customer": "cus_U2W0F00inLzluz",
-  "customer_account": null,
-  "days_until_due": null,
-  "default_payment_method": null,
-  "default_source": null,
-  "default_tax_rates": [],
-  "description": null,
-  "discounts": [],
-  "ended_at": null,
-  "invoice_settings": {
-    "account_tax_ids": null,
-    "issuer": {
-      "type": "self"
-    }
-  },
-  "items": {
-    "object": "list",
-    "data": [
-      {
-        "id": "si_U2W7Czy4ifFGgL",
-        "object": "subscription_item",
-        "billing_thresholds": null,
-        "created": 1771960521,
-        "current_period_end": 1803496520,
-        "current_period_start": 1771960520,
-        "discounts": [],
-        "metadata": {},
-        "plan": {
-          "id": "price_1Sw1Wg5Br3qnfEfN4OVbYrgh",
-          "object": "plan",
-          "active": true,
-          "amount": 49999,
-          "amount_decimal": "49999",
-          "billing_scheme": "per_unit",
-          "created": 1769955682,
-          "currency": "eur",
-          "interval": "year",
-          "interval_count": 1,
-          "livemode": false,
-          "metadata": {},
-          "meter": null,
-          "nickname": null,
-          "product": "prod_TtpBDLh7dQoq1z",
-          "tiers_mode": null,
-          "transform_usage": null,
-          "trial_period_days": null,
-          "usage_type": "licensed"
-        },
-        "price": {
-          "id": "price_1Sw1Wg5Br3qnfEfN4OVbYrgh",
-          "object": "price",
-          "active": true,
-          "billing_scheme": "per_unit",
-          "created": 1769955682,
-          "currency": "eur",
-          "custom_unit_amount": null,
-          "livemode": false,
-          "lookup_key": null,
-          "metadata": {},
-          "nickname": null,
-          "product": "prod_TtpBDLh7dQoq1z",
-          "recurring": {
-            "interval": "year",
-            "interval_count": 1,
-            "meter": null,
-            "trial_period_days": null,
-            "usage_type": "licensed"
-          },
-          "tax_behavior": "exclusive",
-          "tiers_mode": null,
-          "transform_quantity": null,
-          "type": "recurring",
-          "unit_amount": 49999,
-          "unit_amount_decimal": "49999"
-        },
-        "quantity": 1,
-        "subscription": "sub_1T4R4m5Br3qnfEfNSyXzzSCq",
-        "tax_rates": []
-      }
-    ],
-    "has_more": false,
-    "total_count": 1,
-    "url": "/v1/subscription_items?subscription=sub_1T4R4m5Br3qnfEfNSyXzzSCq"
-  },
-  "latest_invoice": {
-    "id": "in_1T4R4m5Br3qnfEfNI0YWXDyg",
-    "object": "invoice",
-    "account_country": "PT",
-    "account_name": "Área restrita de New business",
-    "account_tax_ids": null,
-    "amount_due": 49999,
-    "amount_overpaid": 0,
-    "amount_paid": 0,
-    "amount_remaining": 49999,
-    "amount_shipping": 0,
-    "application": null,
-    "attempt_count": 0,
-    "attempted": false,
-    "auto_advance": false,
-    "automatic_tax": {
-      "disabled_reason": null,
-      "enabled": false,
-      "liability": null,
-      "provider": null,
-      "status": null
-    },
-    "automatically_finalizes_at": null,
-    "billing_reason": "subscription_create",
-    "collection_method": "charge_automatically",
-    "created": 1771960520,
-    "currency": "eur",
-    "custom_fields": null,
-    "customer": "cus_U2W0F00inLzluz",
-    "customer_account": null,
-    "customer_address": null,
-    "customer_email": "danielmadalena@msn.com",
-    "customer_name": "Daniel Madalena",
-    "customer_phone": null,
-    "customer_shipping": null,
-    "customer_tax_exempt": "none",
-    "customer_tax_ids": [],
-    "default_payment_method": null,
-    "default_source": null,
-    "default_tax_rates": [],
-    "description": null,
-    "discounts": [],
-    "due_date": null,
-    "effective_at": 1771960520,
-    "ending_balance": 0,
-    "footer": null,
-    "from_invoice": null,
-    "hosted_invoice_url": "https://invoice.stripe.com/i/acct_1Sv2Lo5Br3qnfEfN/test_YWNjdF8xU3YyTG81QnIzcW5mRWZOLF9VMlc3WDJqS0RnQ2hrSVRTenhBZURkUnA0b0ZlaTdzLDE2MjUwMTMyMg020087WHNDzh?s=ap",
-    "invoice_pdf": "https://pay.stripe.com/invoice/acct_1Sv2Lo5Br3qnfEfN/test_YWNjdF8xU3YyTG81QnIzcW5mRWZOLF9VMlc3WDJqS0RnQ2hrSVRTenhBZURkUnA0b0ZlaTdzLDE2MjUwMTMyMg020087WHNDzh/pdf?s=ap",
-    "issuer": {
-      "type": "self"
-    },
-    "last_finalization_error": null,
-    "latest_revision": null,
-    "lines": {
-      "object": "list",
-      "data": [
-        {
-          "id": "il_1T4R4m5Br3qnfEfNuQAoGx8o",
-          "object": "line_item",
-          "amount": 49999,
-          "currency": "eur",
-          "description": "1 × Plano Starter (at €499.99 / year)",
-          "discount_amounts": [],
-          "discountable": true,
-          "discounts": [],
-          "invoice": "in_1T4R4m5Br3qnfEfNI0YWXDyg",
-          "livemode": false,
-          "metadata": {},
-          "parent": {
-            "invoice_item_details": null,
-            "subscription_item_details": {
-              "invoice_item": null,
-              "proration": false,
-              "proration_details": {
-                "credited_items": null
-              },
-              "subscription": "sub_1T4R4m5Br3qnfEfNSyXzzSCq",
-              "subscription_item": "si_U2W7Czy4ifFGgL"
-            },
-            "type": "subscription_item_details"
-          },
-          "period": {
-            "end": 1803496520,
-            "start": 1771960520
-          },
-          "pretax_credit_amounts": [],
-          "pricing": {
-            "price_details": {
-              "price": "price_1Sw1Wg5Br3qnfEfN4OVbYrgh",
-              "product": "prod_TtpBDLh7dQoq1z"
-            },
-            "type": "price_details",
-            "unit_amount_decimal": "49999"
-          },
-          "quantity": 1,
-          "subtotal": 49999,
-          "taxes": []
-        }
-      ],
-      "has_more": false,
-      "total_count": 1,
-      "url": "/v1/invoices/in_1T4R4m5Br3qnfEfNI0YWXDyg/lines"
-    },
-    "livemode": false,
-    "metadata": {},
-    "next_payment_attempt": null,
-    "number": "QMIQNMHP-0045",
-    "on_behalf_of": null,
-    "parent": {
-      "quote_details": null,
-      "subscription_details": {
-        "metadata": {},
-        "subscription": "sub_1T4R4m5Br3qnfEfNSyXzzSCq"
-      },
-      "type": "subscription_details"
-    },
-    "payment_settings": {
-      "default_mandate": null,
-      "payment_method_options": null,
-      "payment_method_types": [
-        "card",
-        "sepa_debit"
-      ]
-    },
-    "period_end": 1771960520,
-    "period_start": 1771960520,
-    "post_payment_credit_notes_amount": 0,
-    "pre_payment_credit_notes_amount": 0,
-    "receipt_number": null,
-    "rendering": null,
-    "shipping_cost": null,
-    "shipping_details": null,
-    "starting_balance": 0,
-    "statement_descriptor": null,
-    "status": "open",
-    "status_transitions": {
-      "finalized_at": 1771960520,
-      "marked_uncollectible_at": null,
-      "paid_at": null,
-      "voided_at": null
-    },
-    "subtotal": 49999,
-    "subtotal_excluding_tax": 49999,
-    "test_clock": null,
-    "total": 49999,
-    "total_discount_amounts": [],
-    "total_excluding_tax": 49999,
-    "total_pretax_credit_amounts": [],
-    "total_taxes": [],
-    "webhooks_delivered_at": null
-  },
-  "livemode": false,
-  "metadata": {},
-  "next_pending_invoice_item_invoice": null,
-  "on_behalf_of": null,
-  "pause_collection": null,
-  "payment_settings": {
-    "payment_method_options": null,
-    "payment_method_types": [
-      "card",
-      "sepa_debit"
-    ],
-    "save_default_payment_method": "on_subscription"
-  },
-  "pending_invoice_item_interval": null,
-  "pending_setup_intent": null,
-  "pending_update": null,
-  "plan": {
-    "id": "price_1Sw1Wg5Br3qnfEfN4OVbYrgh",
-    "object": "plan",
-    "active": true,
-    "amount": 49999,
-    "amount_decimal": "49999",
-    "billing_scheme": "per_unit",
-    "created": 1769955682,
-    "currency": "eur",
-    "interval": "year",
-    "interval_count": 1,
-    "livemode": false,
-    "metadata": {},
-    "meter": null,
-    "nickname": null,
-    "product": "prod_TtpBDLh7dQoq1z",
-    "tiers_mode": null,
-    "transform_usage": null,
-    "trial_period_days": null,
-    "usage_type": "licensed"
-  },
-  "quantity": 1,
-  "schedule": null,
-  "start_date": 1771960520,
-  "status": "incomplete",
-  "test_clock": null,
-  "transfer_data": null,
-  "trial_end": null,
-  "trial_settings": {
-    "end_behavior": {
-      "missing_payment_method": "create_invoice"
-    }
-  },
-  "trial_start": null
-}
-</file>
-
-<file path="scripts/out2.json">
-
-</file>
-
 <file path="scripts/test-sub-create.js">
 require('dotenv').config({ path: '.env.local' });
 const stripeInstance = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -6078,6 +5836,8 @@ export function PlanUsageWidget() {
     return limit === null ? "Ilimitado" : limit;
   };
 
+  console.log(planName)
+
   return (
     <div className="p-4 bg-primary-bg dark:bg-cyan-950/20 rounded-2xl transition-all">
       {/* Header Link */}
@@ -6104,7 +5864,7 @@ export function PlanUsageWidget() {
         </div>
         <div className="h-1.5 w-full bg-white dark:bg-slate-800 rounded-full overflow-hidden">
           <div
-            className="h-full bg-cyan-500 dark:bg-cyan-400 rounded-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(6,182,212,0.4)]"
+            className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
             style={{ width: `${calculateProgress(users.used, users.limit)}%` }}
           />
         </div>
@@ -6129,7 +5889,7 @@ export function PlanUsageWidget() {
         </div>
         <div className="h-1.5 w-full bg-white dark:bg-slate-800 rounded-full overflow-hidden">
           <div
-            className="h-full bg-cyan-500 dark:bg-cyan-400 rounded-full transition-all duration-700 ease-out shadow-[0_0_8px_rgba(6,182,212,0.4)]"
+            className="h-full bg-primary rounded-full transition-all duration-700 ease-out "
             style={{ width: `${calculateProgress(sensors.used, sensors.limit)}%` }}
           />
         </div>
@@ -6140,10 +5900,10 @@ export function PlanUsageWidget() {
         <Button
           asChild
           variant="default"
-          className="w-full bg-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:hover:bg-cyan-500 text-white border-none h-10 text-sm font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full bg-primary text-white border-none h-10 text-sm font-bold rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <Link href="/dashboard/settings/plan">
-            Upgrade para Executivo
+            Upgrade para {planName.toLocaleLowerCase() === "starter" ? "Indutrial Pro" : "Executivo"}
           </Link>
         </Button>
       )}
@@ -8193,117 +7953,6 @@ export const getPlanAndSensors = unstable_cache(
 );
 </file>
 
-<file path="actions/success.ts">
-'use server';
-
-import { stripe } from "@/lib/stripe";
-import { z } from "zod";
-import Stripe from "stripe";
-import prisma from "@/lib/prisma";
-
-// 1. Unified Zod Schema
-const searchParamsSchema = z.object({
-    payment_intent: z.union([z.string(), z.array(z.string())]).optional(),
-    setup_intent: z.union([z.string(), z.array(z.string())]).optional(),
-    redirect_status: z.union([z.string(), z.array(z.string())]).optional(),
-}).transform(val => ({
-    payment_intent: Array.isArray(val.payment_intent) ? val.payment_intent[0] : val.payment_intent,
-    setup_intent: Array.isArray(val.setup_intent) ? val.setup_intent[0] : val.setup_intent,
-    redirect_status: Array.isArray(val.redirect_status) ? val.redirect_status[0] : val.redirect_status,
-})).refine(data => data.payment_intent || data.setup_intent, {
-    message: "O ID do pagamento está em falta.",
-});
-
-// Helper to parse metadata strings back into objects
-const safeParseJSON = (data: string | undefined, fallback: any) => {
-    if (!data) return fallback;
-    try { return JSON.parse(data); }
-    catch { return fallback; }
-};
-
-export async function processSuccessPageData(rawSearchParams: any) {
-    // 1. Validate URL Params
-    const result = searchParamsSchema.safeParse(rawSearchParams);
-    if (!result.success) {
-        return { success: false, error: "Parâmetros de URL inválidos." };
-    }
-
-    const { payment_intent, setup_intent, redirect_status } = result.data;
-    const intentId = payment_intent || setup_intent;
-
-    if (redirect_status && !['succeeded', 'processing'].includes(redirect_status)) {
-        return { success: false, error: "O pagamento não foi concluído com sucesso." };
-    }
-
-    try {
-        let invoiceId: string | null = null;
-        let documentUrl: string | null = null;
-        let parsedMetadata: Record<string, any> = {};
-
-        // 2. Fetch from Stripe ONCE
-        if (intentId!.startsWith("pi_")) {
-            const intent = await stripe.paymentIntents.retrieve(intentId!, {
-                expand: ['latest_charge']
-            });
-
-            const rawIntent = intent as any;
-            
-            // Extract IDs and URLs
-            invoiceId = rawIntent.payment_details?.order_reference || rawIntent.invoice || rawIntent.invoice?.id || null;
-            const latest_charge = rawIntent.latest_charge as Stripe.Charge | null;
-            
-            if (latest_charge && typeof latest_charge === 'object') {
-                documentUrl = latest_charge.receipt_url || null;
-            }
-
-            // Extract & Parse Metadata (For graceful fallback)
-            const rawMetadata = intent.metadata || {};
-            parsedMetadata = {
-                ...rawMetadata,
-                cartItems: safeParseJSON(rawMetadata.cartItems, []),
-                shippingAddress: safeParseJSON(rawMetadata.shippingAddress, null),
-                billingAddress: safeParseJSON(rawMetadata.billingAddress, null),
-                userEmail: latest_charge?.billing_details?.email || rawMetadata.userEmail || null,
-                customerName: rawMetadata.customerName || latest_charge?.billing_details?.name || null,
-            };
-        }
-
-        // 3. Poll the Database (Wait for the Webhook)
-        let order = null;
-        let attempts = 0;
-        
-        while (!order && attempts < 5) {
-            order = await prisma.order.findFirst({
-                where: {
-                    OR: [
-                        { stripeIntentId: intentId },
-                        { stripeIntentId: invoiceId || 'undefined_fallback' }
-                    ]
-                }
-            });
-
-            if (!order) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                attempts++;
-            }
-        }
-
-        // 4. Return unified result
-        return {
-            success: true,
-            orderId: order?.id || "Em processamento...", // Fallback ID if webhook is slow
-            documentUrl,
-            metadata: parsedMetadata, // Send metadata to UI just in case DB failed
-            isDbSyncComplete: !!order // Flag to let the UI know if this is a DB order or a Stripe fallback
-        };
-
-    } catch (error) {
-        console.error("[Success Action Error]:", error);
-        return { success: false, error: "Falha ao comunicar com o servidor de pagamentos." };
-    }
-}
-</file>
-
 <file path="app/(marketing)/checkout/summary/page.tsx">
 import { CheckoutClient } from "@/components/marketing/checkout/CheckoutClient";
 
@@ -9169,13 +8818,10 @@ export default TitleSection
 </file>
 
 <file path="components/resources/logos.tsx">
-type TIconProps = {
-    width?: number;
-    height?: number;
-    className?: string;
-}
+import { TSVGProps } from "@/types/svg";
 
-export const BrandLogo = ({ width = 107, height = 25, className = "text-foreground" }: TIconProps) => {
+
+export const BrandLogo = ({ width = 107, height = 25, className = "text-foreground" }: TSVGProps) => {
     return <svg width={width} height={height} viewBox="0 0 107 25" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
         <path d="M31.6185 14.6905V12.5289H34.2073C34.7655 12.5289 35.1671 12.4064 35.412 12.1615C35.6626 11.9109 35.7879 11.5378 35.7879 11.0423V10.5125C35.7879 10.0113 35.6655 9.63819 35.4205 9.39326C35.1756 9.14833 34.774 9.02587 34.2158 9.02587H31.6099V6.87278H34.4123C35.8022 6.87278 36.8189 7.18036 37.4626 7.79553C38.1119 8.4107 38.4366 9.29073 38.4366 10.4356V11.1277C38.4366 12.2783 38.1119 13.1612 37.4626 13.7763C36.8189 14.3858 35.805 14.6905 34.4209 14.6905H31.6185ZM29.8242 17.792V6.87278H32.4387V13.1355L32.4558 14.3488V17.792H29.8242Z" fill="currentColor" />
         <path d="M47.2509 17.792V12.8536C47.2509 12.546 47.211 12.2811 47.1313 12.059C47.0515 11.8311 46.9177 11.6574 46.7297 11.5378C46.5475 11.4182 46.2911 11.3584 45.9608 11.3584C45.6931 11.3584 45.4567 11.4068 45.2516 11.5036C45.0466 11.5948 44.8757 11.7229 44.739 11.8881C44.608 12.0476 44.5054 12.2299 44.4314 12.4349L43.9017 11.2131H44.5083C44.5937 10.8315 44.739 10.4897 44.944 10.1879C45.1491 9.88596 45.431 9.64673 45.7899 9.47016C46.1544 9.28788 46.6101 9.19675 47.1569 9.19675C47.7835 9.19675 48.2961 9.31921 48.6948 9.56414C49.0936 9.80337 49.3869 10.1622 49.5749 10.6407C49.7685 11.1191 49.8654 11.7172 49.8654 12.4349V17.792H47.2509ZM41.8511 17.792V6.50539H44.4485V9.01732L44.4058 11.7856L44.4656 11.9906V17.792H41.8511Z" fill="currentColor" />
@@ -9420,6 +9066,127 @@ describe('Server Actions Authorization Boundaries', () => {
 });
 </file>
 
+<file path="actions/success.ts">
+'use server';
+
+import { stripe } from "@/lib/stripe";
+import { z } from "zod";
+import Stripe from "stripe";
+import prisma from "@/lib/prisma";
+
+// 1. Unified Zod Schema
+const searchParamsSchema = z.object({
+    payment_intent: z.union([z.string(), z.array(z.string())]).optional(),
+    setup_intent: z.union([z.string(), z.array(z.string())]).optional(),
+    redirect_status: z.union([z.string(), z.array(z.string())]).optional(),
+}).transform(val => ({
+    payment_intent: Array.isArray(val.payment_intent) ? val.payment_intent[0] : val.payment_intent,
+    setup_intent: Array.isArray(val.setup_intent) ? val.setup_intent[0] : val.setup_intent,
+    redirect_status: Array.isArray(val.redirect_status) ? val.redirect_status[0] : val.redirect_status,
+})).refine(data => data.payment_intent || data.setup_intent, {
+    message: "O ID do pagamento está em falta.",
+});
+
+// Helper to parse metadata strings back into objects
+const safeParseJSON = (data: string | undefined, fallback: any) => {
+    if (!data) return fallback;
+    try { return JSON.parse(data); }
+    catch { return fallback; }
+};
+
+export async function processSuccessPageData(rawSearchParams: any) {
+    // 1. Validate URL Params
+    const result = searchParamsSchema.safeParse(rawSearchParams);
+    if (!result.success) {
+        return { success: false, error: "Parâmetros de URL inválidos." };
+    }
+
+    const { payment_intent, setup_intent, redirect_status } = result.data;
+    const intentId = payment_intent || setup_intent;
+
+    if (redirect_status && !['succeeded', 'processing'].includes(redirect_status)) {
+        return { success: false, error: "O pagamento não foi concluído com sucesso." };
+    }
+
+    try {
+        let invoiceId: string | null = null;
+        let documentUrl: string | null = null;
+        let parsedMetadata: Record<string, any> = {};
+
+        // 2. Fetch from Stripe ONCE
+        if (intentId!.startsWith("pi_")) {
+            const intent = await stripe.paymentIntents.retrieve(intentId!, {
+                expand: ['latest_charge']
+            });
+
+            const rawIntent = intent as any;
+            
+            // Extract IDs and URLs
+            invoiceId = rawIntent.payment_details?.order_reference || rawIntent.invoice || rawIntent.invoice?.id || null;
+            const latest_charge = rawIntent.latest_charge as Stripe.Charge | null;
+            
+            if (latest_charge && typeof latest_charge === 'object') {
+                documentUrl = latest_charge.receipt_url || null;
+            }
+
+            // Extract & Parse Metadata (For graceful fallback)
+            const rawMetadata = intent.metadata || {};
+            let cartItems = [];
+            if (rawMetadata.pendingCartId) {
+                const pendingCart = await prisma.pendingCart.findUnique({
+                    where: { id: rawMetadata.pendingCartId }
+                });
+                if (pendingCart) cartItems = pendingCart.items as any[];
+            } else {
+                cartItems = safeParseJSON(rawMetadata.cartItems, []);
+            }
+
+            parsedMetadata = {
+                ...rawMetadata,
+                cartItems,
+                shippingAddress: safeParseJSON(rawMetadata.shippingAddress, null),
+                billingAddress: safeParseJSON(rawMetadata.billingAddress, null),
+                userEmail: latest_charge?.billing_details?.email || rawMetadata.userEmail || null,
+                customerName: rawMetadata.customerName || latest_charge?.billing_details?.name || null,
+            };
+        }
+
+        // 3. Poll the Database (Wait for the Webhook)
+        let order = null;
+        let attempts = 0;
+        
+        while (!order && attempts < 5) {
+            order = await prisma.order.findFirst({
+                where: {
+                    OR: [
+                        { stripeIntentId: intentId },
+                        { stripeIntentId: invoiceId || 'undefined_fallback' }
+                    ]
+                }
+            });
+
+            if (!order) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                attempts++;
+            }
+        }
+
+        // 4. Return unified result
+        return {
+            success: true,
+            orderId: order?.id || "Em processamento...", // Fallback ID if webhook is slow
+            documentUrl,
+            metadata: parsedMetadata, // Send metadata to UI just in case DB failed
+            isDbSyncComplete: !!order // Flag to let the UI know if this is a DB order or a Stripe fallback
+        };
+
+    } catch (error) {
+        console.error("[Success Action Error]:", error);
+        return { success: false, error: "Falha ao comunicar com o servidor de pagamentos." };
+    }
+}
+</file>
+
 <file path="components/haas/Sidebar.tsx">
 "use client";
 
@@ -9546,15 +9313,6 @@ const NavigationFooter = ({ collapsed }: { collapsed: boolean }) => {
         <PlanUsageWidget />
         <FooterNavigation collapsed={collapsed} />
         <UserMenu collapsed={collapsed} />
-    </div>
-}
-
-
-const PlanLimits = () => {
-    return <div className="w-full p-4 bg-primary-bg">
-        <div className="flex justify-between">
-            <h6>Plano</h6>
-        </div>
     </div>
 }
 
@@ -10281,7 +10039,7 @@ export default ProductDialog;
 <file path="contexts/AppContext.tsx">
 "use client";
 
-import React, { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { Role, LabProfile } from "@prisma/client";
 import { PlanUsageStats } from "@/lib/services/billing";
 
@@ -10515,109 +10273,6 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 </file>
 
-<file path="scripts/nuke-dev-env.ts">
-import { PrismaClient } from '@prisma/client';
-import * as dotenv from 'dotenv';
-import { deleteAllOrganizations, deleteAllUsers } from '../lib/auth/auth0-management';
-import { stripe } from '../lib/stripe';
-
-dotenv.config({ path: '.env.local' }); // Ensure it loads your local dev env
-
-const prisma = new PrismaClient();
-
-async function nukeDatabase() {
-    console.log('☢️  Starting Database Nuke...');
-    try {
-        await prisma.orderItem.deleteMany();
-        console.log('   ✅ OrderItems deleted');
-        await prisma.order.deleteMany();
-        console.log('   ✅ Orders deleted');
-        await prisma.user.deleteMany();
-        console.log('   ✅ Users deleted');
-        await prisma.department.deleteMany();
-        console.log('   ✅ Departments deleted');
-        await prisma.organization.deleteMany();
-        console.log('   ✅ Organizations deleted');
-        await prisma.address.deleteMany();
-        console.log('   ✅ Addresses deleted');
-        console.log('🎉 Database successfully wiped!');
-    } catch (error) {
-        console.error('❌ Error wiping database:', error);
-    }
-}
-
-async function nukeAuth0() {
-    console.log('\n☢️  Starting Auth0 Tenant Nuke...');
-    try {
-        await deleteAllOrganizations();
-        await deleteAllUsers();
-        console.log('🎉 Auth0 tenant successfully wiped!');
-    } catch (error) {
-        console.error('❌ Error wiping Auth0:', error);
-    }
-}
-
-async function nukeStripe() {
-    console.log('\n☢️  Starting Stripe Test Data Nuke...');
-
-    const secretKey = process.env.STRIPE_SECRET_KEY || '';
-
-    // CRITICAL SAFETY CHECK: Never allow this to run on live data
-    if (!secretKey.startsWith('sk_test_')) {
-        console.error('❌ ABORTING STRIPE NUKE: You are not using a test key (sk_test_).');
-        return;
-    }
-
-    try {
-        let hasMore = true;
-        let startingAfter: string | undefined = undefined;
-        let deletedCount = 0;
-
-        // Stripe returns a maximum of 100 customers per request, so we must paginate
-        while (hasMore) {
-            const response: any = await stripe.customers.list(
-                startingAfter ? { limit: 100, starting_after: startingAfter } : { limit: 100 }
-            );
-
-            for (const customer of response.data) {
-                await stripe.customers.del(customer.id);
-                console.log(`   ✅ Stripe Customer deleted: ${customer.email || customer.id}`);
-                deletedCount++;
-            }
-
-            hasMore = response.has_more;
-            if (hasMore && response.data.length > 0) {
-                startingAfter = response.data[response.data.length - 1].id;
-            }
-        }
-
-        console.log(`🎉 Stripe wipe complete! Deleted ${deletedCount} test customers.`);
-    } catch (error) {
-        console.error('❌ Error wiping Stripe:', error);
-    }
-}
-
-async function main() {
-    console.warn('⚠️  WARNING: THIS WILL DESTROY ALL USERS AND ORGS IN DB AND AUTH0 ⚠️');
-    console.warn('Press Ctrl+C immediately if you are pointing to Production!');
-
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
-    await nukeDatabase();
-    await nukeAuth0();
-    await nukeStripe();
-}
-
-main()
-    .catch((e) => {
-        console.error(e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
-</file>
-
 <file path="types/cart.ts">
 import type { PlanTier, HardwareProduct, Address } from '@prisma/client';
 
@@ -10659,254 +10314,6 @@ export type CartContextType = {
     updateQuantity: (productId: string, quantity: number) => void;
     clearCart: () => void;
 };
-</file>
-
-<file path="actions/stripe.ts">
-'use server';
-
-import { stripe } from '@/lib/stripe';
-import { isValidNIF } from '@/lib/utils';
-import Stripe from 'stripe';
-import prisma from '@/lib/prisma';
-import { CheckoutFormData } from '@/types/checkout';
-import { getStripeLineItemsConfig } from '@/lib/services/stripe';
-
-export async function createSubscriptionIntent(
-    formData: CheckoutFormData,
-    lineItems: { price: string; quantity?: number }[],
-    totalSensorsInCart: number = 0,
-    selectedHardware: { productId: string; quantity: number; stripePriceId?: string; type?: string }[] = []
-) {
-    try {
-        if (!formData.adminEmail || lineItems.length === 0) {
-            throw new Error('Email and line items are required.');
-        }
-
-        if (!isValidNIF(formData.nif)) {
-            throw new Error('Invalid Portuguese NIF provided.');
-        }
-
-        // Flatten nested form data safely into Stripe metadata constraints (max 500 chars)
-        const metadata: Record<string, string> = {
-            organizationName: formData.organizationName.substring(0, 500),
-            departmentName: formData.departmentName.substring(0, 500),
-            nif: formData.nif.substring(0, 500),
-            userName: formData.adminFullName.substring(0, 500),
-            userEmail: formData.adminEmail.substring(0, 500),
-            jobTitle: formData.jobTitle.substring(0, 500),
-            phone: formData.phone.substring(0, 500),
-            billingAddress: JSON.stringify(formData.billingAddress).substring(0, 500),
-        };
-
-        if (formData.internalReference) {
-            metadata.internalReference = formData.internalReference.substring(0, 500);
-        }
-
-        if (formData.shippingAddress) {
-            metadata.shippingAddress = JSON.stringify(formData.shippingAddress).substring(0, 500);
-            metadata.hasDifferentShipping = 'true';
-        } else {
-            metadata.hasDifferentShipping = 'false';
-        }
-
-        const planIdCandidate = lineItems[0]?.price;
-        const tier = planIdCandidate ? await prisma.planTier.findUnique({ where: { stripeProductId: planIdCandidate } }) : null;
-
-        if (tier && planIdCandidate?.startsWith('prod_')) {
-            const product = await stripe.products.retrieve(planIdCandidate);
-            const defaultPriceId = typeof product.default_price === 'string'
-                ? product.default_price
-                : (product.default_price as any)?.id;
-
-            if (!defaultPriceId) {
-                throw new Error(`No default price found for product ${planIdCandidate}`);
-            }
-            lineItems[0].price = defaultPriceId;
-        }
-
-        const extraSensorsCount = tier ? Math.max(0, totalSensorsInCart - tier.includedSensors) : 0;
-        const tierExtraSensorStripePriceId = tier ? tier.extraSensorStripePriceId : null;
-
-        const { recurringItems, addInvoiceItems, totalOneTimeAmount } = await getStripeLineItemsConfig(
-            lineItems,
-            tierExtraSensorStripePriceId,
-            extraSensorsCount,
-            selectedHardware
-        );
-
-        let cartItemsParsed = '[]';
-        if (tier) {
-            const mandatoryGateway = await prisma.hardwareProduct.findUnique({ where: { sku: 'GW-TRB142' } });
-            const mandatoryGatewayId = mandatoryGateway?.id || "cmlsocydi0003ecbgy59cs8ow";
-
-            const cartItems = [
-                { productId: mandatoryGatewayId, quantity: 1, type: 'gateway' },
-                ...selectedHardware.map(hw => ({ productId: hw.productId, quantity: hw.quantity, type: hw.type }))
-            ];
-            cartItemsParsed = JSON.stringify(cartItems);
-        }
-
-        // 1. Get or Create Customer
-        const customers = await stripe.customers.list({ email: formData.adminEmail, limit: 1 });
-        let customerId;
-        if (customers.data.length > 0) {
-            customerId = customers.data[0].id;
-            // Optionally update customer metadata and address for SEPA
-            await stripe.customers.update(customerId, {
-                name: formData.adminFullName, // Ensure name is up to date for mandates
-                address: {
-                    country: formData.billingAddress.country
-                },
-                metadata: {
-                    nif: formData.nif,
-                    organizationName: formData.organizationName
-                }
-            });
-        } else {
-            const customer = await stripe.customers.create({
-                email: formData.adminEmail,
-                name: formData.adminFullName,
-                address: {
-                    country: formData.billingAddress.country
-                },
-                metadata: {
-                    nif: formData.nif,
-                    organizationName: formData.organizationName
-                }
-            });
-            customerId = customer.id;
-        }
-
-        // 2. Create Intent (Subscription or PaymentIntent)
-        if (recurringItems.length > 0) {
-            // Subscription Flow: Using modern automatic payment methods (controlled via Stripe Dashboard)
-            const subscriptionParams: Stripe.SubscriptionCreateParams = {
-                customer: customerId,
-                items: recurringItems.map(item => ({ price: item.price, quantity: item.quantity || 1 })),
-                payment_behavior: 'default_incomplete',
-                payment_settings: {
-                    save_default_payment_method: 'on_subscription',
-                },
-                expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
-                metadata: {
-                    ...metadata,
-                    planId: planIdCandidate!, // ensure Plan ID is logged using the unified DB system
-                    cartItems: cartItemsParsed
-                },
-            };
-
-            // Include one-time hardware items on the first invoice of the subscription
-            if (addInvoiceItems.length > 0) {
-                subscriptionParams.add_invoice_items = addInvoiceItems.map(item => ({
-                    price: item.price,
-                    quantity: item.quantity || 1
-                }));
-            }
-
-            const subscription = await stripe.subscriptions.create(subscriptionParams);
-
-            const invoice = subscription.latest_invoice as any;
-
-            console.log("\n--- STRIPE SUBSCRIPTION RESP ---");
-            console.log("Invoice ID:", invoice?.id);
-            console.log("Payment Intent object:", !!invoice?.payment_intent);
-            console.log("Setup Intent object:", !!subscription.pending_setup_intent);
-
-            let clientSecret = null;
-            if (invoice?.payment_intent) {
-                console.log("PI Client Secret Generated SUCCESSFULLY:", invoice.payment_intent.id);
-                clientSecret = invoice.payment_intent.client_secret;
-            } else if (subscription.pending_setup_intent) {
-                const setupIntent = subscription.pending_setup_intent as any;
-                console.log("Setup Intent Client Secret Generated SUCCESSFULLY:", setupIntent.id);
-                clientSecret = setupIntent.client_secret;
-            } else if (invoice?.id) {
-                console.log("Payment Intent not on invoice natively (Stripe API 2026 behavior). Fetching latest PI...");
-                const pis = await stripe.paymentIntents.list({ customer: customerId, limit: 1 });
-                if (pis.data.length > 0) {
-                    const latestPi = pis.data[0] as any;
-                    if (latestPi.payment_details?.order_reference === invoice.id || latestPi.description === "Subscription creation") {
-                        console.log("PI Client Secret Fetched via order_reference:", latestPi.id);
-                        clientSecret = latestPi.client_secret;
-                    }
-                }
-            }
-
-            if (!clientSecret) {
-                console.error("No client secret found! Ensure 'SEPA Direct Debit' and 'Cards' are enabled in Stripe Dashboard -> Settings -> Payment Methods.");
-                console.error("Invoice dump:", JSON.stringify(invoice, null, 2));
-                throw new Error('Failed to generate payment intent for subscription. Check Stripe Dashboard configuration.');
-            }
-
-            return {
-                clientSecret,
-                subscriptionId: subscription.id
-            };
-        } else {
-            // One-time only flow (Hardware only)
-            if (totalOneTimeAmount === 0) throw new Error('Invalid cart total.');
-
-            const paymentIntent = await stripe.paymentIntents.create({
-                amount: totalOneTimeAmount,
-                currency: 'eur', // TODO: Dynamically fetch currency or enforce EUR
-                customer: customerId,
-                metadata: metadata,
-                automatic_payment_methods: { enabled: true },
-            });
-
-            return {
-                clientSecret: paymentIntent.client_secret,
-                paymentIntentId: paymentIntent.id
-            };
-        }
-
-    } catch (error: any) {
-        console.error('Error creating subscription intent:', error);
-        throw new Error(error.message || 'Failed to initialize payment.');
-    }
-}
-</file>
-
-<file path="app/(marketing)/success/page.tsx">
-import { processSuccessPageData } from "@/actions/success";
-import SuccessSummary from "@/components/checkout/SuccessSummary";
-import { AlertCircle } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-
-
-
-export default async function SuccessPage({
-    searchParams
-}: {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-    const resolvedSearchParams = await searchParams;
-
-    const result = await processSuccessPageData(resolvedSearchParams);
-
-    if (!result.success) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center py-12 sm:px-6 lg:px-8 bg-background">
-                <AlertCircle className="w-16 h-16 text-destructive mb-4" />
-                <h1 className="text-2xl font-bold mb-2">Ops! Algo correu mal.</h1>
-                <p className="text-muted-foreground mb-6">{result.error}</p>
-                <Button asChild>
-                    <Link href="/">Voltar à Página Inicial</Link>
-                </Button>
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-            <SuccessSummary
-                orderId={result.orderId as string}
-                documentUrl={result.documentUrl as string}
-            />
-        </div>
-    );
-}
 </file>
 
 <file path="app/api/webhooks/auth0/route.ts">
@@ -11063,207 +10470,6 @@ export const GatewayShowcase = () => {
 export default GatewayShowcase;
 </file>
 
-<file path="lib/repositories/workspace.ts">
-import { Prisma } from '@prisma/client';
-import { z } from 'zod';
-
-// ==========================================
-// ZOD SCHEMAS FOR VALIDATION
-// ==========================================
-
-export const OrganizationSchema = z.object({
-    nif: z.string().min(1, 'NIF is required'),
-    name: z.string().min(1, 'Organization name is required'),
-});
-
-export const AddressSchema = z.object({
-    street: z.string().default('N/A'),
-    city: z.string().default('N/A'),
-    zipCode: z.string().default('N/A'),
-    country: z.string().default('N/A'),
-});
-
-export const DepartmentSchema = z.object({
-    name: z.string().min(1, 'Department name is required'),
-    organizationId: z.string().min(1),
-    stripeCustomerId: z.string().min(1),
-    stripeSubscriptionId: z.string().optional(),
-    planId: z.string().optional(),
-    billingAddressData: z.string().optional(),
-    shippingAddressData: z.string().optional(),
-});
-
-export const AdminUserSchema = z.object({
-    email: z.string().email('Valid email is required'),
-    name: z.string().optional(),
-    jobTitle: z.string().optional(),
-    phone: z.string().optional(),
-    departmentId: z.string().min(1),
-});
-
-export const OrderItemsSchema = z.array(
-    z.object({
-        productId: z.string().min(1),
-        quantity: z.number().int().positive().default(1),
-    })
-);
-
-
-
-// ==========================================
-// TRANSACTIONAL SERVICE FUNCTIONS
-// ==========================================
-
-/**
- * Type alias for a Prisma Transaction Client to ensure operations run inside the caller's transaction.
- */
-export type TxClient = Omit<
-    Prisma.TransactionClient,
-    '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
->;
-
-/**
- * Validates metadata and upserts an Organization.
- */
-export async function upsertOrganizationTx(tx: TxClient, input: z.infer<typeof OrganizationSchema>) {
-    const validated = OrganizationSchema.parse(input);
-
-    return await tx.organization.upsert({
-        where: { nif: validated.nif },
-        create: {
-            name: validated.name,
-            nif: validated.nif,
-        },
-        update: {},
-    });
-}
-
-/**
- * Validates metadata, creates a dummy billing address, and creates a Department.
- */
-export async function createDepartmentTx(tx: TxClient, input: z.infer<typeof DepartmentSchema>) {
-    const validated = DepartmentSchema.parse(input);
-
-    // Address creation
-    let parsedBilling = null;
-    if (validated.billingAddressData) {
-        try { parsedBilling = JSON.parse(validated.billingAddressData); } catch (e) { }
-    }
-    const billingAddress = await tx.address.create({
-        data: {
-            street: parsedBilling?.streetAddress || 'N/A',
-            city: parsedBilling?.city || 'N/A',
-            zipCode: parsedBilling?.postalCode || 'N/A',
-            country: parsedBilling?.country || 'N/A',
-        },
-    });
-
-    let shippingAddress = null;
-    let parsedShipping = null;
-    if (validated.shippingAddressData) {
-        try { parsedShipping = JSON.parse(validated.shippingAddressData); } catch (e) { }
-        if (parsedShipping) {
-            shippingAddress = await tx.address.create({
-                data: {
-                    street: parsedShipping?.streetAddress || 'N/A',
-                    city: parsedShipping?.city || 'N/A',
-                    zipCode: parsedShipping?.postalCode || 'N/A',
-                    country: parsedShipping?.country || 'N/A',
-                },
-            });
-        }
-    }
-
-    const deptSlug = validated.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-    // Temporary auth0 slug (caller must update with real auth0 string later)
-    const auth0OrgSlug = `temp-${Date.now().toString().slice(-6)}`;
-
-    return await tx.department.create({
-        data: {
-            name: validated.name,
-            slug: `${deptSlug}-${Date.now().toString().slice(-4)}`,
-            auth0OrgId: auth0OrgSlug,
-            stripeCustomerId: validated.stripeCustomerId,
-            stripeSubscriptionId: validated.stripeSubscriptionId,
-            organizationId: validated.organizationId,
-            billingAddressId: billingAddress.id,
-            shippingAddressId: shippingAddress?.id || null,
-            subStatus: 'ACTIVE',
-            planId: validated.planId,
-        },
-    });
-}
-
-/**
- * Validates metadata and creates the core Admin User record pending Auth0 login.
- */
-export async function createAdminUserTx(tx: TxClient, input: z.infer<typeof AdminUserSchema>) {
-    const validated = AdminUserSchema.parse(input);
-
-    return await tx.user.create({
-        data: {
-            email: validated.email,
-            name: validated.name || null,
-            jobTitle: validated.jobTitle || null,
-            phone: validated.phone || null,
-            role: 'ADMIN',
-            departmentId: validated.departmentId,
-        },
-    });
-}
-
-/**
- * Takes a parsed cart array from Stripe metadata, matches items to HardwareProducts via their ID, and issues an Order.
- */
-export async function createHardwareOrderTx(
-    tx: TxClient,
-    departmentId: string,
-    cartItemsRaw: any[],
-    intentId: string,
-    customerEmail: string
-) {
-    const cartItems = OrderItemsSchema.parse(cartItemsRaw);
-    if (cartItems.length > 0) {
-        const order = await tx.order.create({
-            data: {
-                departmentId: departmentId,
-                status: 'PAID_UNSHIPPED',
-                stripeIntentId: intentId,
-                customerEmail: customerEmail
-            },
-        });
-
-        for (const item of cartItems) {
-            try {
-                const hardwareProduct = await tx.hardwareProduct.findUnique({
-                    where: { id: item.productId },
-                });
-
-                if (!hardwareProduct) {
-                    console.error(`[CRITICAL] Order creation failed mapping: Product ID ${item.productId} not found in DB. Skipping item.`);
-                    continue;
-                }
-
-                await tx.orderItem.create({
-                    data: {
-                        orderId: order.id,
-                        productId: hardwareProduct.id,
-                        quantity: item.quantity,
-                    },
-                });
-            } catch (dbErr) {
-                console.error(`[CRITICAL] Order creation DB query failed for Product ID ${item.productId}:`, dbErr);
-            }
-        }
-
-        return order;
-    }
-
-    return null;
-}
-</file>
-
 <file path="lib/services/auth0-handlers.ts">
 import prisma from "@/lib/prisma";
 import * as departmentService from '@/lib/repositories/department';
@@ -11340,6 +10546,324 @@ export async function setupAuth0AndInvite(orgName: string, departmentId: string,
 }
 </file>
 
+<file path="scripts/nuke-dev-env.ts">
+import { PrismaClient } from '@prisma/client';
+import * as dotenv from 'dotenv';
+import { deleteAllOrganizations, deleteAllUsers } from '../lib/auth/auth0-management';
+import { stripe } from '../lib/stripe';
+
+dotenv.config({ path: '.env.local' }); // Ensure it loads your local dev env
+
+const prisma = new PrismaClient();
+
+async function nukeDatabase() {
+    console.log('☢️  Starting Database Nuke...');
+    try {
+        await prisma.orderItem.deleteMany();
+        console.log('   ✅ OrderItems deleted');
+        await prisma.order.deleteMany();
+        console.log('   ✅ Orders deleted');
+        await prisma.user.deleteMany();
+        console.log('   ✅ Users deleted');
+        await prisma.department.deleteMany();
+        console.log('   ✅ Departments deleted');
+        await prisma.organization.deleteMany();
+        console.log('   ✅ Organizations deleted');
+        await prisma.address.deleteMany();
+        console.log('   ✅ Addresses deleted');
+        await prisma.pendingCart.deleteMany();
+        console.log('   ✅ Pending Carts deleted');
+        console.log('🎉 Database successfully wiped!');
+    } catch (error) {
+        console.error('❌ Error wiping database:', error);
+    }
+}
+
+async function nukeAuth0() {
+    console.log('\n☢️  Starting Auth0 Tenant Nuke...');
+    try {
+        await deleteAllOrganizations();
+        await deleteAllUsers();
+        console.log('🎉 Auth0 tenant successfully wiped!');
+    } catch (error) {
+        console.error('❌ Error wiping Auth0:', error);
+    }
+}
+
+async function nukeStripe() {
+    console.log('\n☢️  Starting Stripe Test Data Nuke...');
+
+    const secretKey = process.env.STRIPE_SECRET_KEY || '';
+
+    // CRITICAL SAFETY CHECK: Never allow this to run on live data
+    if (!secretKey.startsWith('sk_test_')) {
+        console.error('❌ ABORTING STRIPE NUKE: You are not using a test key (sk_test_).');
+        return;
+    }
+
+    try {
+        let hasMore = true;
+        let startingAfter: string | undefined = undefined;
+        let deletedCount = 0;
+
+        // Stripe returns a maximum of 100 customers per request, so we must paginate
+        while (hasMore) {
+            const response: any = await stripe.customers.list(
+                startingAfter ? { limit: 100, starting_after: startingAfter } : { limit: 100 }
+            );
+
+            for (const customer of response.data) {
+                await stripe.customers.del(customer.id);
+                console.log(`   ✅ Stripe Customer deleted: ${customer.email || customer.id}`);
+                deletedCount++;
+            }
+
+            hasMore = response.has_more;
+            if (hasMore && response.data.length > 0) {
+                startingAfter = response.data[response.data.length - 1].id;
+            }
+        }
+
+        console.log(`🎉 Stripe wipe complete! Deleted ${deletedCount} test customers.`);
+    } catch (error) {
+        console.error('❌ Error wiping Stripe:', error);
+    }
+}
+
+async function main() {
+    console.warn('⚠️  WARNING: THIS WILL DESTROY ALL USERS AND ORGS IN DB AND AUTH0 ⚠️');
+    console.warn('Press Ctrl+C immediately if you are pointing to Production!');
+
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    await nukeDatabase();
+    await nukeAuth0();
+    await nukeStripe();
+}
+
+main()
+    .catch((e) => {
+        console.error(e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });
+</file>
+
+<file path="actions/stripe.ts">
+'use server';
+
+import { stripe } from '@/lib/stripe';
+import { isValidNIF } from '@/lib/utils';
+import Stripe from 'stripe';
+import prisma from '@/lib/prisma';
+import { CheckoutFormData } from '@/types/checkout';
+import { getStripeLineItemsConfig } from '@/lib/services/stripe';
+
+export async function createSubscriptionIntent(
+    formData: CheckoutFormData,
+    lineItems: { price: string; quantity?: number }[],
+    totalSensorsInCart: number = 0,
+    selectedHardware: { productId: string; quantity: number; stripePriceId?: string; type?: string }[] = []
+) {
+    try {
+        if (!formData.adminEmail || lineItems.length === 0) {
+            throw new Error('Email and line items are required.');
+        }
+
+        if (!isValidNIF(formData.nif)) {
+            throw new Error('Invalid Portuguese NIF provided.');
+        }
+
+        // Flatten nested form data safely into Stripe metadata constraints (max 500 chars)
+        const metadata: Record<string, string> = {
+            organizationName: formData.organizationName.substring(0, 500),
+            departmentName: formData.departmentName.substring(0, 500),
+            nif: formData.nif.substring(0, 500),
+            userName: formData.adminFullName.substring(0, 500),
+            userEmail: formData.adminEmail.substring(0, 500),
+            jobTitle: formData.jobTitle.substring(0, 500),
+            phone: formData.phone.substring(0, 500),
+            billingAddress: JSON.stringify(formData.billingAddress).substring(0, 500),
+        };
+
+        if (formData.internalReference) {
+            metadata.internalReference = formData.internalReference.substring(0, 500);
+        }
+
+        if (formData.shippingAddress) {
+            metadata.shippingAddress = JSON.stringify(formData.shippingAddress).substring(0, 500);
+            metadata.hasDifferentShipping = 'true';
+        } else {
+            metadata.hasDifferentShipping = 'false';
+        }
+
+        const planIdCandidate = lineItems[0]?.price;
+        const tier = planIdCandidate ? await prisma.planTier.findUnique({ where: { stripeProductId: planIdCandidate } }) : null;
+
+        if (tier && planIdCandidate?.startsWith('prod_')) {
+            const product = await stripe.products.retrieve(planIdCandidate);
+            const defaultPriceId = typeof product.default_price === 'string'
+                ? product.default_price
+                : (product.default_price as any)?.id;
+
+            if (!defaultPriceId) {
+                throw new Error(`No default price found for product ${planIdCandidate}`);
+            }
+            lineItems[0].price = defaultPriceId;
+        }
+
+        const extraSensorsCount = tier ? Math.max(0, totalSensorsInCart - tier.includedSensors) : 0;
+        const tierExtraSensorStripePriceId = tier ? tier.extraSensorStripePriceId : null;
+
+        const { recurringItems, addInvoiceItems, totalOneTimeAmount } = await getStripeLineItemsConfig(
+            lineItems,
+            tierExtraSensorStripePriceId,
+            extraSensorsCount,
+            selectedHardware
+        );
+
+        let pendingCartId = '';
+        if (tier) {
+            const mandatoryGateway = await prisma.hardwareProduct.findUnique({ where: { sku: 'GW-TRB142' } });
+            const mandatoryGatewayId = mandatoryGateway?.id || "cmlsocydi0003ecbgy59cs8ow";
+
+            const cartItems = [
+                { productId: mandatoryGatewayId, quantity: 1, type: 'gateway' },
+                ...selectedHardware.map(hw => ({ productId: hw.productId, quantity: hw.quantity, type: hw.type }))
+            ];
+            
+            const pendingCart = await prisma.pendingCart.create({
+                data: { items: cartItems }
+            });
+            pendingCartId = pendingCart.id;
+        }
+
+        // 1. Get or Create Customer
+        const customers = await stripe.customers.list({ email: formData.adminEmail, limit: 1 });
+        let customerId;
+        if (customers.data.length > 0) {
+            customerId = customers.data[0].id;
+            // Optionally update customer metadata and address for SEPA
+            await stripe.customers.update(customerId, {
+                name: formData.adminFullName, // Ensure name is up to date for mandates
+                address: {
+                    country: formData.billingAddress.country
+                },
+                metadata: {
+                    nif: formData.nif,
+                    organizationName: formData.organizationName
+                }
+            });
+        } else {
+            const customer = await stripe.customers.create({
+                email: formData.adminEmail,
+                name: formData.adminFullName,
+                address: {
+                    country: formData.billingAddress.country
+                },
+                metadata: {
+                    nif: formData.nif,
+                    organizationName: formData.organizationName
+                }
+            });
+            customerId = customer.id;
+        }
+
+        // 2. Create Intent (Subscription or PaymentIntent)
+        if (recurringItems.length > 0) {
+            // Subscription Flow: Using modern automatic payment methods (controlled via Stripe Dashboard)
+            const subscriptionParams: Stripe.SubscriptionCreateParams = {
+                customer: customerId,
+                items: recurringItems.map(item => ({ price: item.price, quantity: item.quantity || 1 })),
+                payment_behavior: 'default_incomplete',
+                payment_settings: {
+                    save_default_payment_method: 'on_subscription',
+                },
+                expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
+                metadata: {
+                    ...metadata,
+                    planId: planIdCandidate!, // ensure Plan ID is logged using the unified DB system
+                    pendingCartId: pendingCartId
+                },
+            };
+
+            // Include one-time hardware items on the first invoice of the subscription
+            if (addInvoiceItems.length > 0) {
+                subscriptionParams.add_invoice_items = addInvoiceItems.map(item => ({
+                    price: item.price,
+                    quantity: item.quantity || 1
+                }));
+            }
+
+            const subscription = await stripe.subscriptions.create(subscriptionParams);
+
+            const invoice = subscription.latest_invoice as any;
+
+            console.log("\n--- STRIPE SUBSCRIPTION RESP ---");
+            console.log("Invoice ID:", invoice?.id);
+            console.log("Payment Intent object:", !!invoice?.payment_intent);
+            console.log("Setup Intent object:", !!subscription.pending_setup_intent);
+
+            let clientSecret = null;
+            if (invoice?.payment_intent) {
+                console.log("PI Client Secret Generated SUCCESSFULLY:", invoice.payment_intent.id);
+                clientSecret = invoice.payment_intent.client_secret;
+            } else if (subscription.pending_setup_intent) {
+                const setupIntent = subscription.pending_setup_intent as any;
+                console.log("Setup Intent Client Secret Generated SUCCESSFULLY:", setupIntent.id);
+                clientSecret = setupIntent.client_secret;
+            } else if (invoice?.id) {
+                console.log("Payment Intent not on invoice natively (Stripe API 2026 behavior). Fetching latest PI...");
+                const pis = await stripe.paymentIntents.list({ customer: customerId, limit: 1 });
+                if (pis.data.length > 0) {
+                    const latestPi = pis.data[0] as any;
+                    if (latestPi.payment_details?.order_reference === invoice.id || latestPi.description === "Subscription creation") {
+                        console.log("PI Client Secret Fetched via order_reference:", latestPi.id);
+                        clientSecret = latestPi.client_secret;
+                    }
+                }
+            }
+
+            if (!clientSecret) {
+                console.error("No client secret found! Ensure 'SEPA Direct Debit' and 'Cards' are enabled in Stripe Dashboard -> Settings -> Payment Methods.");
+                console.error("Invoice dump:", JSON.stringify(invoice, null, 2));
+                throw new Error('Failed to generate payment intent for subscription. Check Stripe Dashboard configuration.');
+            }
+
+            return {
+                clientSecret,
+                subscriptionId: subscription.id
+            };
+        } else {
+            // One-time only flow (Hardware only)
+            if (totalOneTimeAmount === 0) throw new Error('Invalid cart total.');
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: totalOneTimeAmount,
+                currency: 'eur', // TODO: Dynamically fetch currency or enforce EUR
+                customer: customerId,
+                metadata: {
+                    ...metadata,
+                    pendingCartId: pendingCartId
+                },
+                automatic_payment_methods: { enabled: true },
+            });
+
+            return {
+                clientSecret: paymentIntent.client_secret,
+                paymentIntentId: paymentIntent.id
+            };
+        }
+
+    } catch (error: any) {
+        console.error('Error creating subscription intent:', error);
+        throw new Error(error.message || 'Failed to initialize payment.');
+    }
+}
+</file>
+
 <file path="app/(HaaS)/dashboard/page.tsx">
 import { ProjectsDashboard } from "@/components/dashboard/ProjectsDashboard";
 
@@ -11398,6 +10922,48 @@ const ProductsPage = async () => {
 }
 
 export default ProductsPage
+</file>
+
+<file path="app/(marketing)/success/page.tsx">
+import { processSuccessPageData } from "@/actions/success";
+import SuccessSummary from "@/components/checkout/SuccessSummary";
+import { AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ClearCartEffect } from "@/components/checkout/ClearCartEffect";
+
+export default async function SuccessPage({
+    searchParams
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+    const resolvedSearchParams = await searchParams;
+
+    const result = await processSuccessPageData(resolvedSearchParams);
+
+    if (!result.success) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center py-12 sm:px-6 lg:px-8 bg-background">
+                <AlertCircle className="w-16 h-16 text-destructive mb-4" />
+                <h1 className="text-2xl font-bold mb-2">Ops! Algo correu mal.</h1>
+                <p className="text-muted-foreground mb-6">{result.error}</p>
+                <Button asChild>
+                    <Link href="/">Voltar à Página Inicial</Link>
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+            <ClearCartEffect />
+            <SuccessSummary
+                orderId={result.orderId as string}
+                documentUrl={result.documentUrl as string}
+            />
+        </div>
+    );
+}
 </file>
 
 <file path="components/layout/MarketingFooter.tsx">
@@ -12166,6 +11732,209 @@ export function useCart() {
 }
 </file>
 
+<file path="lib/repositories/workspace.ts">
+import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+
+// ==========================================
+// ZOD SCHEMAS FOR VALIDATION
+// ==========================================
+
+export const OrganizationSchema = z.object({
+    nif: z.string().min(1, 'NIF is required'),
+    name: z.string().min(1, 'Organization name is required'),
+});
+
+export const AddressSchema = z.object({
+    street: z.string().default('N/A'),
+    city: z.string().default('N/A'),
+    zipCode: z.string().default('N/A'),
+    country: z.string().default('N/A'),
+});
+
+export const DepartmentSchema = z.object({
+    name: z.string().min(1, 'Department name is required'),
+    organizationId: z.string().min(1),
+    stripeCustomerId: z.string().min(1),
+    stripeSubscriptionId: z.string().optional(),
+    planId: z.string().optional(),
+    billingAddressData: z.string().optional(),
+    shippingAddressData: z.string().optional(),
+});
+
+export const AdminUserSchema = z.object({
+    email: z.string().email('Valid email is required'),
+    name: z.string().optional(),
+    jobTitle: z.string().optional(),
+    phone: z.string().optional(),
+    departmentId: z.string().min(1),
+});
+
+export const OrderItemsSchema = z.array(
+    z.object({
+        productId: z.string().min(1),
+        quantity: z.number().int().positive().default(1),
+    })
+);
+
+
+
+// ==========================================
+// TRANSACTIONAL SERVICE FUNCTIONS
+// ==========================================
+
+/**
+ * Type alias for a Prisma Transaction Client to ensure operations run inside the caller's transaction.
+ */
+export type TxClient = Omit<
+    Prisma.TransactionClient,
+    '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
+
+/**
+ * Validates metadata and upserts an Organization.
+ */
+export async function upsertOrganizationTx(tx: TxClient, input: z.infer<typeof OrganizationSchema>) {
+    const validated = OrganizationSchema.parse(input);
+
+    return await tx.organization.upsert({
+        where: { nif: validated.nif },
+        create: {
+            name: validated.name,
+            nif: validated.nif,
+        },
+        update: {},
+    });
+}
+
+/**
+ * Validates metadata, creates a dummy billing address, and creates a Department.
+ */
+export async function createDepartmentTx(tx: TxClient, input: z.infer<typeof DepartmentSchema>) {
+    const validated = DepartmentSchema.parse(input);
+
+    // Address creation
+    let parsedBilling = null;
+    if (validated.billingAddressData) {
+        try { parsedBilling = JSON.parse(validated.billingAddressData); } catch (e) { }
+    }
+    const billingAddress = await tx.address.create({
+        data: {
+            street: parsedBilling?.streetAddress || 'N/A',
+            city: parsedBilling?.city || 'N/A',
+            zipCode: parsedBilling?.postalCode || 'N/A',
+            country: parsedBilling?.country || 'N/A',
+        },
+    });
+
+    let shippingAddress = null;
+    let parsedShipping = null;
+    if (validated.shippingAddressData) {
+        try { parsedShipping = JSON.parse(validated.shippingAddressData); } catch (e) { }
+        if (parsedShipping) {
+            shippingAddress = await tx.address.create({
+                data: {
+                    street: parsedShipping?.streetAddress || 'N/A',
+                    city: parsedShipping?.city || 'N/A',
+                    zipCode: parsedShipping?.postalCode || 'N/A',
+                    country: parsedShipping?.country || 'N/A',
+                },
+            });
+        }
+    }
+
+    const deptSlug = validated.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+    // Temporary auth0 slug (caller must update with real auth0 string later)
+    const auth0OrgSlug = `temp-${Date.now().toString().slice(-6)}`;
+
+    return await tx.department.create({
+        data: {
+            name: validated.name,
+            slug: `${deptSlug}-${Date.now().toString().slice(-4)}`,
+            auth0OrgId: auth0OrgSlug,
+            stripeCustomerId: validated.stripeCustomerId,
+            stripeSubscriptionId: validated.stripeSubscriptionId,
+            organizationId: validated.organizationId,
+            billingAddressId: billingAddress.id,
+            shippingAddressId: shippingAddress?.id || null,
+            subStatus: 'ACTIVE',
+            planId: validated.planId,
+        },
+    });
+}
+
+/**
+ * Validates metadata and creates the core Admin User record pending Auth0 login.
+ */
+export async function createAdminUserTx(tx: TxClient, input: z.infer<typeof AdminUserSchema>) {
+    const validated = AdminUserSchema.parse(input);
+
+    return await tx.user.create({
+        data: {
+            email: validated.email,
+            name: validated.name || null,
+            jobTitle: validated.jobTitle || null,
+            phone: validated.phone || null,
+            role: 'ADMIN',
+            departmentId: validated.departmentId,
+        },
+    });
+}
+
+/**
+ * Takes a parsed cart array from Stripe metadata, matches items to HardwareProducts via their ID, and issues an Order.
+ */
+export async function createHardwareOrderTx(
+    tx: TxClient,
+    departmentId: string,
+    cartItemsRaw: any[],
+    intentId: string,
+    customerEmail: string,
+    userId: string | null = null
+) {
+    const cartItems = OrderItemsSchema.parse(cartItemsRaw);
+    if (cartItems.length > 0) {
+        const order = await tx.order.create({
+            data: {
+                departmentId: departmentId,
+                status: 'PAID_UNSHIPPED',
+                stripeIntentId: intentId,
+                customerEmail: customerEmail,
+                userId: userId
+            },
+        });
+
+        for (const item of cartItems) {
+            try {
+                const hardwareProduct = await tx.hardwareProduct.findUnique({
+                    where: { id: item.productId },
+                });
+
+                if (!hardwareProduct) {
+                    console.error(`[CRITICAL] Order creation failed mapping: Product ID ${item.productId} not found in DB. Skipping item.`);
+                    continue;
+                }
+
+                await tx.orderItem.create({
+                    data: {
+                        orderId: order.id,
+                        productId: hardwareProduct.id,
+                        quantity: item.quantity,
+                    },
+                });
+            } catch (dbErr) {
+                console.error(`[CRITICAL] Order creation DB query failed for Product ID ${item.productId}:`, dbErr);
+            }
+        }
+
+        return order;
+    }
+
+    return null;
+}
+</file>
+
 <file path="app/(HaaS)/layout.tsx">
 import { getAppSession } from "@/lib/auth/session";
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
@@ -12505,204 +12274,6 @@ export default async function PricingPage() {
             </MainPageSection>
         </>
     );
-}
-</file>
-
-<file path="lib/services/workspace.ts">
-import prisma from '@/lib/prisma';
-import { createOrg, generateAuth0InviteTicket, enableOrgConnection } from '@/lib/auth/auth0-management';
-import { sendInvitationEmail } from '@/lib/services/email';
-import { createHardwareOrderTx } from '@/lib/repositories/workspace';
-
-/**
- * Reusable service to provision the workspace atomically via Stripe metadata.
- */
-export async function provisionWorkspace(metadata: any, paymentIntent: string, customerId: string, subscriptionId: string | null) {
-    try {
-        await prisma.$transaction(async (tx) => {
-            // 0. Idempotency Check
-            const existingDept = await tx.department.findFirst({
-                where: {
-                    OR: [
-                        { stripeCustomerId: customerId },
-                        ...(subscriptionId ? [{ stripeSubscriptionId: subscriptionId }] : [])
-                    ]
-                }
-            });
-            if (existingDept) {
-                console.log(`[Webhook] Workspace already provisioned for customer ${customerId}. Skipping duplicate.`);
-                return;
-            }
-
-            // 1. Create Addresses
-            let parsedBilling = null;
-            if (metadata.billingAddress) {
-                try { parsedBilling = JSON.parse(metadata.billingAddress); } catch (e) { }
-            }
-            const billingAddress = await tx.address.create({
-                data: {
-                    street: parsedBilling?.streetAddress || '',
-                    city: parsedBilling?.city || '',
-                    zipCode: parsedBilling?.postalCode || '',
-                    country: parsedBilling?.country || '',
-                    nif: metadata.nif || null,
-                }
-            });
-
-            let shippingAddressId: string | null = null;
-            if (metadata.shippingAddress) {
-                let parsedShipping = null;
-                try { parsedShipping = JSON.parse(metadata.shippingAddress); } catch (e) { }
-                if (parsedShipping) {
-                    const shippingAddress = await tx.address.create({
-                        data: {
-                            street: parsedShipping?.streetAddress || '',
-                            city: parsedShipping?.city || '',
-                            zipCode: parsedShipping?.postalCode || '',
-                            country: parsedShipping?.country || '',
-                        }
-                    });
-                    shippingAddressId = shippingAddress.id;
-                }
-            }
-
-            // 2. Auth0 Organization Creation
-            // We need a unique slug. 
-            const orgSlug = (metadata.organizationName || 'org')
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-+|-+$/g, '') + `-${Date.now().toString().slice(-6)}`;
-
-            console.log(`[Webhook] Creating Auth0 Organization: ${orgSlug}`);
-
-            let auth0OrgId = '';
-            try {
-                // Call the Auth0 Management API
-                const auth0Org = await createOrg(orgSlug, metadata.organizationName || 'New Organization');
-                auth0OrgId = auth0Org.id;
-
-                // Enable DB connection for this newly created organization
-                console.log(`[Webhook] Enabling DB connection for Auth0 Organization: ${auth0OrgId}`);
-                await enableOrgConnection(auth0OrgId);
-            } catch (authErr: any) {
-                console.error(`[Webhook] Failed to create or configure Auth0 Organization:`, authErr);
-                throw new Error(`Failed to create Auth0 Organization: ${authErr.message}`);
-            }
-
-            const nif = metadata.nif || `UNKNOWN-${Date.now()}`;
-            const organization = await tx.organization.upsert({
-                where: { nif },
-                create: {
-                    name: metadata.organizationName || 'New Organization',
-                    nif,
-                },
-                update: {}
-            });
-
-            // 3. Create Department
-            const departmentSlug = (metadata.departmentName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-            const department = await tx.department.create({
-                data: {
-                    name: metadata.departmentName || 'Main Workspace',
-                    slug: `${departmentSlug}-${Date.now().toString().slice(-4)}`, // Ensure uniqueness
-                    auth0OrgId: auth0OrgId,
-                    stripeCustomerId: customerId,
-                    stripeSubscriptionId: subscriptionId,
-                    organizationId: organization.id,
-                    billingAddressId: billingAddress.id,
-                    shippingAddressId: shippingAddressId,
-                    subStatus: 'ACTIVE',
-                }
-            });
-
-            if (metadata.userEmail) {
-                const userName = metadata.userName || 'Admin';
-                await tx.user.create({
-                    data: {
-                        email: metadata.userEmail,
-                        name: userName,
-                        role: 'ADMIN',
-                        departmentId: department.id,
-                    }
-                });
-            }
-
-            console.log(`[Webhook] Optimistically provisioned Org and Dept for customer ${customerId}`);
-
-            let cart: any[] = [];
-            try {
-                if (metadata.cartItems) {
-                    cart = JSON.parse(metadata.cartItems);
-                }
-            } catch (e) {
-                console.error('[CRITICAL] Failed to parse cartItems metadata:', e);
-            }
-
-            if (cart.length > 0) {
-                await createHardwareOrderTx(tx, department.id, cart, paymentIntent, metadata.userEmail);
-            }
-
-            // 4. Invite the Admin User
-            if (metadata.userEmail && auth0OrgId) {
-                try {
-                    console.log(`[Webhook] Generating Auth0 Invite ticket for ${metadata.userEmail} for Org ${auth0OrgId}`);
-                    const ticket = await generateAuth0InviteTicket(auth0OrgId, metadata.userEmail);
-                    if (ticket) {
-                        const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-                        const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${auth0OrgId}&screen_hint=signup`;
-                        await sendInvitationEmail(metadata.userEmail, customLink);
-                    }
-                } catch (inviteErr: any) {
-                    console.error(`[Webhook] Failed to generate invite ticket for user ${metadata.userEmail}:`, inviteErr);
-                }
-            }
-        });
-    } catch (error: any) {
-        if (error.code === 'P2002') {
-            console.log(`[Webhook] Workspace provisioning skipped due to unique constraint (likely a concurrent webhook race condition on customer ${customerId}).`);
-            return;
-        }
-        throw error;
-    }
-}
-
-/**
- * Data Access Layer (DAL) for fetching aggregated workspace context.
- * This is used in server components/layouts to fetch heavy data while keeping
- * the React Context lean.
- * 
- * @param auth0UserId The Auth0 user ID (sub)
- * @returns The user object with included department, plan, latest order, and device count.
- */
-// lib/services/workspace.ts
-
-export async function getUserWorkspaceContext(auth0UserId: string) {
-    const user = await prisma.user.findUnique({
-        where: { auth0UserId },
-        include: {
-            department: {
-                include: {
-                    organization: true,
-                    plan: true,
-                    orders: {
-                        orderBy: { createdAt: "desc" },
-                        take: 1,
-                        include: {
-                            items: {
-                                include: { product: true },
-                            },
-                        },
-                    },
-                    _count: {
-                        select: { devices: true },
-                    },
-                },
-            },
-        },
-    });
-
-    return user;
 }
 </file>
 
@@ -13297,6 +12868,400 @@ export async function handlePriceUpdated(price: Stripe.Price) {
 }
 </file>
 
+<file path="app/(marketing)/checkout/page.tsx">
+import { CheckoutClient } from "@/components/marketing/checkout/CheckoutClient";
+
+type Props = {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function CheckoutPage({ searchParams }: Props) {
+    const params = await searchParams;
+    const planId = (params.plan_id as string) || null;
+    const totalSensorsStr = params.totalSensors as string;
+    const totalSensors = parseInt(totalSensorsStr || '0', 10);
+    const hardwareParam = (params.hardware as string) || null;
+
+    return <CheckoutClient planId={planId} totalSensors={totalSensors} hardwareParam={hardwareParam} />;
+}
+</file>
+
+<file path="components/ui/AppleProductCard.tsx">
+import React from 'react';
+import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton'
+import { SerializedHardwareProduct } from '@/lib/api/products';
+import { Gem, ShieldCheck } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import AddToCartButton from '@/components/ui/AddToCartButton';
+import { useProductModal } from '@/hooks/useProductModal';
+import ProductDialog from '@/components/ui/ProductDialog';
+
+interface AppleProductCardProps {
+    product: SerializedHardwareProduct;
+    onClick?: () => void;
+    mode?: 'catalog' | 'selection';
+    quantity?: number;
+    onQuantityChange?: (newQuantity: number) => void;
+    customPriceDisplay?: React.ReactNode;
+    maxReached?: boolean;
+}
+
+const formatProductType = (type: string) => {
+    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+};
+
+const AppleProductCard: React.FC<AppleProductCardProps> = ({
+    product,
+    onClick,
+    mode = 'catalog',
+    quantity = 0,
+    onQuantityChange,
+    customPriceDisplay,
+    maxReached = false
+}) => {
+    const { selectedProduct, isOpen, openModal, closeModal } = useProductModal();
+    // Determine the image to display, fallback to a local visual or placeholder if none
+    const displayImage = product.imageUrl || '/placeholder-sensor.jpg';
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (mode === 'catalog') {
+                onClick?.();
+            } else {
+                openModal(product);
+            }
+        }
+    };
+
+    const handleCardClick = () => {
+        if (mode === 'catalog') {
+            if (onClick) onClick();
+        } else {
+            openModal(product);
+        }
+    };
+
+    return (
+        <div
+            className={cn(
+                "relative overflow-hidden rounded-[2rem] h-[500px] xl:h-[600px] w-full max-w-sm cursor-pointer group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2 transition-all duration-300",
+                mode === 'catalog' ? 'cursor-pointer' : '',
+                mode === 'selection' && quantity > 0 ? 'ring-4 ring-[#2DD4BF] ring-offset-2 ring-offset-background' : ''
+            )}
+            role="button"
+            tabIndex={0}
+            onClick={handleCardClick}
+            onKeyDown={handleKeyDown}
+        >
+            {/* Background Image */}
+            <ImageWithSkeleton
+                src={displayImage}
+                alt={product.name}
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover z-0 transition-transform duration-500 group-hover:scale-105"
+            />
+
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-linear-to-b from-black/80 via-black/20 to-black/80 z-10 pointer-events-none transition-opacity duration-300"></div>
+
+            {/* Content Context - Top */}
+            <div className="absolute top-6 left-6 right-6 z-20 pointer-events-none flex justify-between items-start">
+                <div className="flex flex-col gap-1">
+                    <p className="text-gray-300 text-sm font-medium drop-shadow-sm">
+                        {formatProductType(product.type)}
+                    </p>
+                    <h3 className="text-white text-xl md:text-2xl font-bold leading-tight max-w-[85%] drop-shadow-md">
+                        {product.name}
+                    </h3>
+                </div>
+                {/* Top Right Icon */}
+                <div className={cn("text-slate-900 p-2 rounded-lg pointer-events-none shrink-0 shadow-lg", product.type === "SENSOR_BASE" ? "bg-shadow-bg" : "bg-[#2DD4BF]")}>
+                    {product.type === "SENSOR_BASE" ? <ShieldCheck size={20} /> : <Gem size={20} />}
+                </div>
+            </div>
+
+            {/* Content Context - Bottom */}
+            <div className="absolute bottom-6 left-6 right-6 z-20 flex sm:items-end justify-between items-center gap-2 transition-transform duration-300">
+                <div className="flex flex-col shrink-0 max-w-[50%]">
+                    {customPriceDisplay ? (
+                        customPriceDisplay
+                    ) : (
+                        <>
+                            <span className="text-xs text-gray-300 mb-1 leading-tight">
+                                {product.type === 'SENSOR_BASE' || product.price === 0 ? 'Incluídos' : 'A partir de'}
+                            </span>
+                            <span className="text-white text-2xl sm:text-3xl font-bold whitespace-nowrap">
+                                {product.type === 'SENSOR_BASE' || product.price === 0 ? '0 €' : `${Number(product.price) / 100} €`}
+                            </span>
+                        </>
+                    )}
+                </div>
+                {/*
+                    Stop propagation on the inner link/button so that clicking
+                    "Escolher Plano" doesn't also trigger the modal open
+                */}
+                {mode === 'selection' ? (
+                    <div className="z-30 shrink-0 flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 p-1">
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); onQuantityChange?.(Math.max(0, quantity - 1)); }}
+                            className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/20 rounded-full transition-colors"
+                        >
+                            -
+                        </button>
+                        <span className="w-8 text-center text-white font-medium">{quantity}</span>
+                        <button
+                            type="button"
+                            disabled={maxReached}
+                            onClick={(e) => { e.stopPropagation(); onQuantityChange?.(quantity + 1); }}
+                            className={cn(
+                                "w-8 h-8 flex items-center justify-center rounded-full transition-colors",
+                                maxReached ? "text-white/30 cursor-not-allowed" : "text-white hover:bg-white/20"
+                            )}
+                        >
+                            +
+                        </button>
+                    </div>
+                ) : (
+                    <AddToCartButton
+                        product={product}
+                        className="z-30 shrink-0 px-3 sm:px-6 py-2.5 w-full sm:w-auto text-xs sm:text-sm"
+                    />
+                )}
+            </div>
+
+            <ProductDialog
+                product={selectedProduct}
+                isOpen={isOpen}
+                onClose={closeModal}
+            />
+        </div>
+    );
+};
+
+export default AppleProductCard;
+</file>
+
+<file path="lib/services/workspace.ts">
+import prisma from '@/lib/prisma';
+import { createOrg, generateAuth0InviteTicket, enableOrgConnection } from '@/lib/auth/auth0-management';
+import { sendInvitationEmail } from '@/lib/services/email';
+import { createHardwareOrderTx } from '@/lib/repositories/workspace';
+
+/**
+ * Reusable service to provision the workspace atomically via Stripe metadata.
+ */
+export async function provisionWorkspace(metadata: any, paymentIntent: string, customerId: string, subscriptionId: string | null) {
+    try {
+        await prisma.$transaction(async (tx) => {
+            // 0. Idempotency Check
+            const existingDept = await tx.department.findFirst({
+                where: {
+                    OR: [
+                        { stripeCustomerId: customerId },
+                        ...(subscriptionId ? [{ stripeSubscriptionId: subscriptionId }] : [])
+                    ]
+                }
+            });
+            if (existingDept) {
+                console.log(`[Webhook] Workspace already provisioned for customer ${customerId}. Skipping duplicate.`);
+                return;
+            }
+
+            // 1. Create Addresses
+            let parsedBilling = null;
+            if (metadata.billingAddress) {
+                try { parsedBilling = JSON.parse(metadata.billingAddress); } catch (e) { }
+            }
+            const billingAddress = await tx.address.create({
+                data: {
+                    street: parsedBilling?.streetAddress || '',
+                    city: parsedBilling?.city || '',
+                    zipCode: parsedBilling?.postalCode || '',
+                    country: parsedBilling?.country || '',
+                    nif: metadata.nif || null,
+                }
+            });
+
+            let shippingAddressId: string | null = null;
+            if (metadata.shippingAddress) {
+                let parsedShipping = null;
+                try { parsedShipping = JSON.parse(metadata.shippingAddress); } catch (e) { }
+                if (parsedShipping) {
+                    const shippingAddress = await tx.address.create({
+                        data: {
+                            street: parsedShipping?.streetAddress || '',
+                            city: parsedShipping?.city || '',
+                            zipCode: parsedShipping?.postalCode || '',
+                            country: parsedShipping?.country || '',
+                        }
+                    });
+                    shippingAddressId = shippingAddress.id;
+                }
+            }
+
+            // 2. Auth0 Organization Creation
+            // We need a unique slug. 
+            const orgSlug = (metadata.organizationName || 'org')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') + `-${Date.now().toString().slice(-6)}`;
+
+            console.log(`[Webhook] Creating Auth0 Organization: ${orgSlug}`);
+
+            let auth0OrgId = '';
+            try {
+                // Call the Auth0 Management API
+                const auth0Org = await createOrg(orgSlug, metadata.organizationName || 'New Organization');
+                auth0OrgId = auth0Org.id;
+
+                // Enable DB connection for this newly created organization
+                console.log(`[Webhook] Enabling DB connection for Auth0 Organization: ${auth0OrgId}`);
+                await enableOrgConnection(auth0OrgId);
+            } catch (authErr: any) {
+                console.error(`[Webhook] Failed to create or configure Auth0 Organization:`, authErr);
+                throw new Error(`Failed to create Auth0 Organization: ${authErr.message}`);
+            }
+
+            const nif = metadata.nif || `UNKNOWN-${Date.now()}`;
+            const organization = await tx.organization.upsert({
+                where: { nif },
+                create: {
+                    name: metadata.organizationName || 'New Organization',
+                    nif,
+                },
+                update: {}
+            });
+
+            // 3. Create Department
+            const departmentSlug = (metadata.departmentName || 'default').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+            // 3.1 Fetch the plan using the Stripe ID from metadata (passed as 'planId' in actions/stripe.ts)
+            let planId: string | undefined = undefined;
+            if (metadata.planId) {
+                const plan = await tx.planTier.findUnique({
+                    where: { stripeProductId: metadata.planId }
+                });
+                if (plan) {
+                    planId = plan.id;
+                } else {
+                    console.error(`[Webhook] CRITICAL: Plan not found for Stripe Product ID: ${metadata.planId}`);
+                }
+            }
+
+            const department = await tx.department.create({
+                data: {
+                    name: metadata.departmentName || 'Main Workspace',
+                    slug: `${departmentSlug}-${Date.now().toString().slice(-4)}`, // Ensure uniqueness
+                    auth0OrgId: auth0OrgId,
+                    stripeCustomerId: customerId,
+                    stripeSubscriptionId: subscriptionId,
+                    organizationId: organization.id,
+                    billingAddressId: billingAddress.id,
+                    shippingAddressId: shippingAddressId,
+                    subStatus: 'ACTIVE',
+                    planId: planId,
+                }
+            });
+
+            let createdUserId: string | null = null;
+            if (metadata.userEmail) {
+                const userName = metadata.userName || 'Admin';
+                const user = await tx.user.create({
+                    data: {
+                        email: metadata.userEmail,
+                        name: userName,
+                        role: 'ADMIN',
+                        departmentId: department.id,
+                    }
+                });
+                createdUserId = user.id;
+            }
+
+            console.log(`[Webhook] Optimistically provisioned Org and Dept for customer ${customerId}`);
+
+            let cart: any[] = [];
+            if (metadata.pendingCartId) {
+                const pendingCart = await tx.pendingCart.findUnique({
+                    where: { id: metadata.pendingCartId }
+                });
+                if (pendingCart) {
+                    cart = pendingCart.items as any[];
+                }
+            } else if (metadata.cartItems) {
+                // Backward compatibility fallback
+                try { cart = JSON.parse(metadata.cartItems); } catch (e) { }
+            }
+
+            if (cart.length > 0) {
+                await createHardwareOrderTx(tx, department.id, cart, paymentIntent, metadata.userEmail, createdUserId);
+            }
+
+            // 4. Invite the Admin User
+            if (metadata.userEmail && auth0OrgId) {
+                try {
+                    console.log(`[Webhook] Generating Auth0 Invite ticket for ${metadata.userEmail} for Org ${auth0OrgId}`);
+                    const ticket = await generateAuth0InviteTicket(auth0OrgId, metadata.userEmail);
+                    if (ticket) {
+                        const domain = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+                        const customLink = `${domain}/auth/login?invitation=${ticket}&organization=${auth0OrgId}&screen_hint=signup`;
+                        await sendInvitationEmail(metadata.userEmail, customLink);
+                    }
+                } catch (inviteErr: any) {
+                    console.error(`[Webhook] Failed to generate invite ticket for user ${metadata.userEmail}:`, inviteErr);
+                }
+            }
+        });
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            console.log(`[Webhook] Workspace provisioning skipped due to unique constraint (likely a concurrent webhook race condition on customer ${customerId}).`);
+            return;
+        }
+        throw error;
+    }
+}
+
+/**
+ * Data Access Layer (DAL) for fetching aggregated workspace context.
+ * This is used in server components/layouts to fetch heavy data while keeping
+ * the React Context lean.
+ * 
+ * @param auth0UserId The Auth0 user ID (sub)
+ * @returns The user object with included department, plan, latest order, and device count.
+ */
+// lib/services/workspace.ts
+
+export async function getUserWorkspaceContext(auth0UserId: string) {
+    const user = await prisma.user.findUnique({
+        where: { auth0UserId },
+        include: {
+            department: {
+                include: {
+                    organization: true,
+                    plan: true,
+                    orders: {
+                        orderBy: { createdAt: "desc" },
+                        take: 1,
+                        include: {
+                            items: {
+                                include: { product: true },
+                            },
+                        },
+                    },
+                    _count: {
+                        select: { devices: true },
+                    },
+                },
+            },
+        },
+    });
+
+    return user;
+}
+</file>
+
 <file path="prisma/schema.prisma">
 generator client {
   provider = "prisma-client-js"
@@ -13500,182 +13465,12 @@ enum LabProfile {
   CONTINUOUS
   PROJECTS
 }
-</file>
 
-<file path="app/(marketing)/checkout/page.tsx">
-import { CheckoutClient } from "@/components/marketing/checkout/CheckoutClient";
-
-type Props = {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+model PendingCart {
+  id        String   @id @default(cuid())
+  items     Json     // Store the raw cart items array here
+  createdAt DateTime @default(now())
 }
-
-export default async function CheckoutPage({ searchParams }: Props) {
-    const params = await searchParams;
-    const planId = (params.plan_id as string) || null;
-    const totalSensorsStr = params.totalSensors as string;
-    const totalSensors = parseInt(totalSensorsStr || '0', 10);
-    const hardwareParam = (params.hardware as string) || null;
-
-    return <CheckoutClient planId={planId} totalSensors={totalSensors} hardwareParam={hardwareParam} />;
-}
-</file>
-
-<file path="components/ui/AppleProductCard.tsx">
-import React from 'react';
-import { ImageWithSkeleton } from '@/components/ui/image-with-skeleton'
-import { SerializedHardwareProduct } from '@/lib/api/products';
-import { Gem, ShieldCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import AddToCartButton from '@/components/ui/AddToCartButton';
-import { useProductModal } from '@/hooks/useProductModal';
-import ProductDialog from '@/components/ui/ProductDialog';
-
-interface AppleProductCardProps {
-    product: SerializedHardwareProduct;
-    onClick?: () => void;
-    mode?: 'catalog' | 'selection';
-    quantity?: number;
-    onQuantityChange?: (newQuantity: number) => void;
-    customPriceDisplay?: React.ReactNode;
-    maxReached?: boolean;
-}
-
-const formatProductType = (type: string) => {
-    return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
-};
-
-const AppleProductCard: React.FC<AppleProductCardProps> = ({
-    product,
-    onClick,
-    mode = 'catalog',
-    quantity = 0,
-    onQuantityChange,
-    customPriceDisplay,
-    maxReached = false
-}) => {
-    const { selectedProduct, isOpen, openModal, closeModal } = useProductModal();
-    // Determine the image to display, fallback to a local visual or placeholder if none
-    const displayImage = product.imageUrl || '/placeholder-sensor.jpg';
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            if (mode === 'catalog') {
-                onClick?.();
-            } else {
-                openModal(product);
-            }
-        }
-    };
-
-    const handleCardClick = () => {
-        if (mode === 'catalog') {
-            if (onClick) onClick();
-        } else {
-            openModal(product);
-        }
-    };
-
-    return (
-        <div
-            className={cn(
-                "relative overflow-hidden rounded-[2rem] h-[500px] xl:h-[600px] w-full max-w-sm cursor-pointer group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#2DD4BF] focus-visible:ring-offset-2 transition-all duration-300",
-                mode === 'catalog' ? 'cursor-pointer' : '',
-                mode === 'selection' && quantity > 0 ? 'ring-4 ring-[#2DD4BF] ring-offset-2 ring-offset-background' : ''
-            )}
-            role="button"
-            tabIndex={0}
-            onClick={handleCardClick}
-            onKeyDown={handleKeyDown}
-        >
-            {/* Background Image */}
-            <ImageWithSkeleton
-                src={displayImage}
-                alt={product.name}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover z-0 transition-transform duration-500 group-hover:scale-105"
-            />
-
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-linear-to-b from-black/80 via-black/20 to-black/80 z-10 pointer-events-none transition-opacity duration-300"></div>
-
-            {/* Content Context - Top */}
-            <div className="absolute top-6 left-6 right-6 z-20 pointer-events-none flex justify-between items-start">
-                <div className="flex flex-col gap-1">
-                    <p className="text-gray-300 text-sm font-medium drop-shadow-sm">
-                        {formatProductType(product.type)}
-                    </p>
-                    <h3 className="text-white text-xl md:text-2xl font-bold leading-tight max-w-[85%] drop-shadow-md">
-                        {product.name}
-                    </h3>
-                </div>
-                {/* Top Right Icon */}
-                <div className={cn("text-slate-900 p-2 rounded-lg pointer-events-none shrink-0 shadow-lg", product.type === "SENSOR_BASE" ? "bg-shadow-bg" : "bg-[#2DD4BF]")}>
-                    {product.type === "SENSOR_BASE" ? <ShieldCheck size={20} /> : <Gem size={20} />}
-                </div>
-            </div>
-
-            {/* Content Context - Bottom */}
-            <div className="absolute bottom-6 left-6 right-6 z-20 flex sm:items-end justify-between items-center gap-2 transition-transform duration-300">
-                <div className="flex flex-col shrink-0 max-w-[50%]">
-                    {customPriceDisplay ? (
-                        customPriceDisplay
-                    ) : (
-                        <>
-                            <span className="text-xs text-gray-300 mb-1 leading-tight">
-                                {product.type === 'SENSOR_BASE' || product.price === 0 ? 'Incluídos' : 'A partir de'}
-                            </span>
-                            <span className="text-white text-2xl sm:text-3xl font-bold whitespace-nowrap">
-                                {product.type === 'SENSOR_BASE' || product.price === 0 ? '0 €' : `${Number(product.price) / 100} €`}
-                            </span>
-                        </>
-                    )}
-                </div>
-                {/*
-                    Stop propagation on the inner link/button so that clicking
-                    "Escolher Plano" doesn't also trigger the modal open
-                */}
-                {mode === 'selection' ? (
-                    <div className="z-30 shrink-0 flex items-center bg-white/10 backdrop-blur-md rounded-full border border-white/20 p-1">
-                        <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); onQuantityChange?.(Math.max(0, quantity - 1)); }}
-                            className="w-8 h-8 flex items-center justify-center text-white hover:bg-white/20 rounded-full transition-colors"
-                        >
-                            -
-                        </button>
-                        <span className="w-8 text-center text-white font-medium">{quantity}</span>
-                        <button
-                            type="button"
-                            disabled={maxReached}
-                            onClick={(e) => { e.stopPropagation(); onQuantityChange?.(quantity + 1); }}
-                            className={cn(
-                                "w-8 h-8 flex items-center justify-center rounded-full transition-colors",
-                                maxReached ? "text-white/30 cursor-not-allowed" : "text-white hover:bg-white/20"
-                            )}
-                        >
-                            +
-                        </button>
-                    </div>
-                ) : (
-                    <AddToCartButton
-                        product={product}
-                        className="z-30 shrink-0 px-3 sm:px-6 py-2.5 w-full sm:w-auto text-xs sm:text-sm"
-                    />
-                )}
-            </div>
-
-            <ProductDialog
-                product={selectedProduct}
-                isOpen={isOpen}
-                onClose={closeModal}
-            />
-        </div>
-    );
-};
-
-export default AppleProductCard;
 </file>
 
 <file path="app/globals.css">
@@ -14141,6 +13936,8 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
    - Implement the Demo page
    - Redesign the success page
    - Fix the Items fields in the orders object being null (stripeIntentId, customerEmail)
+   - Fix planID being null on the Departments table
+   - Fix userID being null on the Orders table
 
 - Design the Dashboard
 </file>

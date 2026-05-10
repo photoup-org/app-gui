@@ -48,17 +48,21 @@ export async function processSuccessPageData(rawSearchParams: any) {
         if (intentId!.startsWith("pi_")) {
             const intent = await stripe.paymentIntents.retrieve(intentId!, {
                 expand: ['latest_charge']
-            });
+            }) as Stripe.PaymentIntent & { latest_charge?: Stripe.Charge };
 
-            const rawIntent = intent as any;
+            const latest_charge = intent.latest_charge || null;
             
-            // Extract IDs and URLs
-            invoiceId = rawIntent.payment_details?.order_reference || rawIntent.invoice || rawIntent.invoice?.id || null;
-            const latest_charge = rawIntent.latest_charge as Stripe.Charge | null;
+            // Extract IDs and URLs from expanded charge
+            invoiceId = (latest_charge as { invoice?: string | null })?.invoice || null;
+
+
+
+
             
             if (latest_charge && typeof latest_charge === 'object') {
                 documentUrl = latest_charge.receipt_url || null;
             }
+
 
             // Extract & Parse Metadata (For graceful fallback)
             const rawMetadata = intent.metadata || {};

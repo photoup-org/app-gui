@@ -4,14 +4,15 @@ import * as React from "react";
 import { Check, X } from "lucide-react";
 import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { PlanFeatureMatrix } from "@/types/pricing";
+import { calculateMonthlyFromAnnualCents, formatCentsToEur } from "@/lib/utils";
 
 interface ParsedPlan {
     id: string;
     name: string;
-    annualPrice: number;
-    monthlyPrice: number;
+    priceAmount: number;
     matrix: PlanFeatureMatrix;
 }
+
 
 interface ComparisonTableProps {
     plans: ParsedPlan[];
@@ -92,12 +93,16 @@ export function ComparisonTable({ plans }: ComparisonTableProps) {
                     <tbody className="divide-y divide-border">
                         <tr>
                             <td className="py-5 px-8 text-sm font-medium text-muted-foreground">Custo Mensal (Faturação Anual)</td>
-                            {plans.map((plan) => (
-                                <td key={plan.id} className="py-5 px-6 text-sm text-center font-bold text-foreground">
-                                    {plan.monthlyPrice}€
-                                </td>
-                            ))}
+                            {plans.map((plan) => {
+                                const monthlyPriceCents = calculateMonthlyFromAnnualCents(plan.priceAmount);
+                                return (
+                                    <td key={plan.id} className="py-5 px-6 text-sm text-center font-bold text-foreground">
+                                        {formatCentsToEur(monthlyPriceCents)}
+                                    </td>
+                                );
+                            })}
                         </tr>
+
 
                         {pivotData.map((category, catIdx) => (
                             <React.Fragment key={catIdx}>

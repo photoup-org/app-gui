@@ -35,3 +35,24 @@ export type CheckoutFormValues = {
     shippingAddress: { streetAddress: string; city: string; postalCode: string; country: string };
     hasDifferentShippingAddress: boolean;
 };
+
+export interface CartItem {
+    productId: string;
+    quantity: number;
+    name?: string;
+    price?: number;
+    stripePriceId?: string;
+    product?: {
+        id: string;
+        name: string;
+        price: number;
+        [key: string]: any;
+    };
+}
+
+export interface PendingCart {
+    id: string;
+    items: CartItem[];
+    createdAt: Date;
+}
+

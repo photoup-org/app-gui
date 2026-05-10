@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import { Role, LabProfile } from "@prisma/client";
 import { PlanUsageStats } from "@/lib/services/billing";
 
@@ -23,7 +23,9 @@ export interface AppState {
         planName: string | null;
         labProfile: LabProfile | null;
         planStats: PlanUsageStats;
+        trackingNumber: string | null;
     };
+
 }
 
 interface AppContextType {

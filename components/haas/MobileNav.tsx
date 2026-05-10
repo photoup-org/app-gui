@@ -18,8 +18,9 @@ export function MobileNav() {
                 </Button>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 bg-white">
-                <Sidebar className="h-full" />
+                <Sidebar className="h-full" collapsed={false} toggleSidebar={() => setOpen(false)} />
             </SheetContent>
+
         </Sheet>
     );
 }

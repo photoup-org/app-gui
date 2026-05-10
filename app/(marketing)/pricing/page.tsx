@@ -15,9 +15,6 @@ export default async function PricingPage() {
 
     // Calculate prices and parse matrix
     const parsedPlans = plansData.map((plan) => {
-        const annualPrice = plan.priceAmount / 100;
-        const monthlyPrice = Math.round(annualPrice / 12);
-
         // Safely parse uiFeatureMatrix
         let matrix: PlanFeatureMatrix = { cardFeatures: [], tableCategories: [] };
         if (plan.uiFeatureMatrix) {
@@ -34,11 +31,10 @@ export default async function PricingPage() {
 
         return {
             ...plan,
-            annualPrice,
-            monthlyPrice,
             matrix,
         };
     });
+
 
     return (
         <>

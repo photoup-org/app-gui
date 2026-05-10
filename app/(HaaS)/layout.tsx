@@ -35,8 +35,9 @@ export default async function Layout({
     redirect("/auth/logout");
   }
 
-  // Fetch plan usage stats for the widget
-  const planStats = await getPlanUsageStats(userContext.department.id);
+  // Calculate plan usage stats for the widget synchronously using the pre-fetched context
+  const planStats = getPlanUsageStats(userContext.department);
+
 
   // Map the heavy Prisma object into our lean AppState for the client context
   const initialState: AppState = {
@@ -54,8 +55,10 @@ export default async function Layout({
       planName: userContext.department.plan?.name || null,
       labProfile: userContext.department.labProfile,
       planStats,
+      trackingNumber: userContext.department.orders[0]?.trackingNumber || null,
     },
   };
+
 
   const { department } = userContext;
   const labProfile = department.labProfile;

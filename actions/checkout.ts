@@ -51,8 +51,9 @@ export const getPlanAndSensors = unstable_cache(
             // Serialize correctly, converting Decimals to numbers and Dates to strings.
             const serializedPlan = plan ? {
                 ...plan,
-                uiFeatureMatrix: plan.uiFeatureMatrix ? JSON.stringify(plan.uiFeatureMatrix) : null,
+                matrix: plan.uiFeatureMatrix ? (typeof plan.uiFeatureMatrix === 'string' ? JSON.parse(plan.uiFeatureMatrix) : plan.uiFeatureMatrix) : { cardFeatures: [], tableCategories: [] },
             } : null;
+
 
             const serializedSensors = sensors.map(product => ({
                 ...product, // Decimals need Number()

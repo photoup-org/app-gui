@@ -1,22 +1,23 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useMemo } from 'react';
-import type { PlanTier, HardwareProduct, Address } from '@prisma/client';
+import type { HardwareProduct } from '@prisma/client';
 import type { CartState, CartItem, CartAddress } from '@/types/cart';
 import { useCartTotals } from '@/hooks/useCartTotals';
 import type { LineItem } from '@/types/cart';
+import type { Plan } from '@/types/pricing';
 
 export interface CartStateContextType {
     state: CartState;
     lineItems: LineItem[];
     grandTotal: number;
     isLoading: boolean;
-
 }
 
 export interface CartDispatchContextType {
-    setPlan: (plan: PlanTier) => void;
-    setBundle: (plan: PlanTier | null, items: CartItem[]) => void;
+    setPlan: (plan: Plan) => void;
+    setBundle: (plan: Plan | null, items: CartItem[]) => void;
+
     setExtraSensorPrice: (price: number) => void;
     addItem: (product: HardwareProduct, quantity: number, stripePriceId?: string) => void;
     removeItem: (productId: string) => void;
@@ -66,17 +67,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }, [state, isHydrated]);
 
-    const setPlan = useCallback((plan: PlanTier) => {
+    const setPlan = useCallback((plan: Plan) => {
         setState((prev) => ({ ...prev, selectedPlan: plan }));
     }, []);
 
-    const setBundle = useCallback((plan: PlanTier | null, items: CartItem[]) => {
+    const setBundle = useCallback((plan: Plan | null, items: CartItem[]) => {
         setState((prev) => ({
             ...prev,
             selectedPlan: plan,
             items: items,
         }));
     }, []);
+
 
     const setExtraSensorPrice = useCallback((price: number) => {
         setState((prev) => ({ ...prev, extraSensorPriceAmount: price }));

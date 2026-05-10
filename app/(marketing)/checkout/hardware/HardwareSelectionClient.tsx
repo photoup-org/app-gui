@@ -7,14 +7,16 @@ import { useCart } from '@/contexts/CartContext';
 import { PlanSummaryBox } from '@/components/marketing/checkout/hardware/PlanSummaryBox';
 import { SensorGrid } from '@/components/marketing/checkout/hardware/SensorGrid';
 import { StickyCheckoutBar } from '@/components/marketing/checkout/hardware/StickyCheckoutBar';
+import type { Plan } from '@/types/pricing';
 
 export default function HardwareSelectionClient({
     plan,
     sensors
 }: {
-    plan: any;
+    plan: Plan;
     sensors: SerializedHardwareProduct[];
 }) {
+
     const router = useRouter();
     const { setBundle, state, grandTotal, isLoading } = useCart();
 

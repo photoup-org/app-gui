@@ -5,6 +5,8 @@ import { useCartState, useCartDispatch } from "@/contexts/CartContext";
 import { Check, Download, Package, CreditCard, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import type { CartItem } from "@/types/cart";
+
 
 export interface SuccessSummaryProps {
     orderId: string;
@@ -17,18 +19,27 @@ export default function SuccessSummary({
 }: SuccessSummaryProps) {
     const cartState = useCartState();
     const { clearCart } = useCartDispatch();
-    const [orderSnapshot, setOrderSnapshot] = useState<any>(null);
+    const [orderSnapshot, setOrderSnapshot] = useState<{
+        cartItems: CartItem[];
+        billingAddress: any;
+        shippingAddress: any;
+        userEmail: string | null;
+        planId?: string;
+        nif?: string;
+    } | null>(null);
+
 
     useEffect(() => {
         if (cartState && cartState.state.items.length > 0 && !orderSnapshot) {
             setOrderSnapshot({
                 cartItems: cartState.state.items,
-                billingAddress: cartState.state.billingAddress,
-                shippingAddress: cartState.state.shippingAddress,
-                userEmail: cartState.state.userEmail,
+                billingAddress: cartState.state.billingAddress || null,
+                shippingAddress: cartState.state.shippingAddress || null,
+                userEmail: cartState.state.userEmail || null,
                 planId: cartState.state.selectedPlan?.id,
-                nif: cartState.state.nif
+                nif: cartState.state.nif || undefined
             });
+
             clearCart();
         }
     }, [cartState, orderSnapshot]);
@@ -136,16 +147,18 @@ export default function SuccessSummary({
                     <div className="p-6 flex-1 flex flex-col justify-between space-y-6">
                         {displayData.cartItems && displayData.cartItems.length > 0 ? (
                             <ul className="space-y-5">
-                                {displayData.cartItems.map((item: any, i: number) => (
+                                {displayData.cartItems.map((item: CartItem, i: number) => (
                                     <li key={i} className="flex gap-5 items-center">
+
                                         <div className="relative w-16 h-16 bg-muted/50 rounded-lg border flex items-center justify-center shrink-0">
                                             <Package className="w-8 h-8 text-muted-foreground/40" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-base font-medium text-foreground truncate">
-                                                {item.product?.name || item.name || "Produto Hardware"}
+                                                {item.product?.name || "Produto Hardware"}
                                             </p>
                                         </div>
+
                                         <div className="text-sm font-medium text-muted-foreground whitespace-nowrap bg-muted px-3 py-1 rounded-full">
                                             Qtd: {item.quantity}
                                         </div>

@@ -204,12 +204,16 @@ export async function getUserWorkspaceContext(auth0UserId: string) {
                         },
                     },
                     _count: {
-                        select: { devices: true },
+                        select: {
+                            devices: true,
+                            users: true,
+                        },
                     },
                 },
             },
         },
     });
+
 
     return user;
 }
