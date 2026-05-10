@@ -9,6 +9,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { HardwareRegistrationDialog } from "./HardwareRegistrationDialog";
 
 interface TrackingWidgetProps {
     trackingNumber: string | null;
@@ -90,21 +91,11 @@ export async function TrackingWidget({ trackingNumber }: TrackingWidgetProps) {
                 </div>
 
                 {/* Footer Action */}
-                <Dialog>
-                    <DialogTrigger asChild className="mt-auto">
-                        <Button className="w-full bg-primary hover:bg-primary/80 text-white font-bold rounded-xl h-11 transition-colors">
-                            O Meu Hardware Chegou
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Registar Novo Hardware</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-4 text-slate-500 text-sm">
-                            Implementation pending...
-                        </div>
-                    </DialogContent>
-                </Dialog>
+                <HardwareRegistrationDialog>
+                    <Button className="w-full bg-primary hover:bg-primary/80 text-white font-bold rounded-xl h-11 transition-colors mt-auto">
+                        O Meu Hardware Chegou
+                    </Button>
+                </HardwareRegistrationDialog>
             </div>
         );
     } catch (error) {

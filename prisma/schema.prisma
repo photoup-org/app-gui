@@ -116,10 +116,10 @@ model Device {
   serialNumber String          @unique
   status       DeviceStatus    @default(ACTIVE)
   productId    String
-  departmentId String
+  departmentId String?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
-  department   Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  department   Department?     @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   product      HardwareProduct @relation(fields: [productId], references: [id])
   readings     SensorReading[]
 }
