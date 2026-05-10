@@ -19,7 +19,7 @@ interface TrackingWidgetProps {
  * Implements the premium design with history and registration dialogs.
  */
 export async function TrackingWidget({ trackingNumber }: TrackingWidgetProps) {
-    const cardBaseClasses = "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-4 w-full max-w-md shadow-sm";
+    const cardBaseClasses = "bg-white dark:bg-slate-900 border border-border rounded-2xl p-5 flex flex-col gap-4 w-full max-w-md h-full";
 
 
     // 1. Empty State
@@ -46,50 +46,52 @@ export async function TrackingWidget({ trackingNumber }: TrackingWidgetProps) {
         // 3. Success State (Modern UI Implementation)
         return (
             <div className={cardBaseClasses}>
-                {/* Header Row */}
-                <div className="flex justify-between items-start">
-                    <div className="flex flex-col items-start space-x-2">
-                        <span className=" font-bold text-slate-800 dark:text-slate-200">
-                            A sua encomenda
-                        </span>
-                        <span className="text-sm text-slate-500">{trackingData.trackingNumber}</span>
+                <div className="flex flex-col gap-4">
+                    {/* Header Row */}
+                    <div className="flex justify-between items-start">
+                        <div className="flex flex-col items-start">
+                            <span className=" font-bold text-slate-800 dark:text-slate-200">
+                                A sua encomenda
+                            </span>
+                            <span className="text-sm text-slate-500">{trackingData.trackingNumber}</span>
+                        </div>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600">
+                                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>Histórico de Envio</DialogTitle>
+                                </DialogHeader>
+                                <div className="py-4 text-slate-500 text-sm">
+                                    Implementation pending...
+                                </div>
+                            </DialogContent>
+                        </Dialog>
                     </div>
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-600">
-                                <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Histórico de Envio</DialogTitle>
-                            </DialogHeader>
-                            <div className="py-4 text-slate-500 text-sm">
-                                Implementation pending...
-                            </div>
-                        </DialogContent>
-                    </Dialog>
-                </div>
 
-                {/* Main Status Block */}
-                <div className="flex items-center gap-4">
-                    <div className="flex flex-col text-right">
-                        <span className="text-sm text-muted-foreground"> {trackingData.updateDate}</span>
-                        <span className="text-sm text-muted-foreground"> {trackingData.updateTime}</span>
-                    </div>
-                    <div className="flex flex-col text-left">
-                        <p className="text-lg font-bold text-primary leading-tight">
-                            {trackingData.statusTitle}
-                        </p>
-                        <p className="text-xs text-slate-500 leading-normal">
-                            {trackingData.statusDescription}
-                        </p>
+                    {/* Main Status Block */}
+                    <div className="flex items-center gap-4">
+                        <div className="flex flex-col text-right">
+                            <span className="text-sm text-muted-foreground whitespace-nowrap"> {trackingData.updateDate}</span>
+                            <span className="text-sm text-muted-foreground"> {trackingData.updateTime}</span>
+                        </div>
+                        <div className="flex flex-col text-left">
+                            <p className="text-lg font-bold text-primary leading-tight">
+                                {trackingData.statusTitle}
+                            </p>
+                            <p className="text-xs text-slate-500 leading-normal">
+                                {trackingData.statusDescription}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 {/* Footer Action */}
                 <Dialog>
-                    <DialogTrigger asChild>
+                    <DialogTrigger asChild className="mt-auto">
                         <Button className="w-full bg-primary hover:bg-primary/80 text-white font-bold rounded-xl h-11 transition-colors">
                             O Meu Hardware Chegou
                         </Button>

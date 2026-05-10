@@ -6,7 +6,7 @@ import { Headset, Mail, Phone } from "lucide-react";
  */
 export function ContactWidget() {
     return (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex flex-col w-full max-w-md shadow-sm min-h-[280px]">
+        <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-5 flex flex-col w-full max-w-sm h-full">
             {/* Header Block */}
             <div className="flex flex-col items-center justify-center text-center">
                 <div className="h-12 w-12 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center mx-auto mb-3 text-cyan-600 dark:text-cyan-400">
@@ -36,7 +36,7 @@ export function ContactWidget() {
             </div>
 
             {/* Action Links */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mt-auto">
                 <a
                     href="mailto:rui.silva@photoup.pt"
                     className="flex items-center gap-3 w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm font-medium text-slate-700 dark:text-slate-300 group"

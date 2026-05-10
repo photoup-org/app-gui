@@ -26,7 +26,7 @@ interface InviteItem {
     role: string;
 }
 
-export function InviteTeamDialog({ children }: { children: React.ReactNode }) {
+export function InviteTeamDialog({ children, className }: { children: React.ReactNode, className?: string }) {
     const [email, setEmail] = useState("");
     const [invites, setInvites] = useState<InviteItem[]>([]);
 
@@ -43,7 +43,7 @@ export function InviteTeamDialog({ children }: { children: React.ReactNode }) {
 
     return (
         <Dialog>
-            <DialogTrigger asChild>{children}</DialogTrigger>
+            <DialogTrigger asChild className={className}>{children}</DialogTrigger>
             <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border-none shadow-2xl">
                 <div className="p-8 flex flex-col items-center text-center">
                     <div className="h-14 w-14 rounded-xl bg-primary flex items-center justify-center mb-6">
@@ -75,6 +75,7 @@ export function InviteTeamDialog({ children }: { children: React.ReactNode }) {
                             )}
                         </div>
                         <Button
+                            size="sm"
                             onClick={addInvite}
                             className="h-11 bg-primary hover:bg-primary/80 text-white font-semibold px-6 rounded-xl"
                         >
@@ -99,7 +100,7 @@ export function InviteTeamDialog({ children }: { children: React.ReactNode }) {
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="admin">Administrador</SelectItem>
+                                                <SelectItem value="admin">Admin</SelectItem>
                                                 <SelectItem value="operador">Operador</SelectItem>
                                                 <SelectItem value="viewer">Visualizador</SelectItem>
                                             </SelectContent>

@@ -8,7 +8,7 @@ import { StarIconsIlustration } from "@/components/resources/ilustrations";
  */
 export function TeamWidget() {
     return (
-        <div className="bg-white dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl p-5 flex flex-col items-center justify-center text-center w-full max-w-sm">
+        <div className="bg-white dark:bg-slate-900 border border-border rounded-2xl p-5 flex flex-col items-center text-center w-full max-w-sm h-full">
             {/* Stars Illustration */}
             <StarIconsIlustration width={100} />
 
@@ -19,7 +19,7 @@ export function TeamWidget() {
                 Convide membros para a sua equipa
             </p>
 
-            <InviteTeamDialog>
+            <InviteTeamDialog className="mt-auto">
                 <Button className="bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-xl h-12 px-8 transition-colors">
                     Enviar Convites
                 </Button>
