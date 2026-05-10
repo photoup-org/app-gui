@@ -81,7 +81,7 @@ export async function TrackingWidget({ trackingNumber }: TrackingWidgetProps) {
                         <p className="text-lg font-bold text-primary leading-tight">
                             {trackingData.statusTitle}
                         </p>
-                        <p className="text-sm text-slate-500 leading-normal">
+                        <p className="text-xs text-slate-500 leading-normal">
                             {trackingData.statusDescription}
                         </p>
                     </div>

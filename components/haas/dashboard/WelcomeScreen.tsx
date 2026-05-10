@@ -3,9 +3,9 @@
 import { setLabProfile } from "@/actions/onboarding";
 import { LabProfile } from "@prisma/client";
 import { useState } from "react";
-import { BrandLogo } from "../resources/logos";
+import { BrandLogo } from "../../resources/logos";
 import { Factory, Microscope } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import { cn } from "@/lib/utils";
 
 export function WelcomeScreen() {
