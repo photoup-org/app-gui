@@ -162,11 +162,11 @@ export function HardwareRegistrationDialog({ children }: HardwareRegistrationDia
 
                 {/* Divider */}
                 <div className="w-full flex items-center gap-4 mb-8">
-                    <div className="h-[1px] flex-1 bg-slate-100" />
+                    <div className="h-px flex-1 bg-slate-100" />
                     <span className="text-[13px] text-slate-400 font-medium whitespace-nowrap">
                         Ou adicione manualmente
                     </span>
-                    <div className="h-[1px] flex-1 bg-slate-100" />
+                    <div className="h-px flex-1 bg-slate-100" />
                 </div>
 
                 {/* Manual Input Section */}
@@ -183,7 +183,7 @@ export function HardwareRegistrationDialog({ children }: HardwareRegistrationDia
                     <Button
                         onClick={() => handleRegister(serialNumber)}
                         disabled={isPending || !serialNumber}
-                        className="h-14 w-14 bg-[#2AC5C1] hover:bg-[#23B1AE] text-white rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-[#2AC5C1]/20 active:scale-95 flex-shrink-0"
+                        className="h-14 w-14 bg-[#2AC5C1] hover:bg-[#23B1AE] text-white rounded-2xl flex items-center justify-center transition-all shadow-lg shadow-[#2AC5C1]/20 active:scale-95 shrink-0"
                     >
                         {isPending ? (
                             <Loader2 className="h-6 w-6 animate-spin" />

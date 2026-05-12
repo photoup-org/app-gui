@@ -38,16 +38,21 @@ export async function registerDeviceAction(serialNumber: string) {
         return { success: false, error: "Equipamento não encontrado." };
     }
 
-    if (device.departmentId) {
-        return { success: false, error: "Equipamento já registado." };
+    // Ownership check: must belong to the user's department
+    if (device.departmentId !== userDeptId) {
+        return { success: false, error: "Este equipamento não pertence à sua organização." };
     }
 
-    // 3. Update Prisma
+    // State check: must be UNCLAIMED
+    if (device.status !== "UNCLAIMED") {
+        return { success: false, error: "Este equipamento já foi registado." };
+    }
+
+    // 3. Update Prisma: Set status to OFFLINE (it becomes ACTIVE on first telemetry)
     await prisma.device.update({
         where: { id: device.id },
         data: { 
-            departmentId: userDeptId,
-            status: "ACTIVE"
+            status: "OFFLINE"
         }
     });
 

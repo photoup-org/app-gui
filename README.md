@@ -112,5 +112,6 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
    - Fix the Items fields in the orders object being null (stripeIntentId, customerEmail)
    - Fix planID being null on the Departments table
    - Fix userID being null on the Orders table
+   - Fix the OrderItems table being empty after an order has been placed
 
 - Design the Dashboard

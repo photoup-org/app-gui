@@ -17,6 +17,7 @@ async function main() {
         console.log('⚠️ Primeira execução (sem dados para limpar).')
     }
 
+
     const hardwareProducts = [
         { id: "btnhtehgwer591we985g1we9f", sku: "SENS-PREM-PH", name: "Sensor de pH", isFeatured: true, description: "Monitorização pH 24/7 com compensação automática de temperatura", subtitle: "Análise química com precisão laboratorial", imageUrl: "https://res.cloudinary.com/diic8impf/image/upload/v1772990723/Gemini_Generated_Image_gs3tj0gs3tj0gs3t_odrxgm.png", type: "SENSOR_PREMIUM" as HardwareType, stockQuantity: 20, price: 20000, stripeProductId: "prod_U1J2s171rYcj5R" },
         { id: "cmlsocydi0003ecbgy59cs8ow", sku: "GW-TRB142", name: "Gateway Teltonika TRB142", isFeatured: false, description: "", subtitle: "", imageUrl: "", type: "GATEWAY" as HardwareType, stockQuantity: 50, price: 20000, stripeProductId: "prod_U1JDQM0WjQr7ah" },
@@ -36,6 +37,7 @@ async function main() {
         });
     }
     console.log('✅ HardwareProducts sincronizados com sucesso.');
+
 
     // 2. SEED DAS REGRAS DOS PLANOS (PLAN TIERS)
     // Dados baseados na matriz de funcionalidades e preços fornecida
