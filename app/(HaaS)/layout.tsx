@@ -9,6 +9,7 @@ import { Role } from "@prisma/client";
 import AppTemplate from "@/components/haas/AppTemplate";
 
 import { getPlanUsageStats } from "@/lib/services/billing";
+import prisma from "@/lib/prisma";
 
 export default async function Layout({
   children,
@@ -63,20 +64,31 @@ export default async function Layout({
 
   const { department } = userContext;
   const labProfile = department.labProfile;
-  const deviceCount = department._count.devices;
   const latestOrder = department.orders[0] || null;
+
+  // Find if there is at least one Gateway that is NOT Unclaimed
+  const claimedGatewayCount = await prisma.device.count({
+    where: {
+      departmentId: userContext.department.id,
+      status: { not: "UNCLAIMED" }, // It must be OFFLINE, ACTIVE, or MAINTENANCE
+      product: {
+        type: "GATEWAY" // Strictly looking for a Gateway
+      }
+    }
+  });
+
+  const hasClaimedGateway = claimedGatewayCount > 0;
 
   // --- Onboarding State Machine (Server-Side) ---
 
   // State 1: Pick a Lab Profile (First-time login) - NO DashboardShell
   if (!labProfile) return <WelcomeScreen />
 
-  console.log(department)
 
   return (
     <AppProvider initialState={initialState}>
       <AppTemplate>
-        {deviceCount === 0 ? <HardwarePendingScreen latestOrder={latestOrder} /> : children}
+        {hasClaimedGateway ? children : <HardwarePendingScreen latestOrder={latestOrder} />}
       </AppTemplate>
     </AppProvider>
   );
