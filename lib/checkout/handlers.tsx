@@ -62,14 +62,37 @@ export async function executeTenantProvisioningTx(params: {
         });
 
         // 5. Order & Hardware
+        let orderItemsData: any[] = [];
+        const pendingCartId = params.metadata.pendingCartId;
+
+        // Fetch and map the pending cart items
+        if (pendingCartId) {
+            const pendingCart = await tx.pendingCart.findUnique({
+                where: { id: pendingCartId }
+            });
+
+            if (pendingCart && Array.isArray(pendingCart.items as any[])) {
+                orderItemsData = (pendingCart.items as any[]).map((item: any) => ({
+                    productId: item.productId,
+                    quantity: item.quantity
+                }));
+            }
+        }
+
+        // Create the order with nested items inline
         const order = await repo.createOrderWithIntentTx(tx, {
             departmentId: department.id,
             stripeIntentId: params.stripeData.intentId,
             customerEmail: params.userEmail,
             customerName: params.userName
-        });
+        }, orderItemsData);
 
-        await repo.attachHardwareToOrderTx(tx, order.id, params.lineItems);
+        // Clean up the Pending Cart
+        if (pendingCartId) {
+            await tx.pendingCart.delete({
+                where: { id: pendingCartId }
+            });
+        }
 
         return { department, organization };
     });

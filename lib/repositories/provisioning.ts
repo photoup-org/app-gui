@@ -40,9 +40,19 @@ export async function createAdminUserTx(tx: TxClient, data: { email: string; nam
     });
 }
 
-export async function createOrderWithIntentTx(tx: TxClient, data: { departmentId: string; stripeIntentId: string; customerEmail: string; customerName: string; }) {
+export async function createOrderWithIntentTx(
+    tx: TxClient, 
+    data: { departmentId: string; stripeIntentId: string; customerEmail: string; customerName: string; },
+    orderItemsData: { productId: string; quantity: number }[] = []
+) {
     return tx.order.create({
-        data: { ...data, status: 'PAID_UNSHIPPED' }
+        data: { 
+            ...data, 
+            status: 'PAID_UNSHIPPED',
+            items: {
+                create: orderItemsData
+            }
+        }
     });
 }
 
