@@ -4,6 +4,7 @@ import { Sidebar } from "./Sidebar";
 import { MobileNav } from "./MobileNav";
 import { useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
+import { DashboardHeader } from "@/components/layout/DashboardHeader";
 
 export default function AppTemplate({
     children,
@@ -35,9 +36,11 @@ export default function AppTemplate({
 
                 {/* Main Content */}
                 <main className="flex-1 p-6 lg:p-8">
+                    <DashboardHeader />
                     {children}
                 </main>
             </div>
         </div>
     );
 }
+

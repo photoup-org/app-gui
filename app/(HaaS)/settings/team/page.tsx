@@ -34,10 +34,6 @@ export default async function TeamSettingsPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-8">
-        Definições de Equipa
-      </h1>
-
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
         <div className="p-6 border-b border-slate-200 dark:border-slate-800">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
@@ -119,3 +115,5 @@ export default async function TeamSettingsPage() {
     </div>
   );
 }
+
+
