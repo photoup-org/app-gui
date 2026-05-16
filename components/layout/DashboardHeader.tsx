@@ -30,7 +30,7 @@ export function DashboardHeader() {
                 {/* Add Button */}
                 <Button
                     variant="ghost"
-                    size="icon"
+                    size="icon-lg"
                     className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
                 >
                     <PlusSquare size={24} strokeWidth={1.5} />
@@ -40,7 +40,7 @@ export function DashboardHeader() {
                 <HardwareRegistrationDialog>
                     <Button
                         variant="ghost"
-                        size="icon"
+                        size="icon-lg"
                         className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
                     >
                         <ScanLine size={24} strokeWidth={1.5} />
@@ -50,7 +50,7 @@ export function DashboardHeader() {
                 {/* Notifications Button */}
                 <Button
                     variant="ghost"
-                    size="icon"
+                    size="icon-lg"
                     className="text-slate-700 hover:bg-slate-100"
                 >
                     <Bell size={24} strokeWidth={1.5} />
