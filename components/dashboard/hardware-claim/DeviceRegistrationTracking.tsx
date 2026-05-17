@@ -11,6 +11,23 @@ interface DeviceTypeCardProps {
     onClaim: string;
 }
 
+import { HardwareProgress } from "@/lib/data/hardware";
+
+interface DeviceRegistrationTrackingProps {
+    sensorList: HardwareProgress['sensors'];
+}
+
+const DeviceRegistrationTracking = ({ sensorList }: DeviceRegistrationTrackingProps) => {
+    return (
+        <div className="flex flex-col p-4 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-lg shadow-sm hover:shadow-md transition-shadow gap-3">
+
+        </div>
+    );
+}
+
+export default DeviceRegistrationTracking;
+
+
 export function DeviceTypeCard({ title, totalQuantity, claimedQuantity, iconType, onClaim }: DeviceTypeCardProps) {
     const Icon = iconType === "GATEWAY" ? Server : Activity;
     const iconColor = iconType === "GATEWAY" ? "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/50" : "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/50";

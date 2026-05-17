@@ -1,10 +1,11 @@
 import { getHardwareSetupProgress } from "@/lib/data/hardware";
 import { getAppSession } from "@/lib/auth/session";
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
-import { SetupBanner } from "./SetupBanner";
-import { DeviceTypeCard } from "./DeviceTypeCard";
+import DeviceRegistrationTracking from "./DeviceRegistrationTracking";
 import { VideoGuidePlaceholder } from "./VideoGuidePlaceholder";
 import { Skeleton } from "@/components/ui/skeleton";
+import GeneralSensorRegisterCard from "./GeneralSensorRegisterCard";
+import ReportProblemCard from "./ReportProblemCard";
 
 export async function PendingHardwareSection() {
     const session = await getAppSession();
@@ -17,48 +18,17 @@ export async function PendingHardwareSection() {
     if (!data) return null;
     if (data.gateways.total === 0 && data.sensors.length === 0) return null;
 
-    let totalDevices = data.gateways.total;
-    let totalClaimed = data.gateways.claimed;
-
-    for (const sensor of data.sensors) {
-        totalDevices += sensor.total;
-        totalClaimed += sensor.claimed;
-    }
-
-    const overallPercentage = totalDevices > 0 ? (totalClaimed / totalDevices) * 100 : 0;
-
     return (
-        <section className="space-y-6 mb-8 w-full">
-            <SetupBanner overallPercentage={overallPercentage} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                <div className="space-y-3 flex flex-col">
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 px-1 mb-1">Visão Geral do Pedido</h3>
-                    <div className="space-y-3">
-                        {data.gateways.total > 0 && (
-                            <DeviceTypeCard
-                                title="Gateway"
-                                totalQuantity={data.gateways.total}
-                                claimedQuantity={data.gateways.claimed}
-                                iconType="GATEWAY"
-                                onClaim="/dashboard/devices/claim"
-                            />
-                        )}
-                        {data.sensors.map((s) => (
-                            <DeviceTypeCard
-                                key={s.type}
-                                title={s.type}
-                                totalQuantity={s.total}
-                                claimedQuantity={s.claimed}
-                                iconType="SENSOR"
-                                onClaim={`/dashboard/devices/claim?type=${encodeURIComponent(s.type)}`}
-                            />
-                        ))}
-                    </div>
-                </div>
-                <div className="flex flex-col pt-8">
-                    <VideoGuidePlaceholder />
-                </div>
-            </div>
+        <section className="space-y-6 w-full h-80 flex justify-between items-center">
+            <GeneralSensorRegisterCard
+                deviceList={data}
+                title="O Seu Pedido"
+            />
+            <DeviceRegistrationTracking
+                sensorList={data.sensors}
+            />
+            <ReportProblemCard />
+            <VideoGuidePlaceholder />
         </section>
     );
 }

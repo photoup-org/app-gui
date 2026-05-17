@@ -150,7 +150,6 @@ const FooterNavigation = ({ collapsed }: { collapsed: boolean }) => {
 const UserMenu = ({ collapsed }: { collapsed: boolean }) => {
     const { state } = useApp();
     const { name, email } = state.user;
-    console.log(state)
 
     return <div className="w-full px-3 py-2 bg-muted/80 rounded-xl space-x-3 flex items-center cursor-pointer hover:bg-primary-bg transition-colors duration-300">
         <Avatar>
