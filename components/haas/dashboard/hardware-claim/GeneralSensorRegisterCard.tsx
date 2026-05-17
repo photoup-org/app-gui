@@ -10,7 +10,7 @@ interface GeneralSensorRegisterCardProps {
 
 const GeneralSensorRegisterCard = ({ deviceList, title }: GeneralSensorRegisterCardProps) => {
 
-    return (<Card className="flex flex-col h-full w-64">
+    return (<Card className="flex flex-col h-full w-64 shrink-0 mb-0">
         <CardHeader className="items-center pb-0">
             <CardTitle>{title}</CardTitle>
         </CardHeader>

@@ -26,6 +26,7 @@
     "auth0": "^5.9.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.563.0",
     "next": "^16.1.6",

@@ -2,7 +2,7 @@ import { getHardwareSetupProgress } from "@/lib/data/hardware";
 import { getAppSession } from "@/lib/auth/session";
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import DeviceRegistrationTracking from "./DeviceRegistrationTracking";
-import { VideoGuidePlaceholder } from "./VideoGuidePlaceholder";
+import { InstallationGuidesCarousel } from "./InstallationGuidesCarousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import GeneralSensorRegisterCard from "./GeneralSensorRegisterCard";
 import ReportProblemCard from "./ReportProblemCard";
@@ -19,7 +19,7 @@ export async function PendingHardwareSection() {
     if (data.gateways.total === 0 && data.sensors.length === 0) return null;
 
     return (
-        <section className="space-y-6 w-full h-80 flex justify-between items-center">
+        <section className="space-y-6 w-full h-80 flex justify-between items-center gap-5">
             <GeneralSensorRegisterCard
                 deviceList={data}
                 title="O Seu Pedido"
@@ -28,7 +28,7 @@ export async function PendingHardwareSection() {
                 sensorList={data.sensors}
             />
             <ReportProblemCard />
-            <VideoGuidePlaceholder />
+            <InstallationGuidesCarousel />
         </section>
     );
 }

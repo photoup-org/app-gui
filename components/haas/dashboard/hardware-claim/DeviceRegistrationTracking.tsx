@@ -20,8 +20,8 @@ interface DeviceRegistrationTrackingProps {
 }
 
 const DeviceRegistrationTracking = ({ sensorList }: DeviceRegistrationTrackingProps) => {
-    console.log(sensorList)
-    return <Card className="flex flex-col h-full w-sm">
+
+    return <Card className="flex flex-col h-full w-full mb-0">
         <CardHeader className="items-center pb-0">
             <CardTitle>Visão Geral do Pedido</CardTitle>
             <CardAction className="items-center flex gap-2">
