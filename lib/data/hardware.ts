@@ -15,16 +15,14 @@ export async function getHardwareSetupProgress(departmentId: string): Promise<Ha
         },
     });
 
-    // If there are no UNCLAIMED devices, setup is considered complete (or no setup needed)
-    const hasUnclaimed = devices.some(d => d.status === "UNCLAIMED");
-    if (!hasUnclaimed) return null;
+    if (devices.length === 0) return null;
 
     const gateways = { total: 0, claimed: 0, unclaimedIds: [] as string[] };
     const sensorsMap = new Map<string, { type: string; total: number; claimed: number; unclaimedIds: string[] }>();
 
     for (const device of devices) {
         const isUnclaimed = device.status === "UNCLAIMED";
-        
+
         if (device.product.type === "GATEWAY") {
             gateways.total += 1;
             if (!isUnclaimed) {
