@@ -43,7 +43,6 @@ const ChartComponent = ({ gatewaysData, sensorsData }: ChartComponentProps) => {
         },
     ]
 
-    console.log(totalGateways)
 
     return (
         <>

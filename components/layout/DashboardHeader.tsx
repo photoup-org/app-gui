@@ -19,7 +19,7 @@ export function DashboardHeader() {
     }
 
     return (
-        <header className="flex items-center justify-between w-full mb-8">
+        <header className="flex items-center justify-between w-full mb-12">
             {/* Left Side: Dynamic Title */}
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 {title}
@@ -30,30 +30,28 @@ export function DashboardHeader() {
                 {/* Add Button */}
                 <Button
                     variant="ghost"
-                    size="icon-lg"
+                    size="icon"
                     className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
                 >
                     <PlusSquare size={24} strokeWidth={1.5} />
                 </Button>
 
-                {/* Register Hardware (QR) Button */}
                 <HardwareRegistrationDialog>
                     <Button
                         variant="ghost"
-                        size="icon-lg"
+                        size="icon"
                         className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
                     >
-                        <ScanLine size={24} strokeWidth={1.5} />
+                        <ScanLine size={20} strokeWidth={1.5} />
                     </Button>
                 </HardwareRegistrationDialog>
 
-                {/* Notifications Button */}
                 <Button
                     variant="ghost"
-                    size="icon-lg"
+                    size="icon"
                     className="text-slate-700 hover:bg-slate-100"
                 >
-                    <Bell size={24} strokeWidth={1.5} />
+                    <Bell size={20} strokeWidth={1.5} />
                 </Button>
             </div>
         </header>
