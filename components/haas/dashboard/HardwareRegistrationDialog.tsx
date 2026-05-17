@@ -17,13 +17,19 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface HardwareRegistrationDialogProps {
+    title?: string;
+    description?: string;
     children: React.ReactNode;
 }
 
 /**
  * Updated Hardware Registration Dialog with entrance/exit animations.
  */
-export function HardwareRegistrationDialog({ children }: HardwareRegistrationDialogProps) {
+export function HardwareRegistrationDialog({
+    title = "Registe o seu Gateway",
+    description = "Registe o seu Gateway para começar a adquirir os seus dados",
+    children
+}: HardwareRegistrationDialogProps) {
     const [open, setOpen] = useState(false);
     const [serialNumber, setSerialNumber] = useState("");
     const [isPending, startTransition] = useTransition();
@@ -82,7 +88,7 @@ export function HardwareRegistrationDialog({ children }: HardwareRegistrationDia
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[440px] p-8 overflow-hidden rounded-[32px] border-none shadow-2xl bg-white flex flex-col items-center text-center">
+            <DialogContent className="sm:max-w-[440px] p-8 overflow-hidden  border-none shadow-2xl bg-white flex flex-col items-center text-center">
                 {/* Header Section */}
                 <div className="w-full flex flex-col items-center gap-6 mb-8">
                     <div className="h-16 w-16 rounded-2xl bg-[#2AC5C1] flex items-center justify-center shadow-lg shadow-[#2AC5C1]/20">
@@ -91,10 +97,10 @@ export function HardwareRegistrationDialog({ children }: HardwareRegistrationDia
 
                     <div className="space-y-2">
                         <DialogTitle className="text-[28px] font-bold text-slate-900 leading-tight">
-                            Registe o seu Gateway
+                            {title}
                         </DialogTitle>
                         <p className="text-slate-400 text-[15px] max-w-[280px] mx-auto leading-relaxed">
-                            Registe o seu Gateway para começar a adquirir os seus dados
+                            {description}
                         </p>
                     </div>
                 </div>

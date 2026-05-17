@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PendingHardwareSection, PendingHardwareSkeleton } from "@/components/dashboard/hardware-claim/PendingHardwareSection";
+import { PendingHardwareSection, PendingHardwareSkeleton } from "@/components/haas/dashboard/hardware-claim/PendingHardwareSection";
 
 
 
