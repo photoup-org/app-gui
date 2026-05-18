@@ -58,10 +58,11 @@ model Department {
   organization         Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   plan                 PlanTier?          @relation(fields: [planId], references: [id])
   shippingAddress      Address?           @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
-  labProfile           LabProfile?        // Null means they haven't picked yet
+  labProfile           LabProfile? // Null means they haven't picked yet
   devices              Device[]
   orders               Order[]
   users                User[]
+  projects             Project[]
 }
 
 model User {
@@ -94,21 +95,21 @@ model Address {
 }
 
 model HardwareProduct {
-  id               String       @id @default(cuid())
-  sku              String       @unique
-  name             String
-  subtitle             String
-  description      String?
-  imageUrl         String?
-  stripeProductId  String?      @unique
-  type             HardwareType
-  stockQuantity    Int          @default(0)
-  price            Decimal      @db.Decimal(10, 2)
-  isFeatured       Boolean      @default(false) // <-- ADD THIS LINE
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
-  devices          Device[]
-  orderItems       OrderItem[]
+  id              String       @id @default(cuid())
+  sku             String       @unique
+  name            String
+  subtitle        String
+  description     String?
+  imageUrl        String?
+  stripeProductId String?      @unique
+  type            HardwareType
+  stockQuantity   Int          @default(0)
+  price           Decimal      @db.Decimal(10, 2)
+  isFeatured      Boolean      @default(false) // <-- ADD THIS LINE
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  devices         Device[]
+  orderItems      OrderItem[]
 }
 
 model Device {
@@ -122,25 +123,25 @@ model Device {
   department   Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   product      HardwareProduct @relation(fields: [productId], references: [id])
   readings     SensorReading[]
+  experimentId String?
+  experiment   Experiment?     @relation(fields: [experimentId], references: [id], onDelete: SetNull)
 }
-
 
 model Order {
-  id               String      @id @default(cuid())
-  status           OrderStatus @default(PENDING_PAYMENT)
-  departmentId     String
-  customerEmail    String?    
-  customerName     String?    
-  userId           String?
-  stripeIntentId   String?     @unique
-  trackingNumber   String?
-  user             User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-  department       Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  items            OrderItem[]
+  id             String      @id @default(cuid())
+  status         OrderStatus @default(PENDING_PAYMENT)
+  departmentId   String
+  customerEmail  String?
+  customerName   String?
+  userId         String?
+  stripeIntentId String?     @unique
+  trackingNumber String?
+  user           User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  department     Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  items          OrderItem[]
 }
-
 
 model OrderItem {
   id        String          @id @default(cuid())
@@ -154,16 +155,18 @@ model OrderItem {
 }
 
 model SensorReading {
-  id         String   @id @default(cuid())
-  deviceId   String
-  metricType String
-  value      Float
-  timestamp  DateTime @default(now())
+  id           String      @id @default(cuid())
+  deviceId     String
+  metricType   String
+  value        Float
+  timestamp    DateTime    @default(now())
+  device       Device      @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  experimentId String?
+  experiment   Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
 
-  device     Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-
-  // Just a standard index to make querying by time fast
+  // Update your index to make experiment data retrieval fast
   @@index([deviceId, timestamp(sort: Desc)])
+  @@index([experimentId, timestamp(sort: Desc)]) // NEW INDEX
 }
 
 enum OrderStatus {
@@ -194,6 +197,7 @@ enum SubscriptionStatus {
 
 enum DeviceStatus {
   UNCLAIMED
+  BUSY
   ACTIVE
   OFFLINE
   MAINTENANCE
@@ -206,6 +210,52 @@ enum LabProfile {
 
 model PendingCart {
   id        String   @id @default(cuid())
-  items     Json     // Store the raw cart items array here
+  items     Json // Store the raw cart items array here
   createdAt DateTime @default(now())
+}
+
+// --- NEW ENUMS ---
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum ExperimentStatus {
+  PLANNED
+  RUNNING
+  COMPLETED
+  PAUSED
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  departmentId String
+  status       ProjectStatus @default(ACTIVE)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  department  Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  experiments Experiment[]
+}
+
+model Experiment {
+  id        String           @id @default(cuid())
+  name      String
+  projectId String
+  status    ExperimentStatus @default(RUNNING)
+  startDate DateTime         @default(now())
+  endDate   DateTime?
+
+  // Stores templates, default settings, target pH, light cycles, etc.
+  settings Json?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // The devices CURRENTLY assigned to this experiment
+  devices Device[]
+
+  // Historical record of telemetry linked to this specific experiment
+  readings SensorReading[]
 }

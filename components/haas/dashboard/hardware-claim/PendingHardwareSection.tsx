@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import GeneralSensorRegisterCard from "./GeneralSensorRegisterCard";
 import ReportProblemCard from "./ReportProblemCard";
 import { SetupAnimatedWrapper } from "./SetupAnimatedWrapper";
+import DashboardRow from "../DashboardRow";
 
 export async function PendingHardwareSection() {
     const session = await getAppSession();
@@ -17,7 +18,7 @@ export async function PendingHardwareSection() {
 
     const data = await getHardwareSetupProgress(userContext.department.id);
     if (!data) return null;
-    
+
     let totalDevices = data.gateways.total;
     let totalClaimed = data.gateways.claimed;
     data.sensors.forEach(s => {
@@ -31,7 +32,7 @@ export async function PendingHardwareSection() {
 
     return (
         <SetupAnimatedWrapper isComplete={isComplete}>
-            <section className="space-y-6 w-full h-80 flex justify-between items-center gap-5">
+            <DashboardRow>
                 <GeneralSensorRegisterCard
                     deviceList={data}
                     title="O Seu Pedido"
@@ -41,7 +42,7 @@ export async function PendingHardwareSection() {
                 />
                 <ReportProblemCard />
                 <InstallationGuidesCarousel />
-            </section>
+            </DashboardRow>
         </SetupAnimatedWrapper>
     );
 }
