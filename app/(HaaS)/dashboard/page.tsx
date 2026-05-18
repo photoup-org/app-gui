@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { PendingHardwareSection, PendingHardwareSkeleton } from "@/components/haas/dashboard/hardware-claim/PendingHardwareSection";
 import { DashboardOverviewRow } from "@/components/haas/dashboard/overview/DashboardOverviewRow";
 import OverviewSkeleton from "@/components/haas/dashboard/overview/OverviewSkeleton";
+import SensorOverviewRow from "@/components/haas/dashboard/sensor-overview/SensorOverviewRow";
 
 
 
@@ -14,7 +15,9 @@ export default async function DashboardPage() {
       <Suspense fallback={<OverviewSkeleton />}>
         <DashboardOverviewRow />
       </Suspense>
-
+      <Suspense fallback={<OverviewSkeleton />}>
+        <SensorOverviewRow />
+      </Suspense>
     </div>
   );
 }

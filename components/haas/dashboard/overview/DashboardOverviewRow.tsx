@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { DeviceSummaryWidget } from "./DeviceSummaryWidget";
 import { ProjectSummaryWidget } from "./ProjectSummaryWidget";
 import { GatewaySummaryWidget } from "./GatewaySummaryWidget";

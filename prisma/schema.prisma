@@ -63,6 +63,7 @@ model Department {
   orders               Order[]
   users                User[]
   projects             Project[]
+  alerts               Alert[]
 }
 
 model User {
@@ -113,18 +114,20 @@ model HardwareProduct {
 }
 
 model Device {
-  id           String          @id @default(cuid())
-  serialNumber String          @unique
-  status       DeviceStatus    @default(ACTIVE)
+  id           String              @id @default(cuid())
+  serialNumber String              @unique
+  status       DeviceStatus        @default(ACTIVE)
   productId    String
   departmentId String
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  department   Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  product      HardwareProduct @relation(fields: [productId], references: [id])
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  department   Department          @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  product      HardwareProduct     @relation(fields: [productId], references: [id])
   readings     SensorReading[]
   experimentId String?
-  experiment   Experiment?     @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+  experiment   Experiment?         @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+  calibrations CalibrationRecord[]
+  alerts       Alert[]
 }
 
 model Order {
@@ -167,6 +170,43 @@ model SensorReading {
   // Update your index to make experiment data retrieval fast
   @@index([deviceId, timestamp(sort: Desc)])
   @@index([experimentId, timestamp(sort: Desc)]) // NEW INDEX
+}
+
+model CalibrationRecord {
+  id           String   @id @default(cuid())
+  deviceId     String
+  calibratedAt DateTime @default(now())
+  validUntil   DateTime
+  performedBy  String // e.g., "Fábrica", "Operador X"
+  notes        String?
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, calibratedAt(sort: Desc)])
+}
+
+model Alert {
+  id           String        @id @default(cuid())
+  departmentId String
+  deviceId     String?
+  experimentId String? // <-- ADDED: Link directly to the experiment
+  severity     AlertSeverity
+  title        String
+  message      String?
+  isRead       Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+
+  department Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  device     Device?     @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+  experiment Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+
+  @@index([departmentId, createdAt(sort: Desc)])
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
 }
 
 enum OrderStatus {
@@ -247,15 +287,9 @@ model Experiment {
   status    ExperimentStatus @default(RUNNING)
   startDate DateTime         @default(now())
   endDate   DateTime?
-
-  // Stores templates, default settings, target pH, light cycles, etc.
-  settings Json?
-
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-
-  // The devices CURRENTLY assigned to this experiment
-  devices Device[]
-
-  // Historical record of telemetry linked to this specific experiment
-  readings SensorReading[]
+  settings  Json?
+  project   Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  devices   Device[]
+  alerts    Alert[]
+  readings  SensorReading[]
 }
