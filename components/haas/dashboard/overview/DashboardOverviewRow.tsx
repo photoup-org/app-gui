@@ -26,7 +26,7 @@ export async function DashboardOverviewRow() {
   ]);
 
   return (
-    <DashboardRow className="h-48">
+    <DashboardRow className="h-52">
       <DeviceSummaryWidget data={sensorData} />
       <ProjectSummaryWidget data={projectData} />
       <GatewaySummaryWidget gateways={gatewaysData} />

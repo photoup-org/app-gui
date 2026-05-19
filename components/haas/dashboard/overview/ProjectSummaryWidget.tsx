@@ -61,9 +61,9 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
 const NoProjects = () => {
   const { openDialog } = useProjectStore();
 
-  return <div className="flex flex-col items-center justify-center py-4">
+  return <div className="flex flex-col items-center justify-center">
     <FolderOpen className="w-10 h-10 text-slate-400" />
-    <span className="text-slate-400 text-sm text-center mt-2 max-w-3xs">Neste momento não tem nenhum projeto registado.</span>
+    <span className="text-slate-400 text-sm text-center max-w-3xs">Neste momento não tem nenhum projeto registado.</span>
     <Button variant="link" size="sm" className="mt-2 text-cyan-600 hover:text-cyan-700" onClick={openDialog}>
       Criar um projeto
     </Button>
