@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * Placeholder component for the main Projects Dashboard.
  * This is shown when the user has completed onboarding and has registered devices.
@@ -10,9 +12,13 @@ export function ProjectsDashboard() {
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
                     <p className="text-gray-500">Monitor your active projects and sensor deployments.</p>
                 </div>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                <Link
+                    href="?newProject=true"
+                    scroll={false}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors inline-block text-sm"
+                >
                     New Project
-                </button>
+                </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -21,6 +21,7 @@ import {
 import { getDeviceUI } from "@/lib/hardware-map"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface MappedCalibrationDevice {
     id: string;
@@ -75,8 +76,8 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
     }
 
     return (
-        <Card className="flex flex-col h-full w-full min-w-0 border border-slate-100 dark:border-slate-800 mb-0">
-            <CardHeader className="flex flex-row items-start justify-between pb-3 px-6 space-y-0">
+        <Card className="flex flex-col h-full w-full min-w-0 border border-slate-100 dark:border-slate-800 mb-0 shadow-sm">
+            <CardHeader className="flex flex-row items-start justify-between pb-3 px-6 space-y-0 shrink-0">
                 <CardTitle className="font-bold text-slate-900 dark:text-white">
                     Calibração
                 </CardTitle>
@@ -89,9 +90,8 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
                     </Button>
                 </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-between pb-5 pt-0 px-6 min-h-0">
-                {/* Table Area */}
-                <div className="flex-1 overflow-hidden">
+            <CardContent className="flex-1 overflow-hidden px-6 pb-2 min-h-0">
+                <ScrollArea className="h-full w-full pr-2">
                     <Table className="w-full">
                         <TableHeader>
                             <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
@@ -148,60 +148,61 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
                             )}
                         </TableBody>
                     </Table>
-                </div>
+                </ScrollArea>
+            </CardContent>
 
-                {/* Footer and Pagination Panel */}
-                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3 mt-1.5">
-                    {/* Placeholder on the left to balance the layout */}
-                    <div className="w-24 shrink-0" />
+            {/* Footer and Pagination Panel */}
+            <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3 pb-5 px-6 shrink-0 mt-auto">
+                {/* Placeholder on the left to balance the layout */}
+                <div className="w-24 shrink-0" />
 
-                    {/* Pagination in the center */}
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => handlePageChange(1)}
-                            disabled={currentPage === 1}
-                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                            aria-label="Primeira página"
-                        >
-                            <ChevronsLeft className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                            aria-label="Página anterior"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        <span className="text-xs text-slate-500 dark:text-slate-400 font-bold px-2.5 tabular-nums">
-                            {currentPage} de {totalPages}
-                        </span>
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                            aria-label="Próxima página"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
-                        <button
-                            onClick={() => handlePageChange(totalPages)}
-                            disabled={currentPage === totalPages}
-                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                            aria-label="Última página"
-                        >
-                            <ChevronsRight className="w-4 h-4" />
-                        </button>
-                    </div>
-
-                    {/* Action Button on the right */}
+                {/* Pagination in the center */}
+                <div className="flex items-center gap-1">
                     <button
-                        className="text-xs text-primary font-bold hover:underline transition-colors w-24 shrink-0 text-right"
+                        onClick={() => handlePageChange(1)}
+                        disabled={currentPage === 1}
+                        className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        aria-label="Primeira página"
                     >
-                        Calibrar Sensor
+                        <ChevronsLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        aria-label="Página anterior"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-bold px-2.5 tabular-nums">
+                        {currentPage} de {totalPages}
+                    </span>
+                    <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        aria-label="Próxima página"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={currentPage === totalPages}
+                        className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        aria-label="Última página"
+                    >
+                        <ChevronsRight className="w-4 h-4" />
                     </button>
                 </div>
-            </CardContent>
+
+                {/* Action Button on the right */}
+                <Button
+                    variant="ghost"
+                    className='text-primary'
+                >
+                    Calibrar Sensor
+                </Button>
+            </div>
         </Card>
     )
 }

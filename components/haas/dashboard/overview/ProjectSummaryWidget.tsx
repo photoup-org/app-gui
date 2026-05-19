@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { FolderOpen, SquarePlus } from "lucide-react";
 import { ProjectSummary, RecentProject } from "@/lib/data/overview";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface ProjectSummaryWidgetProps {
   data: ProjectSummary;
@@ -37,8 +38,10 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
     <Card className="flex flex-col h-full w-full mb-0">
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-4">
         <CardTitle className="font-bold text-slate-900 dark:text-white">Os Meus Projetos ({data.totalProjects})</CardTitle>
-        <Button className="text-primary" size={"icon"} variant={"ghost"}>
-          <SquarePlus />
+        <Button className="text-primary" size={"icon"} variant={"ghost"} asChild>
+          <Link href="?newProject=true" scroll={false}>
+            <SquarePlus />
+          </Link>
         </Button>
       </CardHeader>
       <CardContent>
@@ -54,8 +57,13 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
 
 
 const NoProjects = () => {
-  return <div className="flex flex-col items-center justify-center">
+  return <div className="flex flex-col items-center justify-center py-4">
     <FolderOpen className="w-10 h-10 text-slate-400" />
-    <span className="text-slate-400 text-sm text-center mt-2 max-w-3xs">Neste momento não tem nenhum projeto registado. </span>
+    <span className="text-slate-400 text-sm text-center mt-2 max-w-3xs">Neste momento não tem nenhum projeto registado.</span>
+    <Button variant="link" size="sm" className="mt-2 text-cyan-600 hover:text-cyan-700" asChild>
+      <Link href="?newProject=true" scroll={false}>
+        Criar um projeto
+      </Link>
+    </Button>
   </div>
 }

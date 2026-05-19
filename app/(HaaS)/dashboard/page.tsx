@@ -3,6 +3,7 @@ import { PendingHardwareSection, PendingHardwareSkeleton } from "@/components/ha
 import { DashboardOverviewRow } from "@/components/haas/dashboard/overview/DashboardOverviewRow";
 import OverviewSkeleton from "@/components/haas/dashboard/overview/OverviewSkeleton";
 import SensorOverviewRow from "@/components/haas/dashboard/sensor-overview/SensorOverviewRow";
+import { SystemAdminRow } from "@/components/haas/dashboard/system-admin/SystemAdminRow";
 
 
 
@@ -17,6 +18,9 @@ export default async function DashboardPage() {
       </Suspense>
       <Suspense fallback={<OverviewSkeleton />}>
         <SensorOverviewRow />
+      </Suspense>
+      <Suspense fallback={<OverviewSkeleton />}>
+        <SystemAdminRow />
       </Suspense>
     </div>
   );

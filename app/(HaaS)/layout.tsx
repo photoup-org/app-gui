@@ -7,6 +7,8 @@ import { HardwarePendingScreen } from "@/components/haas/dashboard/HardwarePendi
 import { hasRequiredRole } from "@/lib/auth/permissions";
 import { Role } from "@prisma/client";
 import AppTemplate from "@/components/haas/AppTemplate";
+import { Suspense } from "react";
+import { CreateProjectDialog } from "@/components/haas/projects/CreateProjectDialog";
 
 import { getPlanUsageStats } from "@/lib/services/billing";
 import prisma from "@/lib/prisma";
@@ -90,6 +92,9 @@ export default async function Layout({
       <AppTemplate>
         {hasClaimedGateway ? children : <HardwarePendingScreen latestOrder={latestOrder} />}
       </AppTemplate>
+      <Suspense fallback={null}>
+        <CreateProjectDialog />
+      </Suspense>
     </AppProvider>
   );
 }

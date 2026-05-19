@@ -64,6 +64,7 @@ model Department {
   users                User[]
   projects             Project[]
   alerts               Alert[]
+  logs                 SystemLog[]
 }
 
 model User {
@@ -79,6 +80,7 @@ model User {
   updatedAt    DateTime   @updatedAt
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   orders       Order[]
+  logs         SystemLog[]
 }
 
 model Address {
@@ -292,4 +294,18 @@ model Experiment {
   devices   Device[]
   alerts    Alert[]
   readings  SensorReading[]
+}
+
+model SystemLog {
+  id           String   @id @default(cuid())
+  departmentId String
+  userId       String?  // Optional: Links to the user who performed the action
+  actionType   String   // e.g., "DEVICE_REGISTERED", "USER_INVITED"
+  description  String   // e.g., "Novo sensor de pH registado..."
+  createdAt    DateTime @default(now())
+
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  user         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([departmentId, createdAt(sort: Desc)])
 }
