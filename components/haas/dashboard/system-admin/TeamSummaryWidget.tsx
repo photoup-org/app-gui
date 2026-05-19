@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Send, Maximize2, MoreVertical } from "lucide-react";
 import { User } from "@prisma/client";
+import { InviteTeamDialog } from "../InviteTeamDialog";
 
 interface TeamSummaryWidgetProps {
   data: {
@@ -33,13 +34,15 @@ export function TeamSummaryWidget({ data }: TeamSummaryWidgetProps) {
               Equipa ({data.currentCount})
             </CardTitle>
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-teal-500 hover:text-teal-600 dark:text-teal-400 dark:hover:text-teal-300"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+              <InviteTeamDialog>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-teal-500 hover:text-teal-600 dark:text-teal-400 dark:hover:text-teal-300"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </InviteTeamDialog>
               <Button
                 variant="ghost"
                 size="icon"
@@ -56,9 +59,9 @@ export function TeamSummaryWidget({ data }: TeamSummaryWidgetProps) {
         </CardHeader>
 
         <CardContent className="pt-0 px-4">
-          <ScrollArea className="h-[210px] pr-2">
+          <ScrollArea className="h-52.5 pr-2">
             {data.members.length === 0 ? (
-              <div className="flex h-[180px] items-center justify-center">
+              <div className="flex h-45 items-center justify-center">
                 <span className="text-xs text-slate-400 dark:text-slate-600">
                   Nenhum membro na equipa.
                 </span>
@@ -109,3 +112,4 @@ export function TeamSummaryWidget({ data }: TeamSummaryWidgetProps) {
     </Card>
   );
 }
+
