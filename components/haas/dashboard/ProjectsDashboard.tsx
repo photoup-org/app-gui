@@ -1,10 +1,14 @@
-import Link from "next/link";
+"use client";
+
+import { useProjectStore } from "@/hooks/useProjectStore";
 
 /**
  * Placeholder component for the main Projects Dashboard.
  * This is shown when the user has completed onboarding and has registered devices.
  */
 export function ProjectsDashboard() {
+    const { openDialog } = useProjectStore();
+
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-end">
@@ -12,13 +16,12 @@ export function ProjectsDashboard() {
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
                     <p className="text-gray-500">Monitor your active projects and sensor deployments.</p>
                 </div>
-                <Link
-                    href="?newProject=true"
-                    scroll={false}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors inline-block text-sm"
+                <button
+                    onClick={openDialog}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
                 >
                     New Project
-                </Link>
+                </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -74,7 +74,7 @@ export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
 
                     {/* Middle Text */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 leading-snug break-words">
+                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 leading-snug wrap-break-word">
                         {log.description}
                         {log.user && (
                           <span className="text-slate-500 dark:text-slate-400 font-medium">

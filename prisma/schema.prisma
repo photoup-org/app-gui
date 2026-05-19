@@ -68,19 +68,22 @@ model Department {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
+  id           String      @id @default(cuid())
+  email        String      @unique
   name         String?
-  auth0UserId  String?    @unique
-  role         Role       @default(VIEWER)
+  auth0UserId  String?     @unique
+  role         Role        @default(VIEWER)
   jobTitle     String?
   phone        String?
   departmentId String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  department   Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   orders       Order[]
   logs         SystemLog[]
+
+  createdProjects    Project[]       @relation("ProjectCreator")
+  projectMemberships ProjectMember[]
 }
 
 model Address {
@@ -269,17 +272,48 @@ enum ExperimentStatus {
   PAUSED
 }
 
+enum ProjectRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
 model Project {
   id           String        @id @default(cuid())
   name         String
   description  String?
   departmentId String
+  createdById  String // Identifies the original creator
   status       ProjectStatus @default(ACTIVE)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
 
-  department  Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  // Optional Timeline Fields
+  startDate       DateTime?
+  expectedEndDate DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  department  Department      @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  createdBy   User            @relation("ProjectCreator", fields: [createdById], references: [id])
   experiments Experiment[]
+  members     ProjectMember[] // The new access control link
+}
+
+model ProjectMember {
+  id        String      @id @default(cuid())
+  projectId String
+  userId    String
+  role      ProjectRole @default(VIEWER)
+  joinedAt  DateTime    @default(now())
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Ensure a user can only have one explicit role per project
+  @@unique([projectId, userId])
+  @@index([userId])
 }
 
 model Experiment {
@@ -299,13 +333,13 @@ model Experiment {
 model SystemLog {
   id           String   @id @default(cuid())
   departmentId String
-  userId       String?  // Optional: Links to the user who performed the action
-  actionType   String   // e.g., "DEVICE_REGISTERED", "USER_INVITED"
-  description  String   // e.g., "Novo sensor de pH registado..."
+  userId       String? // Optional: Links to the user who performed the action
+  actionType   String // e.g., "DEVICE_REGISTERED", "USER_INVITED"
+  description  String // e.g., "Novo sensor de pH registado..."
   createdAt    DateTime @default(now())
 
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  user         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  user       User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([departmentId, createdAt(sort: Desc)])
 }

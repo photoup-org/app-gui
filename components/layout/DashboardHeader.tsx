@@ -1,13 +1,14 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 import { PlusSquare, ScanLine, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HardwareRegistrationDialog } from "@/components/haas/dashboard/HardwareRegistrationDialog";
+import { useProjectStore } from "@/hooks/useProjectStore";
 
 export function DashboardHeader() {
     const pathname = usePathname();
+    const { openDialog } = useProjectStore();
 
     // Determine the title based on the pathname
     let title = "Visão Geral";
@@ -33,11 +34,9 @@ export function DashboardHeader() {
                     variant="ghost"
                     size="icon"
                     className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
-                    asChild
+                    onClick={openDialog}
                 >
-                    <Link href="?newProject=true" scroll={false}>
-                        <PlusSquare size={24} strokeWidth={1.5} />
-                    </Link>
+                    <PlusSquare size={24} strokeWidth={1.5} />
                 </Button>
 
                 <HardwareRegistrationDialog>
