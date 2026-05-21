@@ -2,7 +2,7 @@
 
 import { useProjectStore } from "@/hooks/useProjectStore";
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
-import { ProjectForm } from "./ProjectForm";
+import { ProjectWizard } from "./ProjectWizard";
 
 export function CreateProjectDialog() {
   const { isOpen, setIsOpen } = useProjectStore();
@@ -12,10 +12,11 @@ export function CreateProjectDialog() {
       open={isOpen}
       onOpenChange={setIsOpen}
       title="Criar Novo Projeto"
-      description="Defina as configurações iniciais para a sua nova experiência."
+      description="Siga os 5 passos para definir e inicializar o seu novo projeto."
+      className="sm:max-w-[600px]"
     >
-      <div className="py-4">
-        <ProjectForm />
+      <div className="py-2">
+        <ProjectWizard />
       </div>
     </ResponsiveDialog>
   );

@@ -5,11 +5,22 @@ interface ProjectStore {
   openDialog: () => void;
   closeDialog: () => void;
   setIsOpen: (isOpen: boolean) => void;
+  currentStep: number;
+  setStep: (step: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  resetWizard: () => void;
 }
 
 export const useProjectStore = create<ProjectStore>((set) => ({
   isOpen: false,
-  openDialog: () => set({ isOpen: true }),
-  closeDialog: () => set({ isOpen: false }),
-  setIsOpen: (isOpen) => set({ isOpen }),
+  openDialog: () => set({ isOpen: true, currentStep: 0 }),
+  closeDialog: () => set({ isOpen: false, currentStep: 0 }),
+  setIsOpen: (isOpen) => set((state) => ({ isOpen, currentStep: isOpen ? state.currentStep : 0 })),
+  
+  currentStep: 0,
+  setStep: (step) => set({ currentStep: step }),
+  nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, 4) })),
+  prevStep: () => set((state) => ({ currentStep: Math.max(state.currentStep - 1, 0) })),
+  resetWizard: () => set({ currentStep: 0 }),
 }));

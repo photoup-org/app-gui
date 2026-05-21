@@ -1,42 +1,20 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { FolderOpen, SquarePlus } from "lucide-react";
-import { ProjectSummary, RecentProject } from "@/lib/data/overview";
+import { ProjectSummary } from "@/lib/data/overview";
 import { Button } from "@/components/ui/button";
 import { useProjectStore } from "@/hooks/useProjectStore";
+import { ProjectCard } from "@/components/haas/projects/ProjectCard";
 
 interface ProjectSummaryWidgetProps {
   data: ProjectSummary;
 }
 
-function getProjectBadge(project: RecentProject) {
-  if (project.activeExperimentsCount > 0) {
-    return (
-      <Badge variant="outline" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-transparent dark:bg-emerald-500/20 dark:text-emerald-400">
-        A decorrer
-      </Badge>
-    );
-  }
-
-  if (project.status === "PLANNED") {
-    return (
-      <Badge variant="outline" className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-transparent dark:bg-blue-500/20 dark:text-blue-400">
-        Planeado
-      </Badge>
-    );
-  }
-
-  return (
-    <Badge variant="outline" className="bg-slate-100 text-slate-700 hover:bg-slate-100 border-transparent dark:bg-slate-800 dark:text-slate-400">
-      Concluído
-    </Badge>
-  );
-}
-
 export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
   const { openDialog } = useProjectStore();
+
+  const hasProjects = data.totalProjects > 0;
 
   return (
     <Card className="flex flex-col h-full w-full mb-0">
@@ -46,17 +24,24 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
           <SquarePlus />
         </Button>
       </CardHeader>
-      <CardContent>
-        {data.totalProjects === 0 ? (
-          <NoProjects />
-        ) : (""
 
-        )}
+      <CardContent className="flex-1 px-5 pb-5 overflow-hidden flex flex-col justify-center">
+        {!hasProjects ? (
+          <NoProjects />
+        ) : <>
+          {data.recentProjects.map((project) => (
+            <div
+              key={project.id}
+              className="min-w-[340px] md:min-w-[420px] max-w-[480px] snap-center shrink-0"
+            >
+              <ProjectCard {...project} />
+            </div>
+          ))}
+        </>}
       </CardContent>
     </Card>
   );
 }
-
 
 const NoProjects = () => {
   const { openDialog } = useProjectStore();
