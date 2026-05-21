@@ -17,13 +17,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { getInitials } from "@/lib/utils";
 
 export interface ProjectCardProps {
   id: string;
   name: string;
   createdAt: string; // pre-formatted pt-PT string
   authorName: string;
-  members: { name: string; avatarUrl?: string }[];
+  members: { name: string; email?: string; image?: string | null }[];
   stats: {
     experiments: number;
     alerts: number;
@@ -73,13 +74,11 @@ export function ProjectCard({
                   className="border-2 border-white ring-0 size-8 shadow-sm"
                   data-slot="avatar"
                 >
-                  {member.avatarUrl && (
-                    <AvatarImage src={member.avatarUrl} alt={member.name} />
+                  {member.image && (
+                    <AvatarImage src={member.image} alt={member.name} />
                   )}
                   <AvatarFallback className="bg-slate-100 text-slate-700 text-xs font-semibold">
-                    {member.name
-                      ? member.name.charAt(0).toUpperCase()
-                      : "?"}
+                    {getInitials(member.name)}
                   </AvatarFallback>
                 </Avatar>
               ))}

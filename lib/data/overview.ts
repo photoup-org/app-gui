@@ -53,7 +53,7 @@ export interface RecentProject {
   updatedAt: Date;
   activeExperimentsCount: number;
   authorName: string;
-  members: { name: string; avatarUrl?: string }[];
+  members: { name: string; email?: string; image?: string | null }[];
   stats: {
     experiments: number;
     alerts: number;
@@ -83,7 +83,7 @@ export async function getProjectSummary(departmentId: string): Promise<ProjectSu
           members: {
             include: {
               user: {
-                select: { name: true, email: true },
+                select: { name: true, email: true, image: true },
               },
             },
           },
@@ -122,21 +122,9 @@ export async function getProjectSummary(departmentId: string): Promise<ProjectSu
       const authorName = project.createdBy?.name || project.createdBy?.email || "Operador";
       const members = project.members.map((m) => ({
         name: m.user.name || m.user.email,
-        avatarUrl: undefined as string | undefined,
+        email: m.user.email,
+        image: m.user.image,
       }));
-
-      // Add a couple of realistic default mock avatars if database avatars are empty to elevate aesthetics
-      if (members.length > 0) {
-        const mockedUrls = [
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
-          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-        ];
-        members.forEach((member, i) => {
-          member.avatarUrl = mockedUrls[i % mockedUrls.length];
-        });
-      }
 
       const experimentsCount = project._count.experiments;
       const alertsCount = project.experiments.reduce(

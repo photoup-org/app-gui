@@ -11,6 +11,7 @@ export interface DepartmentMember {
     name: string | null;
     email: string;
     role: string;
+    image?: string | null;
 }
 
 export interface AvailableDevice {
@@ -52,7 +53,8 @@ export async function getDepartmentMembersAction() {
                 id: true,
                 name: true,
                 email: true,
-                role: true
+                role: true,
+                image: true
             },
             orderBy: { name: "asc" }
         });

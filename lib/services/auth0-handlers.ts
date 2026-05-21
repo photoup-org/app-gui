@@ -3,7 +3,7 @@ import * as departmentService from '@/lib/repositories/department';
 import { createOrg, enableOrgConnection, generateAuth0InviteTicket } from "../auth/auth0-management";
 import { sendInvitationEmail } from "./email";
 
-export async function handlePostLoginSync(email: string, auth0UserId: string, auth0OrgId: string) {
+export async function handlePostLoginSync(email: string, auth0UserId: string, auth0OrgId: string, picture?: string) {
     if (!email || !auth0UserId || !auth0OrgId) {
         throw new Error("Missing required fields");
     }
@@ -27,7 +27,10 @@ export async function handlePostLoginSync(email: string, auth0UserId: string, au
         // The user was provisioned via Stripe webhook! Link their Auth0 ID.
         await prisma.user.update({
             where: { email },
-            data: { auth0UserId }
+            data: { 
+                auth0UserId,
+                ...(picture ? { image: picture } : {})
+            }
         });
         console.log(`[Auth0 Webhook] 🟢 SUCCESS: Synced existing user ${email} and linked auth0UserId: ${auth0UserId}`);
     } else {
@@ -40,7 +43,8 @@ export async function handlePostLoginSync(email: string, auth0UserId: string, au
                 email,
                 auth0UserId,
                 departmentId: primaryDepartmentId,
-                role: 'VIEWER' // Default employee role
+                role: 'VIEWER', // Default employee role
+                image: picture || null
             }
         });
         console.log(`[Auth0 Webhook] Created and synced fallback user ${email} to department ${primaryDepartmentId}`);

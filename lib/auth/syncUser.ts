@@ -16,7 +16,7 @@ export async function syncUserToDatabase(session: any) {
         return null; // Not authenticated or invalid session
     }
 
-    const { sub: auth0UserId, email, name, org_id } = session.user;
+    const { sub: auth0UserId, email, name, org_id, picture } = session.user;
 
     // Fast-path: Check if user already exists to save heavy DB queries on every request.
     // If you cache this or call this sparingly (e.g. login callback route), this can be skipped.
@@ -26,6 +26,7 @@ export async function syncUserToDatabase(session: any) {
     });
 
     if (existingUser && existingUser.departmentId) {
+        // Optimistically update image if necessary, but fast-path returns early
         return existingUser; // User is safely synced.
     }
 
@@ -53,6 +54,7 @@ export async function syncUserToDatabase(session: any) {
             // You can optionally update email/name on every login if they change in Auth0
             email,
             name: name || undefined,
+            image: picture || undefined,
             // Only update department if necessary (prevents overriding manual changes)
             departmentId: primaryDepartmentId,
         },
@@ -60,6 +62,7 @@ export async function syncUserToDatabase(session: any) {
             auth0UserId,
             email,
             name: name || 'Unknown',
+            image: picture || null,
             role: 'VIEWER', // Default safe role; Auth0 roles should likely dictate this in a robust setup
             departmentId: primaryDepartmentId,
         }

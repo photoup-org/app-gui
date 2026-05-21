@@ -45,6 +45,8 @@ import {
 } from "@/actions/projects";
 import { ProjectRole } from "@prisma/client";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 interface DeviceSetting {
   phMin?: string;
@@ -361,6 +363,12 @@ export function ProjectWizard() {
                                   }
                                 }}
                               />
+                              <Avatar className="h-8 w-8">
+                                {member.image && <AvatarImage src={member.image} alt={member.name || member.email} />}
+                                <AvatarFallback className="bg-slate-100 text-slate-700 text-[10px] font-semibold">
+                                  {getInitials(member.name || member.email)}
+                                </AvatarFallback>
+                              </Avatar>
                               <div className="flex flex-col">
                                 <span className="text-sm font-medium">{member.name || member.email}</span>
                                 <span className="text-xs text-muted-foreground">{member.email}</span>
