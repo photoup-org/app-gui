@@ -134,7 +134,8 @@ model Device {
   experiment   Experiment?         @relation(fields: [experimentId], references: [id], onDelete: SetNull)
   calibrations CalibrationRecord[]
   alerts       Alert[]
-  projects     Project[]
+  projectId    String?
+  project      Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
 }
 
 model Order {
@@ -303,13 +304,6 @@ model Project {
   // NEW: Devices allocated to this project's equipment pool
   devices Device[]
 }
-
-// Ensure your Device model has the back-relation:
-// model Device {
-//   ...
-//   projectId String?
-//   project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-// }
 
 model ProjectMember {
   id        String      @id @default(cuid())

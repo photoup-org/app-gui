@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { getInitials } from "@/lib/utils";
+import { useDeleteStore } from "@/hooks/useDeleteStore";
+import { deleteProjectAction } from "@/actions/projects";
 
 export interface ProjectCardProps {
   id: string;
@@ -42,6 +44,23 @@ export function ProjectCard({
 }: ProjectCardProps) {
   const handleAction = (actionName: string) => {
     toast.info(`Ação "${actionName}" para o projeto: ${name}`);
+  };
+
+  const { openDelete } = useDeleteStore();
+
+  const handleDeleteClick = () => {
+    openDelete({
+      title: "Eliminar Projeto?",
+      description: `Tem a certeza que deseja eliminar o projeto "${name}"? Esta ação é irreversível e apagará todos os dados associados, devolvendo os equipamentos ao inventário.`,
+      action: async () => {
+        const res = await deleteProjectAction(id);
+        if (res.success) {
+          toast.success("Projeto eliminado com sucesso.");
+        } else {
+          toast.error(res.error);
+        }
+      }
+    });
   };
 
   return (
@@ -98,17 +117,17 @@ export function ProjectCard({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40 rounded-xl">
-              <DropdownMenuItem onClick={() => handleAction("Ver Detalhes")}>
+              <DropdownMenuItem onClick={() => handleAction("Ver Detalhes")} className="cursor-pointer">
                 Ver Detalhes
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAction("Configurações")}>
+              <DropdownMenuItem onClick={() => handleAction("Configurações")} className="cursor-pointer">
                 Configurações
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-red-600 focus:text-red-700"
-                onClick={() => handleAction("Arquivar")}
+                className="text-destructive focus:text-destructive cursor-pointer"
+                onClick={handleDeleteClick}
               >
-                Arquivar
+                Eliminar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

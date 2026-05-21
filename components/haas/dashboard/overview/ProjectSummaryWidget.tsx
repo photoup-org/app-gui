@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } fr
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { cn, getInitials } from "@/lib/utils";
+import { useDeleteStore } from "@/hooks/useDeleteStore";
+import { deleteProjectAction } from "@/actions/projects";
 
 interface ProjectSummaryWidgetProps {
   data: ProjectSummary;
@@ -40,7 +42,7 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
           {activeProject.members && activeProject.members.length > 0 && (
             <MemberList members={activeProject.members} />
           )}
-          <ProjectMenu />
+          <ProjectMenu id={activeProject.id} name={activeProject.name} />
         </div>
       </CardHeader>
 
@@ -158,10 +160,29 @@ const ProjectSummaryParamCard = ({
   );
 }
 
-const ProjectMenu = () => {
+const ProjectMenu = ({ id, name }: { id: string, name: string }) => {
+  const { openDelete } = useDeleteStore();
+
   const handleAction = (actionName: string) => {
     toast.info(`Ação "${actionName}" para o projeto: ${name}`);
   };
+
+  const handleDeleteClick = () => {
+    openDelete({
+      title: "Eliminar Projeto?",
+      description: `Tem a certeza que deseja eliminar o projeto "${name}"? Esta ação é irreversível e apagará todos os dados associados, devolvendo os equipamentos ao inventário.`,
+      action: async () => {
+        const res = await deleteProjectAction(id);
+        if (res.success) {
+          toast.success("Projeto eliminado com sucesso.");
+        } else {
+          toast.error(res.error);
+        }
+      }
+    });
+  };
+
+
   return <DropdownMenu>
     <DropdownMenuTrigger asChild>
       <Button
@@ -180,10 +201,10 @@ const ProjectMenu = () => {
         Configurações
       </DropdownMenuItem>
       <DropdownMenuItem
-        className="text-red-600 focus:text-red-700"
-        onClick={() => handleAction("Arquivar")}
+        className="text-destructive focus:text-destructive"
+        onClick={handleDeleteClick}
       >
-        Arquivar
+        Eliminar
       </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>

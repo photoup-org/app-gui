@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 };
 
 
+import { GlobalDeleteDialog } from "@/components/global/GlobalDeleteDialog";
+
 export default async function RootLayout({
     children,
 }: {
@@ -34,6 +36,7 @@ export default async function RootLayout({
                     {children}
                     <Toaster />
                 </ThemeProvider>
+                <GlobalDeleteDialog />
             </body>
         </html>
     );

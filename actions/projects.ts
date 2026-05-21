@@ -188,3 +188,18 @@ export async function createProjectAction(data: {
 
     return { success: false, error: "Erro desconhecido." };
 }
+
+export async function deleteProjectAction(projectId: string) {
+  try {
+    await prisma.project.delete({
+      where: { id: projectId }
+    });
+    
+    // Adjust path as necessary based on where the dashboard lives
+    revalidatePath("/"); 
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error deleting project:", error);
+    return { success: false, error: "Falha ao eliminar o projeto." };
+  }
+}
