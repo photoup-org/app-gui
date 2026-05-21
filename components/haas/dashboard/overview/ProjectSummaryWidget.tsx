@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { FolderOpen, Maximize2, MoreVerticalIcon, SquarePlus } from "lucide-react";
 import { ProjectSummary, RecentProject } from "@/lib/data/overview";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,6 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
 
   if (!hasProjects || !activeProject) return <NoProjects />;
 
-
   return (
     <Card className="flex flex-col h-full w-full mb-0">
       <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 pb-4">
@@ -47,6 +46,7 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
       </CardHeader>
 
       <CardContent className="flex-1 px-5 pb-5 flex flex-col justify-between">
+
         <div className="grid grid-cols-3 gap-4">
           <ProjectSummaryParamCard
             stat={activeProject.stats.experiments}
@@ -75,9 +75,9 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
             textColor="text-disp-gateway"
           />
         </div>
-
         {data.recentProjects.length > 1 && (
-          <div className="flex justify-center items-center gap-1.5 mt-6 mb-2">
+
+          <div className="flex justify-center items-center gap-1.5 mt-3 mb-0">
             {data.recentProjects.map((_, index) => (
               <button
                 key={index}
@@ -91,7 +91,10 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
             ))}
           </div>
         )}
+
+
       </CardContent>
+
     </Card>
   );
 }

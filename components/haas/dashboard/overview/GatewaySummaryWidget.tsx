@@ -32,10 +32,9 @@ export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
     });
   }, [api]);
 
-  console.log(gateways)
 
   return (
-    <Card className="flex flex-col h-full shrink-0 w-80">
+    <Card className="flex flex-col h-full shrink-0 w-80 justify-between">
       <CardHeader className="flex items-start justify-between">
         <CardTitle>
           {gateways.length > 0 ? <>
@@ -53,7 +52,7 @@ export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col pt-0 px-0">
+      <CardContent className="flex-1 flex flex-col pt-0 px-0 justify-end">
         {gateways.length === 0 ? (
           <div className="flex-1 flex items-center justify-center px-6 pt-4">
             <span className="text-sm text-muted-foreground">Nenhum gateway registado</span>
