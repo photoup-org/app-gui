@@ -9,6 +9,8 @@ import { Role } from "@prisma/client";
 import AppTemplate from "@/components/haas/AppTemplate";
 import { Suspense } from "react";
 import { CreateProjectDialog } from "@/components/haas/projects/CreateProjectDialog";
+import { DeviceDetailsDialog } from "@/components/haas/devices/DeviceDetailsDialog";
+import { DeviceChartDialog } from "@/components/haas/devices/DeviceChartDialog";
 
 import { getPlanUsageStats } from "@/lib/services/billing";
 import prisma from "@/lib/prisma";
@@ -94,6 +96,8 @@ export default async function Layout({
       </AppTemplate>
       <Suspense fallback={null}>
         <CreateProjectDialog />
+        <DeviceDetailsDialog />
+        <DeviceChartDialog />
       </Suspense>
     </AppProvider>
   );

@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getDeviceUI } from "@/lib/hardware-map";
 import { DeviceWithProduct, SensorSummary } from "@/lib/data/overview";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { DeviceActionMenu } from "../../devices/DeviceActionMenu";
 
 export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
   return (
@@ -48,7 +49,7 @@ const OnlineDeviceComponent = ({ device }: { device: DeviceWithProduct }) => {
     {/* Right: Signal & Menu */}
     <div className="flex items-center gap-2 text-slate-400">
       <SignalHigh className="w-4 h-4 text-emerald-500" />
-      <MoreVertical className="w-4 h-4 hover:text-slate-700 dark:hover:text-slate-300 cursor-pointer" />
+      <DeviceActionMenu deviceId={device.id} />
     </div>
   </div>
 }

@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+export type ProjectDetailView = 'EXPERIMENTS' | 'ALERTS' | 'DEVICES' | null;
+
 interface ProjectStore {
   isOpen: boolean;
   openDialog: () => void;
@@ -10,6 +12,11 @@ interface ProjectStore {
   nextStep: () => void;
   prevStep: () => void;
   resetWizard: () => void;
+
+  activeDetailView: ProjectDetailView;
+  activeProjectId: string | null;
+  openDetailView: (view: ProjectDetailView, projectId: string) => void;
+  closeDetailView: () => void;
 }
 
 export const useProjectStore = create<ProjectStore>((set) => ({
@@ -23,4 +30,9 @@ export const useProjectStore = create<ProjectStore>((set) => ({
   nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, 4) })),
   prevStep: () => set((state) => ({ currentStep: Math.max(state.currentStep - 1, 0) })),
   resetWizard: () => set({ currentStep: 0 }),
+
+  activeDetailView: null,
+  activeProjectId: null,
+  openDetailView: (view, projectId) => set({ activeDetailView: view, activeProjectId: projectId }),
+  closeDetailView: () => set({ activeDetailView: null, activeProjectId: null }),
 }));

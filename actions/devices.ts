@@ -61,3 +61,15 @@ export async function registerDeviceAction(serialNumber: string) {
     
     return { success: true };
 }
+
+export async function identifyDeviceAction(deviceId: string) {
+  // Shell for MQTT/WebSocket command to blink a physical LED
+  console.log(`Blinking LED for device: ${deviceId}`);
+  return { success: true };
+}
+
+export async function rebootDeviceAction(deviceId: string) {
+  // Shell for MQTT/WebSocket command to soft-reboot the microcontroller
+  console.log(`Rebooting device: ${deviceId}`);
+  return { success: true };
+}

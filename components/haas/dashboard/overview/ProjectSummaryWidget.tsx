@@ -5,13 +5,14 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { FolderOpen, Maximize2, MoreVerticalIcon, SquarePlus } from "lucide-react";
 import { ProjectSummary, RecentProject } from "@/lib/data/overview";
 import { Button } from "@/components/ui/button";
-import { useProjectStore } from "@/hooks/useProjectStore";
+import { useProjectStore, ProjectDetailView } from "@/hooks/useProjectStore";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { cn, getInitials } from "@/lib/utils";
 import { useDeleteStore } from "@/hooks/useDeleteStore";
 import { deleteProjectAction } from "@/actions/projects";
+import { ProjectDetailsDialogs } from "@/components/haas/projects/ProjectDetailsDialogs";
 
 interface ProjectSummaryWidgetProps {
   data: ProjectSummary;
@@ -53,6 +54,8 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
             title="Experiências"
             bgColor="bg-primary/10 hover:bg-primary/20"
             textColor="text-primary"
+            projectId={activeProject.id}
+            viewName="EXPERIMENTS"
           />
           <ProjectSummaryParamCard
             stat={activeProject.stats.alerts}
@@ -67,12 +70,16 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
                 ? "text-red-600 dark:text-red-400"
                 : "text-slate-500 dark:text-slate-400"
             }
+            projectId={activeProject.id}
+            viewName="ALERTS"
           />
           <ProjectSummaryParamCard
             stat={activeProject.stats.sensors}
             title="Sensores"
             bgColor="bg-disp-gateway/10 hover:bg-disp-gateway/20"
             textColor="text-disp-gateway"
+            projectId={activeProject.id}
+            viewName="DEVICES"
           />
         </div>
         {data.recentProjects.length > 1 && (
@@ -94,7 +101,7 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
 
 
       </CardContent>
-
+      <ProjectDetailsDialogs />
     </Card>
   );
 }
@@ -128,22 +135,26 @@ const ProjectSummaryParamCard = ({
   title,
   bgColor,
   textColor,
+  projectId,
+  viewName,
 }: {
   stat: number;
   title: string;
   bgColor: string;
   textColor: string;
+  projectId: string;
+  viewName: ProjectDetailView;
 }) => {
-  const handleAction = (actionName: string) => {
-    toast.info(`Ação "${actionName}" foi efetuada com sucesso.`);
-  };
+  const { openDetailView } = useProjectStore();
+
   return (
-    <div
+    <button
+      type="button"
       className={cn(
-        "relative rounded-2xl p-3.5 h-24 flex flex-col justify-between transition-all duration-300 cursor-pointer group/metric",
+        "relative rounded-2xl p-3.5 h-24 flex flex-col justify-between transition-all duration-300 cursor-pointer group/metric text-left focus-visible:outline-none hover:ring-2 hover:ring-offset-1 hover:ring-slate-400/50",
         bgColor
       )}
-      onClick={() => handleAction(`Ver ${title}`)}
+      onClick={() => openDetailView(viewName, projectId)}
     >
       <div className="flex justify-between items-center w-full">
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
@@ -159,7 +170,7 @@ const ProjectSummaryParamCard = ({
       >
         {stat}
       </span>
-    </div>
+    </button>
   );
 }
 
