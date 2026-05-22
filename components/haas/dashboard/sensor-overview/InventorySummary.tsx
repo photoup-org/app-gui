@@ -1,8 +1,10 @@
 "use client"
 
-import React from 'react'
+import { useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
+import { useInventoryDialogStore, InventoryCategory } from "@/hooks/useInventoryDialogStore";
+import { InventoryListDialog } from "../InventoryListDialog";
 
 interface InventorySummaryProps {
     data: {
@@ -14,6 +16,7 @@ interface InventorySummaryProps {
 }
 
 const InventorySummary = ({ data }: InventorySummaryProps) => {
+    const { openDialog } = useInventoryDialogStore();
     // Data mapping for Recharts Donut Pie Chart
     const chartData = [
         { name: "Em Utilização", value: data.online, color: "#3b82f6" }, // bg-blue-500 / #3b82f6
@@ -25,6 +28,17 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
     const displayData = chartData.length === 0
         ? [{ name: "Nenhum Sensor", value: 1, color: "#e2e8f0" }]
         : chartData;
+
+    const handlePieClick = useCallback((entry: any) => {
+        let category: InventoryCategory = null;
+        if (entry.name === "Offline") category = "OFFLINE";
+        if (entry.name === "Em Utilização") category = "ACTIVE";
+        if (entry.name === "Em Manutenção") category = "MAINTENANCE";
+        
+        if (category) {
+            openDialog(category);
+        }
+    }, [openDialog]);
 
     return (
         <Card className="flex flex-col h-full border border-slate-100 dark:border-slate-800 w-80 shrink-0 mb-0">
@@ -49,9 +63,15 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
                                 cornerRadius={6}
                                 startAngle={180}
                                 endAngle={-180}
+                                onClick={handlePieClick}
+                                style={{ cursor: 'pointer' }}
                             >
                                 {displayData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                    <Cell 
+                                        key={`cell-${index}`} 
+                                        fill={entry.color} 
+                                        className="hover:opacity-80 transition-opacity outline-none"
+                                    />
                                 ))}
                             </Pie>
                         </PieChart>
@@ -84,6 +104,7 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
                     </div>
                 </div>
             </CardContent>
+            <InventoryListDialog />
         </Card>
     )
 }

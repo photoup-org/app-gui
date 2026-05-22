@@ -45,9 +45,6 @@ export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
         </CardTitle>
         <div className="flex gap-1">
           <Wifi className="text-success" />
-          <Button variant={"ghost"} size={"icon"}>
-            <MoreVertical />
-          </Button>
 
         </div>
       </CardHeader>

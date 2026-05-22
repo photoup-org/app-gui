@@ -151,7 +151,7 @@ const ProjectSummaryParamCard = ({
     <button
       type="button"
       className={cn(
-        "relative rounded-2xl p-3.5 h-24 flex flex-col justify-between transition-all duration-300 cursor-pointer group/metric text-left focus-visible:outline-none hover:ring-2 hover:ring-offset-1 hover:ring-slate-400/50",
+        "relative rounded-2xl p-3.5 h-24 flex flex-col justify-between transition-all duration-300 cursor-pointer group/metric text-left focus-visible:outline-none ",
         bgColor
       )}
       onClick={() => openDetailView(viewName, projectId)}
