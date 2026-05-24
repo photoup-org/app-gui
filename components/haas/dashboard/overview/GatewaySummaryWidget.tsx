@@ -31,6 +31,13 @@ export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const gatewayInfo = useMqttStore((state) => state.gatewayInfo);
+  const liveDevices = useMqttStore((state) => state.liveDevices);
+
+  const connectedSensorsCount = React.useMemo(() => {
+    return Object.values(liveDevices).filter(
+      (device) => device.status === 'online' || device.status === 'busy'
+    ).length;
+  }, [liveDevices]);
 
   React.useEffect(() => {
     if (!api) return;
@@ -80,9 +87,8 @@ export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
                     <p>Versão: {gatewayInfo.version}</p>
                   </div>
                   <div className="flex flex-col text-primary text-right font-bold">
-                    <h6 className="font-bold text-6xl">{gateway.totalActiveNetworkSensors}</h6>
-                    <span className="text-xs max-w-16 text-right">Sensores <br /> Registados</span>
-
+                    <h6 className="font-bold text-6xl">{connectedSensorsCount}</h6>
+                    <span className="text-xs max-w-20 text-right">Sensores <br /> Conectados</span>
                   </div>
 
                 </CarouselItem>
