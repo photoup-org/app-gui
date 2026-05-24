@@ -11,6 +11,7 @@ interface InventorySummaryProps {
         online: number;
         offline: number;
         maintenance: number;
+        pending: number;
         total: number;
     }
 }
@@ -21,6 +22,7 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
     const chartData = [
         { name: "Em Utilização", value: data.online, color: "#3b82f6" }, // bg-blue-500 / #3b82f6
         { name: "Em Manutenção", value: data.maintenance, color: "#ef4444" }, // bg-red-500 / #ef4444
+        { name: "A Aguardar Ligação", value: data.pending, color: "#a855f7" }, // bg-purple-500 / #a855f7
         { name: "Offline", value: data.offline, color: "#e2e8f0" } // bg-slate-200 / #e2e8f0
     ].filter(item => item.value > 0);
 
@@ -34,6 +36,7 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
         if (entry.name === "Offline") category = "OFFLINE";
         if (entry.name === "Em Utilização") category = "ACTIVE";
         if (entry.name === "Em Manutenção") category = "MAINTENANCE";
+        if (entry.name === "A Aguardar Ligação") category = "PENDING_CONNECTION";
         
         if (category) {
             openDialog(category);
@@ -97,6 +100,10 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
                     <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-blue-500" />
                         <span>Em Utilização</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <span>A Aguardar Ligação</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-red-500" />

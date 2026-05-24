@@ -8,6 +8,7 @@ export interface SensorSummary {
   offline: DeviceWithProduct[];
   maintenance: DeviceWithProduct[];
   unclaimed: DeviceWithProduct[];
+  pending: DeviceWithProduct[];
 }
 
 export async function getSensorSummary(departmentId: string): Promise<SensorSummary> {
@@ -16,6 +17,7 @@ export async function getSensorSummary(departmentId: string): Promise<SensorSumm
     offline: [],
     maintenance: [],
     unclaimed: [],
+    pending: [],
   };
 
   try {
@@ -35,6 +37,7 @@ export async function getSensorSummary(departmentId: string): Promise<SensorSumm
       else if (device.status === DeviceStatus.OFFLINE) summary.offline.push(device);
       else if (device.status === DeviceStatus.MAINTENANCE) summary.maintenance.push(device);
       else if (device.status === DeviceStatus.UNCLAIMED) summary.unclaimed.push(device);
+      else if (device.status === DeviceStatus.PENDING_CONNECTION) summary.pending.push(device);
     }
 
     return summary;

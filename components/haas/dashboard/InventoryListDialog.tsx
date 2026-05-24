@@ -16,7 +16,7 @@ export function InventoryListDialog() {
   const isOpen = activeCategory !== null;
 
   let title = "";
-  let badgeVariant: "default" | "secondary" | "destructive" = "default";
+  let badgeVariant: "default" | "secondary" | "destructive" | "outline" = "default";
 
   if (activeCategory === 'OFFLINE') {
     title = "Sensores Offline";
@@ -27,6 +27,9 @@ export function InventoryListDialog() {
   } else if (activeCategory === 'MAINTENANCE') {
     title = "Sensores em Manutenção";
     badgeVariant = "destructive"; // Matches red
+  } else if (activeCategory === 'PENDING_CONNECTION') {
+    title = "A Aguardar Ligação";
+    badgeVariant = "outline";
   }
 
   return (

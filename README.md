@@ -105,13 +105,33 @@ npx tsx --env-file=.env.local scripts/nuke-dev-env.ts
 ## Stripe Webhooks
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
 
-## TODO: 
-- Implement the ui on the marketing page
+## 🗺️ HaaS Edge Architecture Roadmap- Implement the ui on the marketing page
+   
+### General fixes
    - Implement the Demo page
    - Redesign the success page
    - Fix the Items fields in the orders object being null (stripeIntentId, customerEmail)
    - Fix planID being null on the Departments table
    - Fix userID being null on the Orders table
-   - Fix the OrderItems table being empty after an order has been placed
 
+### Phase 1: Edge Infrastructure (The Local Foundation)
+- [x] **Dockerize the Edge Server:** Set up `docker-compose.yml` with Eclipse Mosquitto (MQTT broker) and InfluxDB (Time-Series Database).
+- [x] **Python Edge Worker:** Implement the Python daemon to listen to MQTT, decrypt AES-128 payloads, map data via hardware drivers, and write to InfluxDB.
+- [x] **Local Hardware Simulation:** Create `simulate_esp32.py` to verify the end-to-end MQTT -> Decryption -> DB pipeline.
+- [x] **Enable WebSockets:** Configure `mosquitto.conf` to expose port `9001` for direct browser connections.
+
+### Phase 2: Database & Dashboard State (The Business Logic)
+- [ ] **Prisma Schema Migration:** Add a `PENDING_CONNECTION` (or `PROVISIONING`) state to the `DeviceStatus` enum in PostgreSQL.
+- [ ] **Device Registration Flow:** Update the device scanning Server Action to save new hardware as `PENDING_CONNECTION` rather than `OFFLINE`.
+- [ ] **Waiting UI:** Build a clean "Awaiting First Signal" loading state in the dashboard for pending devices.
+
+### Phase 3: The Edge-to-Cloud Bridge (Local Dev Mode)
+- [ ] **Status Sync Module:** Update the Python Edge Worker to detect unrecognized or newly flashed ESP32s transmitting for the first time.
+- [ ] **Webhook Trigger:** Make the Python Worker fire an HTTP POST request to the Next.js app when a new device comes online.
+- [ ] **Next.js Webhook Handler:** Create an API route (`/api/webhooks/device-online`) to flip the device status from `PENDING_CONNECTION` to `ACTIVE` in the cloud database.
+
+### Phase 4: Frontend Real-Time Visualization
+- [ ] **MQTT Frontend Client:** Install `mqtt` and create a reusable `useMqtt` React hook.
+- [ ] **Local Connection:** Point the hook to `ws://localhost:9001` to intercept the local edge data safely during development.
+- [ ] **Live UI Updates:** Wire the MQTT payload data into the `DeviceChartDialog` and Recharts components to animate telemetry in real-time.
 - Design the Dashboard

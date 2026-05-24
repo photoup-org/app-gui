@@ -131,6 +131,7 @@ model Device {
   product      HardwareProduct     @relation(fields: [productId], references: [id])
   readings     SensorReading[]
   experimentId String?
+  config       Json?               @default("{}")
   experiment   Experiment?         @relation(fields: [experimentId], references: [id], onDelete: SetNull)
   calibrations CalibrationRecord[]
   alerts       Alert[]
@@ -249,6 +250,7 @@ enum DeviceStatus {
   ACTIVE
   OFFLINE
   MAINTENANCE
+  PENDING_CONNECTION
 }
 
 enum LabProfile {

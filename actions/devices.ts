@@ -48,11 +48,11 @@ export async function registerDeviceAction(serialNumber: string) {
         return { success: false, error: "Este equipamento já foi registado." };
     }
 
-    // 3. Update Prisma: Set status to OFFLINE (it becomes ACTIVE on first telemetry)
+    // 3. Update Prisma: Set status to PENDING_CONNECTION (it becomes ACTIVE on first telemetry)
     await prisma.device.update({
         where: { id: device.id },
         data: { 
-            status: "OFFLINE"
+            status: "PENDING_CONNECTION"
         }
     });
 

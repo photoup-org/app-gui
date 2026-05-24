@@ -5,6 +5,7 @@ export interface InventoryStatus {
   online: number;
   offline: number;
   maintenance: number;
+  pending: number;
   total: number;
 }
 
@@ -58,6 +59,7 @@ export async function getInventoryStatus(departmentId: string): Promise<Inventor
     let online = 0;
     let offline = 0;
     let maintenance = 0;
+    let pending = 0;
     let total = 0;
 
     for (const group of grouped) {
@@ -70,13 +72,15 @@ export async function getInventoryStatus(departmentId: string): Promise<Inventor
         offline += count;
       } else if (group.status === DeviceStatus.MAINTENANCE) {
         maintenance += count;
+      } else if (group.status === DeviceStatus.PENDING_CONNECTION) {
+        pending += count;
       }
     }
 
-    return { online, offline, maintenance, total };
+    return { online, offline, maintenance, pending, total };
   } catch (error) {
     console.error("Error fetching inventory status:", error);
-    return { online: 0, offline: 0, maintenance: 0, total: 0 };
+    return { online: 0, offline: 0, maintenance: 0, pending: 0, total: 0 };
   }
 }
 

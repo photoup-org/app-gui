@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type InventoryCategory = 'OFFLINE' | 'ACTIVE' | 'MAINTENANCE' | null;
+export type InventoryCategory = 'OFFLINE' | 'ACTIVE' | 'MAINTENANCE' | 'PENDING_CONNECTION' | null;
 
 interface InventoryDialogStore {
   activeCategory: InventoryCategory;
