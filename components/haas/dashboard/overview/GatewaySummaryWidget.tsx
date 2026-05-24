@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { MoreVertical, Router, Wifi } from "lucide-react";
+import { Wifi } from "lucide-react";
 import { GatewaySummary } from "@/lib/data/overview";
 import {
   Carousel,
@@ -12,7 +11,17 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { useMqttStore } from "@/hooks/useMqttStore";
+
+function formatUptime(seconds: number) {
+  const days = Math.floor(seconds / (3600 * 24));
+  const hours = Math.floor((seconds % (3600 * 24)) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  if (days > 0) return `${days} dias, ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
 
 interface GatewaySummaryWidgetProps {
   gateways: GatewaySummary[];
@@ -21,6 +30,7 @@ interface GatewaySummaryWidgetProps {
 export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
+  const gatewayInfo = useMqttStore((state) => state.gatewayInfo);
 
   React.useEffect(() => {
     if (!api) return;
@@ -50,7 +60,12 @@ export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col pt-0 px-0 justify-end">
-        {gateways.length === 0 ? (
+        {!gatewayInfo ? (
+          <div className="flex-1 flex flex-col items-center justify-center px-6 pt-4 gap-4">
+            <div className="w-8 h-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+            <span className="text-sm text-muted-foreground animate-pulse">A procurar Gateway...</span>
+          </div>
+        ) : gateways.length === 0 ? (
           <div className="flex-1 flex items-center justify-center px-6 pt-4">
             <span className="text-sm text-muted-foreground">Nenhum gateway registado</span>
           </div>
@@ -59,11 +74,10 @@ export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
             <CarouselContent className="flex-1 ml-0 px-4">
               {gateways.map((gateway) => (
                 <CarouselItem key={gateway.id} className="pl-0 basis-full min-h-full flex items-end justify-between">
-                  <div className="flex flex-col text-slate-400 text-xs">
-                    <p>Átivo há: 42 dias, 8h</p>
-                    <p>Enderço MAC: 00:1A:2B:3C:4D:5E</p>
-                    <p>IP Local: 192.168.1.50</p>
-                    <p>Versão do Firmware: v7.04.1</p>
+                  <div className="flex flex-col text-slate-400 text-xs gap-1">
+                    <p>Átivo há: {gatewayInfo.uptime_seconds ? formatUptime(gatewayInfo.uptime_seconds) : "Desconhecido"}</p>
+                    <p title={gatewayInfo.gateway_id}>Nº de Série do Gateway: ...{gatewayInfo.gateway_id.slice(-8)}</p>
+                    <p>Versão: {gatewayInfo.version}</p>
                   </div>
                   <div className="flex flex-col text-primary text-right font-bold">
                     <h6 className="font-bold text-6xl">{gateway.totalActiveNetworkSensors}</h6>
@@ -79,7 +93,7 @@ export function GatewaySummaryWidget({ gateways }: GatewaySummaryWidgetProps) {
       </CardContent>
 
       {/* Pagination Dots */}
-      {gateways.length > 1 && (
+      {gatewayInfo && gateways.length > 1 && (
         <CardFooter className="flex items-center justify-center gap-2 pt-0 pb-6 border-0">
           {gateways.map((_, index) => (
             <button

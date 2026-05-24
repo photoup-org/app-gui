@@ -21,9 +21,12 @@ export function InventoryListDialog() {
   if (activeCategory === 'OFFLINE') {
     title = "Sensores Offline";
     badgeVariant = "secondary";
-  } else if (activeCategory === 'ACTIVE') {
+  } else if (activeCategory === 'BUSY') {
     title = "Sensores em Utilização";
     badgeVariant = "default"; // Matches blue/teal
+  } else if (activeCategory === 'ACTIVE') {
+    title = "Sensores Online";
+    badgeVariant = "default";
   } else if (activeCategory === 'MAINTENANCE') {
     title = "Sensores em Manutenção";
     badgeVariant = "destructive"; // Matches red
@@ -46,12 +49,12 @@ export function InventoryListDialog() {
             Lista de todos os equipamentos atualmente com este estado no inventário.
           </DialogDescription>
         </DialogHeader>
-        
+
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto pr-2 mt-2">
-           <div className="p-8 text-center text-muted-foreground border border-dashed rounded-lg bg-muted/20">
-              [Tabela de Equipamentos {activeCategory} - A ser implementada]
-           </div>
+          <div className="p-8 text-center text-muted-foreground border border-dashed rounded-lg bg-muted/20">
+            [Tabela de Equipamentos {activeCategory} - A ser implementada]
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,13 +1,6 @@
 import prisma from "@/lib/prisma";
 import { DeviceStatus, AlertSeverity, CalibrationRecord } from "@prisma/client";
-
-export interface InventoryStatus {
-  online: number;
-  offline: number;
-  maintenance: number;
-  pending: number;
-  total: number;
-}
+import { DeviceWithProduct } from "@/lib/data/overview";
 
 export interface MappedCalibrationDevice {
   id: string;
@@ -36,13 +29,11 @@ export interface AlertsSummary {
 }
 
 /**
- * Returns the counts of non-gateway sensors grouped by status for the Inventory Donut Chart.
- * Maps ACTIVE status to online.
+ * Returns the list of non-gateway devices for the department to evaluate dynamically in the client.
  */
-export async function getInventoryStatus(departmentId: string): Promise<InventoryStatus> {
+export async function getInventoryStatus(departmentId: string): Promise<DeviceWithProduct[]> {
   try {
-    const grouped = await prisma.device.groupBy({
-      by: ["status"],
+    const devices = await prisma.device.findMany({
       where: {
         departmentId,
         product: {
@@ -51,36 +42,21 @@ export async function getInventoryStatus(departmentId: string): Promise<Inventor
           },
         },
       },
-      _count: {
-        status: true,
+      include: {
+        product: true,
       },
     });
 
-    let online = 0;
-    let offline = 0;
-    let maintenance = 0;
-    let pending = 0;
-    let total = 0;
-
-    for (const group of grouped) {
-      const count = group._count.status || 0;
-      total += count;
-
-      if (group.status === DeviceStatus.ACTIVE) {
-        online += count;
-      } else if (group.status === DeviceStatus.OFFLINE) {
-        offline += count;
-      } else if (group.status === DeviceStatus.MAINTENANCE) {
-        maintenance += count;
-      } else if (group.status === DeviceStatus.PENDING_CONNECTION) {
-        pending += count;
-      }
-    }
-
-    return { online, offline, maintenance, pending, total };
+    return devices.map((d) => ({
+      ...d,
+      product: {
+        ...d.product,
+        price: Number(d.product.price),
+      },
+    })) as DeviceWithProduct[];
   } catch (error) {
     console.error("Error fetching inventory status:", error);
-    return { online: 0, offline: 0, maintenance: 0, pending: 0, total: 0 };
+    return [];
   }
 }
 

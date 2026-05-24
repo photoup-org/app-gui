@@ -1,11 +1,12 @@
 import prisma from "@/lib/prisma";
 import { Device, HardwareProduct, DeviceStatus } from "@prisma/client";
 
-export type DeviceWithProduct = Device & { product: HardwareProduct };
+export type DeviceWithProduct = Device & { 
+  product: Omit<HardwareProduct, "price"> & { price: number } 
+};
 
 export interface SensorSummary {
   active: DeviceWithProduct[];
-  offline: DeviceWithProduct[];
   maintenance: DeviceWithProduct[];
   unclaimed: DeviceWithProduct[];
   pending: DeviceWithProduct[];
@@ -14,7 +15,6 @@ export interface SensorSummary {
 export async function getSensorSummary(departmentId: string): Promise<SensorSummary> {
   const summary: SensorSummary = {
     active: [],
-    offline: [],
     maintenance: [],
     unclaimed: [],
     pending: [],
@@ -32,9 +32,16 @@ export async function getSensorSummary(departmentId: string): Promise<SensorSumm
       orderBy: { createdAt: 'desc' }
     });
 
-    for (const device of devices) {
+    for (const d of devices) {
+      const device: DeviceWithProduct = {
+        ...d,
+        product: {
+          ...d.product,
+          price: Number(d.product.price)
+        }
+      };
+
       if (device.status === DeviceStatus.ACTIVE) summary.active.push(device);
-      else if (device.status === DeviceStatus.OFFLINE) summary.offline.push(device);
       else if (device.status === DeviceStatus.MAINTENANCE) summary.maintenance.push(device);
       else if (device.status === DeviceStatus.UNCLAIMED) summary.unclaimed.push(device);
       else if (device.status === DeviceStatus.PENDING_CONNECTION) summary.pending.push(device);
@@ -204,7 +211,7 @@ export async function getGatewaysSummary(departmentId: string): Promise<GatewayS
 
     return gateways.map((gateway) => {
       let signalStrength = 0;
-      if (gateway.status !== "OFFLINE" && gateway.readings.length > 0) {
+      if (gateway.status === "ACTIVE" && gateway.readings.length > 0) {
         signalStrength = gateway.readings[0].value;
       }
 

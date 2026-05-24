@@ -1,14 +1,46 @@
-import { QrCode, SignalHigh, MoreVertical } from "lucide-react";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { SignalHigh } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getDeviceUI } from "@/lib/hardware-map";
 import { DeviceWithProduct, SensorSummary } from "@/lib/data/overview";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DeviceActionMenu } from "../../devices/DeviceActionMenu";
+import { useMqttStore } from "@/hooks/useMqttStore";
 
 export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
-  const pendingCount = data.pending?.length || 0;
-  const activeCount = data.active.length;
-  const totalCount = activeCount + pendingCount;
+  const liveDevices = useMqttStore((state) => state.liveDevices);
+  const lastRegistrationUpdate = useMqttStore((state) => state.lastRegistrationUpdate);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (lastRegistrationUpdate > 0) {
+      router.refresh();
+    }
+  }, [lastRegistrationUpdate, router]);
+
+  const pendingDevices = data.pending || [];
+  const activeDevices = data.active || [];
+
+  const busyList: DeviceWithProduct[] = [];
+  const onlineList: DeviceWithProduct[] = [];
+  const offlineList: DeviceWithProduct[] = [];
+
+  for (const device of activeDevices) {
+    const mqttStatus = liveDevices[device.id]?.status;
+
+    if (mqttStatus === 'offline') {
+      offlineList.push(device);
+    } else if (mqttStatus === 'busy') {
+      busyList.push(device);
+    } else {
+      onlineList.push(device);
+    }
+  }
+
+  const totalCount = pendingDevices.length + activeDevices.length;
 
   return (
     <Card className="flex flex-col h-full shrink-0 w-80 mb-0">
@@ -25,11 +57,21 @@ export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
             ) : (
               <>
                 {/* Render Pending devices first with higher priority to show listening state */}
-                {data.pending?.map((device) => {
-                  return <PendingDeviceComponent key={device.id} device={device} />
+                {pendingDevices.map((device) => {
+                  const mqttStatus = liveDevices[device.id]?.status;
+                  return <PendingDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
                 })}
-                {data.active.map((device) => {
-                  return <OnlineDeviceComponent key={device.id} device={device} />
+                {busyList.map((device) => {
+                  const mqttStatus = liveDevices[device.id]?.status;
+                  return <OnlineDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
+                })}
+                {onlineList.map((device) => {
+                  const mqttStatus = liveDevices[device.id]?.status;
+                  return <OnlineDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
+                })}
+                {offlineList.map((device) => {
+                  const mqttStatus = liveDevices[device.id]?.status;
+                  return <OnlineDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
                 })}
               </>
             )}
@@ -41,8 +83,9 @@ export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
 }
 
 
-const PendingDeviceComponent = ({ device }: { device: DeviceWithProduct }) => {
+const PendingDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProduct, mqttStatus?: string }) => {
   const { icon: Icon, bgColor, textColor } = getDeviceUI(device.product.name);
+  const isLiveOnline = mqttStatus === 'online';
 
   return (
     <div className="flex items-center justify-between opacity-85 group hover:opacity-100 transition-opacity">
@@ -62,9 +105,15 @@ const PendingDeviceComponent = ({ device }: { device: DeviceWithProduct }) => {
         {/* <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/30 px-2 py-0.5 rounded-full animate-pulse tracking-wide whitespace-nowrap">
           A aguardar sinal...
         </span> */}
-        <span className="relative flex h-2 w-2" title="A aguardar primeira conexão...">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+        <span className="relative flex h-2 w-2" title={isLiveOnline ? "Conectado" : "A aguardar primeira conexão..."}>
+          {isLiveOnline ? (
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          ) : (
+            <>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+            </>
+          )}
         </span>
         <DeviceActionMenu deviceId={device.id} />
       </div>
@@ -73,13 +122,20 @@ const PendingDeviceComponent = ({ device }: { device: DeviceWithProduct }) => {
 }
 
 
-const OnlineDeviceComponent = ({ device }: { device: DeviceWithProduct }) => {
+const OnlineDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProduct, mqttStatus?: string }) => {
   const { icon: Icon, bgColor, textColor } = getDeviceUI(device.product.name);
 
-  return <div className="flex items-center justify-between">
+  // Rule 1: STRICT OVERRIDE - If explicitly "offline", ignore DB state and show as offline
+  // Rule 2 & 3: If "online" or undefined, fallback to DB state (since these are active/busy lists, they are visually active)
+  const isVisuallyActive = mqttStatus !== 'offline';
+
+  const actualBgColor = isVisuallyActive ? bgColor : "bg-slate-100 dark:bg-slate-800";
+  const actualTextColor = isVisuallyActive ? textColor : "text-slate-400";
+
+  return <div className={`flex items-center justify-between ${!isVisuallyActive ? 'opacity-60' : ''}`}>
     {/* Left: Icon & Text */}
     <div className="flex items-center gap-3">
-      <div className={`p-2 rounded-lg ${bgColor} ${textColor}`}>
+      <div className={`p-2 rounded-lg ${actualBgColor} ${actualTextColor}`}>
         <Icon className="w-5 h-5" />
       </div>
       <div className="flex flex-col">
@@ -90,7 +146,17 @@ const OnlineDeviceComponent = ({ device }: { device: DeviceWithProduct }) => {
 
     {/* Right: Signal & Menu */}
     <div className="flex items-center gap-2 text-slate-400">
-      <SignalHigh className="w-4 h-4 text-emerald-500" />
+      {mqttStatus === 'busy' && (
+        <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 px-2 py-0.5 rounded-full whitespace-nowrap">
+          Em Utilização
+        </span>
+      )}
+      {!isVisuallyActive && (
+        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full whitespace-nowrap">
+          Offline
+        </span>
+      )}
+      <SignalHigh className={`w-4 h-4 ${isVisuallyActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`} />
       <DeviceActionMenu deviceId={device.id} />
     </div>
   </div>

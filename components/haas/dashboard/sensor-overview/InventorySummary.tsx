@@ -5,25 +5,62 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
 import { useInventoryDialogStore, InventoryCategory } from "@/hooks/useInventoryDialogStore";
 import { InventoryListDialog } from "../InventoryListDialog";
+import { DeviceWithProduct } from "@/lib/data/overview";
+import { useMqttStore } from "@/hooks/useMqttStore";
 
 interface InventorySummaryProps {
-    data: {
-        online: number;
-        offline: number;
-        maintenance: number;
-        pending: number;
-        total: number;
-    }
+    devices: DeviceWithProduct[];
 }
 
-const InventorySummary = ({ data }: InventorySummaryProps) => {
+const InventorySummary = ({ devices }: InventorySummaryProps) => {
     const { openDialog } = useInventoryDialogStore();
+    const liveDevices = useMqttStore((state) => state.liveDevices);
+
+    let busy = 0;
+    let active = 0;
+    let offline = 0;
+    let maintenance = 0;
+    let pending = 0;
+
+    for (const d of devices) {
+        const mqttStatus = liveDevices[d.id]?.status;
+
+        // Condition D: Administrative Override (Prisma is MAINTENANCE or PENDING_CONNECTION)
+        if (d.status === 'MAINTENANCE') {
+            maintenance++;
+        } else if (d.status === 'PENDING_CONNECTION') {
+            pending++;
+        }
+        // Condition A: The Network Drop (mqttStatus === 'offline')
+        else if (mqttStatus === 'offline') {
+            offline++;
+        }
+        // Condition B: The Hardware Cycle (mqttStatus === 'busy')
+        else if (mqttStatus === 'busy') {
+            busy++;
+        }
+        // Condition C: Normal Operation (mqttStatus === 'online' && Prisma is ACTIVE)
+        else if (mqttStatus === 'online' && d.status === 'ACTIVE') {
+            active++;
+        }
+        // Rule 3: mqttStatus is undefined (first load / before hydration)
+        else {
+            // Default to DB state:
+            if (d.status === 'ACTIVE') {
+                active++;
+            }
+        }
+    }
+
+    const total = devices.length;
+
     // Data mapping for Recharts Donut Pie Chart
     const chartData = [
-        { name: "Em Utilização", value: data.online, color: "#3b82f6" }, // bg-blue-500 / #3b82f6
-        { name: "Em Manutenção", value: data.maintenance, color: "#ef4444" }, // bg-red-500 / #ef4444
-        { name: "A Aguardar Ligação", value: data.pending, color: "#a855f7" }, // bg-purple-500 / #a855f7
-        { name: "Offline", value: data.offline, color: "#e2e8f0" } // bg-slate-200 / #e2e8f0
+        { name: "Em Utilização", value: busy, color: "#3b82f6" }, // bg-blue-500 / #3b82f6
+        { name: "Online", value: active, color: "#10b981" }, // bg-emerald-500 / #10b981
+        { name: "Em Manutenção", value: maintenance, color: "#ef4444" }, // bg-red-500 / #ef4444
+        { name: "A Aguardar Ligação", value: pending, color: "#a855f7" }, // bg-purple-500 / #a855f7
+        { name: "Offline", value: offline, color: "#e2e8f0" } // bg-slate-200 / #e2e8f0
     ].filter(item => item.value > 0);
 
     // If no data points exist, render a full grey circle as fallback
@@ -34,10 +71,11 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
     const handlePieClick = useCallback((entry: any) => {
         let category: InventoryCategory = null;
         if (entry.name === "Offline") category = "OFFLINE";
-        if (entry.name === "Em Utilização") category = "ACTIVE";
+        if (entry.name === "Em Utilização") category = "BUSY";
+        if (entry.name === "Online") category = "ACTIVE";
         if (entry.name === "Em Manutenção") category = "MAINTENANCE";
         if (entry.name === "A Aguardar Ligação") category = "PENDING_CONNECTION";
-        
+
         if (category) {
             openDialog(category);
         }
@@ -53,7 +91,7 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
             <CardContent className="flex-1 flex flex-col justify-between items-center pb-5  px-5 min-h-0">
                 {/* Center Text & Donut Chart Wrapper */}
                 <div className="relative w-full flex-1 flex items-center justify-center min-h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                         <PieChart>
                             <Pie
                                 data={displayData}
@@ -70,9 +108,9 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
                                 style={{ cursor: 'pointer' }}
                             >
                                 {displayData.map((entry, index) => (
-                                    <Cell 
-                                        key={`cell-${index}`} 
-                                        fill={entry.color} 
+                                    <Cell
+                                        key={`cell-${index}`}
+                                        fill={entry.color}
                                         className="hover:opacity-80 transition-opacity outline-none"
                                     />
                                 ))}
@@ -83,10 +121,10 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
                     {/* Absolute centered label */}
                     <div className="absolute flex flex-col items-center justify-center text-center">
                         <span className="text-5xl font-extrabold text-slate-900 dark:text-white leading-none">
-                            {data.total}
+                            {total}
                         </span>
                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">
-                            {data.total === 1 ? "Sensor" : "Sensores"}
+                            {total === 1 ? "Sensor" : "Sensores"}
                         </span>
                     </div>
                 </div>
@@ -100,6 +138,10 @@ const InventorySummary = ({ data }: InventorySummaryProps) => {
                     <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-blue-500" />
                         <span>Em Utilização</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                        <span>Online</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />

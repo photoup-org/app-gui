@@ -9,7 +9,7 @@ export function MqttConnectionManager() {
 
   useEffect(() => {
     // Establish connection to local Mosquitto MQTT broker WebSocket port
-    connect('ws://localhost:9001');
+    connect(process.env.NEXT_PUBLIC_MQTT_CONNECTION_URL);
 
     // Clean up connection on component unmount
     return () => {

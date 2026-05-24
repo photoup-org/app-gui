@@ -27,7 +27,7 @@ const SensorOverviewRow = async ({ calibrationPage = 1 }: SensorOverviewRowProps
 
     return (
         <DashboardRow className="h-80">
-            <InventorySummary data={inventoryData} />
+            <InventorySummary devices={inventoryData} />
             <CalibrationSummary data={calibrationData} />
             <AlertSummary data={alertsData} />
         </DashboardRow>

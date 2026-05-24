@@ -246,9 +246,7 @@ enum SubscriptionStatus {
 
 enum DeviceStatus {
   UNCLAIMED
-  BUSY
   ACTIVE
-  OFFLINE
   MAINTENANCE
   PENDING_CONNECTION
 }

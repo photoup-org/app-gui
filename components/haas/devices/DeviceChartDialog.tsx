@@ -81,7 +81,6 @@ export function DeviceChartDialog() {
         ph: Number(payload.ph),
         temp: Number(payload.temp),
       };
-
       setData((prev) => {
         const next = [...prev, newPoint];
         // Keep a rolling window of max 30 points
@@ -154,53 +153,53 @@ export function DeviceChartDialog() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-800/60" vertical={false} />
-                <XAxis 
-                  dataKey="timestamp" 
-                  tickLine={false} 
-                  axisLine={false} 
+                <XAxis
+                  dataKey="timestamp"
+                  tickLine={false}
+                  axisLine={false}
                   tick={{ fill: '#94a3b8', fontSize: 10 }}
                 />
-                <YAxis 
+                <YAxis
                   yAxisId="left"
                   domain={[0, 14]}
-                  tickLine={false} 
-                  axisLine={false} 
+                  tickLine={false}
+                  axisLine={false}
                   tick={{ fill: '#06b6d4', fontSize: 10 }}
                   label={{ value: 'pH', angle: -90, position: 'insideLeft', fill: '#06b6d4', fontSize: 11, fontWeight: 'bold', offset: 10 }}
                 />
-                <YAxis 
+                <YAxis
                   yAxisId="right"
                   orientation="right"
                   domain={[0, 100]}
-                  tickLine={false} 
-                  axisLine={false} 
+                  tickLine={false}
+                  axisLine={false}
                   tick={{ fill: '#f97316', fontSize: 10 }}
                   label={{ value: 'Temp (°C)', angle: 90, position: 'insideRight', fill: '#f97316', fontSize: 11, fontWeight: 'bold', offset: 10 }}
                 />
                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '3 3' }} />
-                <Legend 
-                  verticalAlign="top" 
-                  height={36} 
-                  iconType="circle" 
+                <Legend
+                  verticalAlign="top"
+                  height={36}
+                  iconType="circle"
                   iconSize={8}
                   wrapperStyle={{ fontSize: '11px', fontWeight: 500 }}
                 />
-                <Line 
+                <Line
                   yAxisId="left"
-                  type="monotone" 
-                  dataKey="ph" 
-                  stroke="#06b6d4" 
+                  type="monotone"
+                  dataKey="ph"
+                  stroke="#06b6d4"
                   strokeWidth={2.5}
                   dot={false}
                   activeDot={{ r: 6, strokeWidth: 0 }}
                   name="pH"
                   isAnimationActive={false}
                 />
-                <Line 
+                <Line
                   yAxisId="right"
-                  type="monotone" 
-                  dataKey="temp" 
-                  stroke="#f97316" 
+                  type="monotone"
+                  dataKey="temp"
+                  stroke="#f97316"
                   strokeWidth={2.5}
                   dot={false}
                   activeDot={{ r: 6, strokeWidth: 0 }}

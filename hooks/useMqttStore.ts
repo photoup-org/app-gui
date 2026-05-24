@@ -1,10 +1,20 @@
 import { create } from 'zustand';
 import mqtt, { MqttClient } from 'mqtt';
 
+export interface GatewayInfo {
+  gateway_id: string;
+  version: string;
+  status: string;
+  uptime_seconds?: number;
+}
+
 interface MqttState {
   client: MqttClient | null;
   isConnected: boolean;
   listeners: Record<string, Set<(payload: any) => void>>;
+  gatewayInfo: GatewayInfo | null;
+  liveDevices: Record<string, { status: string, last_seen: number }>;
+  lastRegistrationUpdate: number;
 }
 
 interface MqttActions {
@@ -18,20 +28,44 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
   client: null,
   isConnected: false,
   listeners: {},
+  gatewayInfo: null,
+  liveDevices: {},
+  lastRegistrationUpdate: 0,
 
-  connect: (brokerUrl = 'ws://localhost:9001') => {
+  connect: (brokerUrl) => {
+    const mqttUrl = brokerUrl || process.env.MQTT_CONNECTION_URL;
     const { client } = get();
     // Prevent duplicate client connections
     if (client) {
       return;
     }
 
-    console.log(`[MQTT] Connecting to broker at ${brokerUrl}...`);
-    const mqttClient = mqtt.connect(brokerUrl);
+    console.log(`[MQTT] Connecting to broker at ${mqttUrl}...`);
+    const mqttClient = mqtt.connect(mqttUrl as string);
 
     mqttClient.on('connect', () => {
-      console.log(`[MQTT] Connected successfully to ${brokerUrl}`);
+      console.log(`[MQTT] Connected successfully to ${mqttUrl}`);
       set({ isConnected: true });
+
+      // Request and subscribe to gateway info
+      mqttClient.subscribe('system/info/report', (err) => {
+        if (err) {
+          console.error('[MQTT] Failed to subscribe to system/info/report:', err);
+        }
+      });
+      mqttClient.publish('system/info/request', JSON.stringify({}));
+
+      // Subscribe to device tracking topics
+      mqttClient.subscribe('system/devices/report', (err) => {
+        if (err) console.error('[MQTT] Failed to subscribe to system/devices/report:', err);
+      });
+      mqttClient.subscribe('nodes/+/status', (err) => {
+        if (err) console.error('[MQTT] Failed to subscribe to nodes/+/status:', err);
+      });
+      mqttClient.subscribe('system/devices/registered', (err) => {
+        if (err) console.error('[MQTT] Failed to subscribe to system/devices/registered:', err);
+      });
+      mqttClient.publish('system/devices/request', JSON.stringify({}));
 
       // Re-subscribe to all active topics in the listeners registry
       const { listeners } = get();
@@ -57,9 +91,36 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
     });
 
     mqttClient.on('message', (topic, messageBuffer) => {
+      const payloadString = messageBuffer.toString();
+
+      // Handle raw string payloads first
+      if (topic.startsWith('nodes/') && topic.endsWith('/status')) {
+        const parts = topic.split('/');
+        if (parts.length === 3) {
+          const deviceId = parts[1];
+          set((state) => ({
+            liveDevices: {
+              ...state.liveDevices,
+              [deviceId]: {
+                status: payloadString.trim(),
+                last_seen: Date.now()
+              }
+            }
+          }));
+        }
+        return;
+      }
+
       try {
-        const payloadString = messageBuffer.toString();
         const payload = JSON.parse(payloadString);
+
+        if (topic === 'system/info/report') {
+          set({ gatewayInfo: payload as GatewayInfo });
+        } else if (topic === 'system/devices/report') {
+          set({ liveDevices: payload });
+        } else if (topic === 'system/devices/registered') {
+          set({ lastRegistrationUpdate: Date.now() });
+        }
 
         // Find exact topic match in our registry
         const callbacks = get().listeners[topic];
