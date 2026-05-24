@@ -11,6 +11,7 @@ import { Suspense } from "react";
 import { CreateProjectDialog } from "@/components/haas/projects/CreateProjectDialog";
 import { DeviceDetailsDialog } from "@/components/haas/devices/DeviceDetailsDialog";
 import { DeviceChartDialog } from "@/components/haas/devices/DeviceChartDialog";
+import { MqttConnectionManager } from "@/components/haas/providers/MqttConnectionManager";
 
 import { getPlanUsageStats } from "@/lib/services/billing";
 import prisma from "@/lib/prisma";
@@ -91,6 +92,7 @@ export default async function Layout({
 
   return (
     <AppProvider initialState={initialState}>
+      <MqttConnectionManager />
       <AppTemplate>
         {hasClaimedGateway ? children : <HardwarePendingScreen latestOrder={latestOrder} />}
       </AppTemplate>
