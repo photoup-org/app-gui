@@ -15,9 +15,10 @@ import {
 
 interface DeviceActionMenuProps {
   deviceId: string;
+  disabled?: boolean;
 }
 
-export function DeviceActionMenu({ deviceId }: DeviceActionMenuProps) {
+export function DeviceActionMenu({ deviceId, disabled }: DeviceActionMenuProps) {
   const { openDialog } = useDeviceDialogStore();
 
   const handleIdentify = async () => {
@@ -34,9 +35,10 @@ export function DeviceActionMenu({ deviceId }: DeviceActionMenuProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild disabled={disabled}>
         <Button
           variant="ghost"
+          disabled={disabled}
           size="icon"
           className="h-8 w-8 text-slate-400 hover:text-slate-600 focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors"
         >

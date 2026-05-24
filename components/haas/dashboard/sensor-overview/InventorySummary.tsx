@@ -23,7 +23,8 @@ const InventorySummary = ({ devices }: InventorySummaryProps) => {
     let pending = 0;
 
     for (const d of devices) {
-        const mqttStatus = liveDevices[d.id]?.status;
+        const mqttData = liveDevices[d.id];
+        const isPhysicallyOnline = mqttData?.status === 'online' || mqttData?.status === 'busy';
 
         // Condition D: Administrative Override (Prisma is MAINTENANCE or PENDING_CONNECTION)
         if (d.status === 'MAINTENANCE') {
@@ -31,24 +32,17 @@ const InventorySummary = ({ devices }: InventorySummaryProps) => {
         } else if (d.status === 'PENDING_CONNECTION') {
             pending++;
         }
-        // Condition A: The Network Drop (mqttStatus === 'offline')
-        else if (mqttStatus === 'offline') {
-            offline++;
-        }
-        // Condition B: The Hardware Cycle (mqttStatus === 'busy')
-        else if (mqttStatus === 'busy') {
-            busy++;
-        }
-        // Condition C: Normal Operation (mqttStatus === 'online' && Prisma is ACTIVE)
-        else if (mqttStatus === 'online' && d.status === 'ACTIVE') {
-            active++;
-        }
-        // Rule 3: mqttStatus is undefined (first load / before hydration)
-        else {
-            // Default to DB state:
-            if (d.status === 'ACTIVE') {
+        // Physically Online
+        else if (isPhysicallyOnline && d.status === 'ACTIVE') {
+            if (mqttData?.status === 'busy') {
+                busy++;
+            } else {
                 active++;
             }
+        }
+        // STRICT OVERRIDE: Offline by default
+        else {
+            offline++;
         }
     }
 
@@ -80,6 +74,8 @@ const InventorySummary = ({ devices }: InventorySummaryProps) => {
             openDialog(category);
         }
     }, [openDialog]);
+
+    console.log(chartData)
 
     return (
         <Card className="flex flex-col h-full border border-slate-100 dark:border-slate-800 w-80 shrink-0 mb-0">

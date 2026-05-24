@@ -29,14 +29,17 @@ export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
   const offlineList: DeviceWithProduct[] = [];
 
   for (const device of activeDevices) {
-    const mqttStatus = liveDevices[device.id]?.status;
+    const mqttData = liveDevices[device.id];
+    const isPhysicallyOnline = mqttData?.status === 'online' || mqttData?.status === 'busy';
 
-    if (mqttStatus === 'offline') {
-      offlineList.push(device);
-    } else if (mqttStatus === 'busy') {
-      busyList.push(device);
+    if (isPhysicallyOnline) {
+      if (mqttData?.status === 'busy') {
+        busyList.push(device);
+      } else {
+        onlineList.push(device);
+      }
     } else {
-      onlineList.push(device);
+      offlineList.push(device);
     }
   }
 
@@ -125,9 +128,8 @@ const PendingDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProd
 const OnlineDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProduct, mqttStatus?: string }) => {
   const { icon: Icon, bgColor, textColor } = getDeviceUI(device.product.name);
 
-  // Rule 1: STRICT OVERRIDE - If explicitly "offline", ignore DB state and show as offline
-  // Rule 2 & 3: If "online" or undefined, fallback to DB state (since these are active/busy lists, they are visually active)
-  const isVisuallyActive = mqttStatus !== 'offline';
+  // STRICT OVERRIDE - Offline by default unless explicitly online/busy
+  const isVisuallyActive = mqttStatus === 'online' || mqttStatus === 'busy';
 
   const actualBgColor = isVisuallyActive ? bgColor : "bg-slate-100 dark:bg-slate-800";
   const actualTextColor = isVisuallyActive ? textColor : "text-slate-400";
@@ -151,13 +153,13 @@ const OnlineDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProdu
           Em Utilização
         </span>
       )}
-      {!isVisuallyActive && (
+      {/* {!isVisuallyActive && (
         <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full whitespace-nowrap">
           Offline
         </span>
-      )}
+      )} */}
       <SignalHigh className={`w-4 h-4 ${isVisuallyActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`} />
-      <DeviceActionMenu deviceId={device.id} />
+      <DeviceActionMenu disabled={!isVisuallyActive} deviceId={device.id} />
     </div>
   </div>
 }
