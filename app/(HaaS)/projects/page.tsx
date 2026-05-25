@@ -1,9 +1,37 @@
-import React from 'react'
+import React from 'react';
+import { getAppSession } from "@/lib/auth/session";
+import { getUserWorkspaceContext } from "@/lib/services/workspace";
+import prisma from "@/lib/prisma";
+import ProjectList from "@/components/haas/projects/ProjectList";
+import { redirect } from "next/navigation";
 
-const Projects = () => {
+export default async function ProjectsPage() {
+    const session = await getAppSession();
+    if (!session?.user) redirect("/");
+
+    const userContext = await getUserWorkspaceContext(session.user.sub);
+    if (!userContext) redirect("/auth/logout");
+
+    const projects = await prisma.project.findMany({
+        where: {
+            departmentId: userContext.department.id,
+        },
+        include: {
+            _count: {
+                select: {
+                    experiments: true,
+                    devices: true,
+                }
+            }
+        },
+        orderBy: {
+            updatedAt: "desc"
+        }
+    });
+
     return (
-        <div>Projects Page</div>
-    )
+        <div className="flex flex-col items-center w-full px-4 py-8">
+            <ProjectList projects={projects} />
+        </div>
+    );
 }
-
-export default Projects

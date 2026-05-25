@@ -203,3 +203,51 @@ export async function deleteProjectAction(projectId: string) {
     return { success: false, error: "Falha ao eliminar o projeto." };
   }
 }
+
+export async function updateProjectAction(projectId: string, data: { 
+  name: string; 
+  description?: string;
+  members: { userId: string; role: ProjectRole }[];
+  deviceIds: string[];
+  settings: any;
+}) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Update name, description, settings, and devices in one go
+      await tx.project.update({
+        where: { id: projectId },
+        data: { 
+          name: data.name, 
+          description: data.description || '',
+          settings: data.settings || {},
+          devices: {
+            set: data.deviceIds.map(id => ({ id }))
+          }
+        }
+      });
+
+      // Recreate members
+      await tx.projectMember.deleteMany({
+        where: { projectId: projectId }
+      });
+      
+      if (data.members && data.members.length > 0) {
+        await tx.projectMember.createMany({
+          data: data.members.map(m => ({
+            projectId: projectId,
+            userId: m.userId,
+            role: m.role
+          }))
+        });
+      }
+    });
+
+    const { revalidatePath } = await import('next/cache');
+    revalidatePath('/projects');
+    revalidatePath(`/projects/${projectId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating project:", error);
+    return { success: false, error: 'Falha ao atualizar o projeto.' };
+  }
+}

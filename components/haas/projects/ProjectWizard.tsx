@@ -40,6 +40,7 @@ import {
   getDepartmentMembersAction,
   getAvailableDevicesAction,
   createProjectAction,
+  updateProjectAction,
   DepartmentMember,
   AvailableDevice
 } from "@/actions/projects";
@@ -68,7 +69,7 @@ interface ProjectWizardValues {
   };
 }
 
-export function ProjectWizard() {
+export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; onSuccess?: () => void }) {
   const { currentStep, nextStep, prevStep, setIsOpen, resetWizard } = useProjectStore();
   const [allMembers, setAllMembers] = useState<DepartmentMember[]>([]);
   const [allDevices, setAllDevices] = useState<AvailableDevice[]>([]);
@@ -78,14 +79,16 @@ export function ProjectWizard() {
   const [deviceSearch, setDeviceSearch] = useState("");
   const [isValidating, setIsValidating] = useState(false);
 
+  const isEditMode = !!initialData?.id;
+
   const form = useForm<ProjectWizardValues>({
     defaultValues: {
-      name: "",
-      description: "",
-      members: [],
-      deviceIds: [],
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      members: initialData?.members?.map((m: any) => ({ userId: m.userId, role: m.role })) || [],
+      deviceIds: initialData?.devices?.map((d: any) => d.id) || [],
       settings: {
-        devices: {},
+        devices: initialData?.settings?.devices || {},
       },
     },
     mode: "onChange",
@@ -95,6 +98,8 @@ export function ProjectWizard() {
     control: form.control,
     name: "members",
   });
+
+  const currentMembers = form.watch("members") || [];
 
   // Load members and devices on mount
   useEffect(() => {
@@ -129,6 +134,15 @@ export function ProjectWizard() {
 
   const deviceIds = form.watch("deviceIds") || [];
   const selectedDevices = allDevices.filter((d) => deviceIds.includes(d.id));
+  
+  // Also include devices that are already mapped from initialData in case they aren't in allDevices
+  if (isEditMode && initialData?.devices) {
+    initialData.devices.forEach((device: any) => {
+      if (deviceIds.includes(device.id) && !selectedDevices.find((d) => d.id === device.id)) {
+        selectedDevices.push(device);
+      }
+    });
+  }
 
   // Step names
   const steps = [
@@ -183,20 +197,31 @@ export function ProjectWizard() {
         }
       });
 
-      const res = await createProjectAction({
+      const actionData = {
         name: data.name,
         description: data.description,
         members: data.members,
         deviceIds: data.deviceIds,
         settings: { devices: activeSettings },
-      });
+      };
+
+      let res;
+      if (isEditMode) {
+        res = await updateProjectAction(initialData.id, actionData as any);
+      } else {
+        res = await createProjectAction(actionData);
+      }
 
       if (res.success) {
-        toast.success("Projeto criado com sucesso!");
-        setIsOpen(false);
-        resetWizard();
+        toast.success(isEditMode ? "Projeto atualizado com sucesso!" : "Projeto criado com sucesso!");
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          setIsOpen(false);
+          resetWizard();
+        }
       } else {
-        toast.error(res.error || "Ocorreu um erro ao criar o projeto.");
+        toast.error(res.error || (isEditMode ? "Erro ao atualizar o projeto." : "Ocorreu um erro ao criar o projeto."));
       }
     } catch (err: any) {
       toast.error(err?.message || "Ocorreu um erro.");
@@ -343,8 +368,8 @@ export function ProjectWizard() {
                       <p className="text-sm text-center text-muted-foreground py-6">Nenhum membro encontrado.</p>
                     ) : (
                       filteredMembers.map((member) => {
-                        const isSelected = memberFields.some((f) => f.userId === member.id);
-                        const memberIndex = memberFields.findIndex((f) => f.userId === member.id);
+                        const isSelected = currentMembers.some((f) => f.userId === member.id);
+                        const memberIndex = currentMembers.findIndex((f) => f.userId === member.id);
 
                         return (
                           <div
@@ -379,7 +404,7 @@ export function ProjectWizard() {
                               <div className="flex items-center gap-2 pl-7 sm:pl-0">
                                 <span className="text-xs text-muted-foreground font-medium">Permissão:</span>
                                 <Select
-                                  value={memberFields[memberIndex]?.role}
+                                  value={currentMembers[memberIndex]?.role}
                                   onValueChange={(val) => {
                                     form.setValue(`members.${memberIndex}.role`, val as ProjectRole);
                                   }}
@@ -604,17 +629,17 @@ export function ProjectWizard() {
                     {/* Team Details */}
                     <div className="border rounded-xl p-4 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground font-semibold uppercase">Equipa Associada ({memberFields.length})</span>
+                        <span className="text-xs text-muted-foreground font-semibold uppercase">Equipa Associada ({currentMembers.length})</span>
                         <Badge variant="outline" className="text-[10px]">Pág. 2</Badge>
                       </div>
-                      {memberFields.length === 0 ? (
+                      {currentMembers.length === 0 ? (
                         <p className="text-xs text-muted-foreground italic">Apenas você será o Gestor (Dono) por padrão.</p>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {memberFields.map((f, index) => {
+                          {currentMembers.map((f, index) => {
                             const member = allMembers.find((m) => m.id === f.userId);
                             return (
-                              <div key={f.id} className="flex items-center justify-between border rounded-lg p-2.5 bg-background text-xs">
+                              <div key={f.userId || index} className="flex items-center justify-between border rounded-lg p-2.5 bg-background text-xs">
                                 <div className="flex flex-col gap-0.5 max-w-[70%]">
                                   <span className="font-semibold truncate">{member?.name || member?.email}</span>
                                   <span className="text-[10px] text-muted-foreground truncate">{member?.email}</span>
@@ -723,7 +748,7 @@ export function ProjectWizard() {
                   </>
                 ) : (
                   <>
-                    <span>Criar Projeto</span>
+                    <span>{isEditMode ? "Salvar Alterações" : "Criar Projeto"}</span>
                     <Check className="h-4 w-4" />
                   </>
                 )}
