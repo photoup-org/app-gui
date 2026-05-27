@@ -31,12 +31,19 @@ import { CreateProjectDialog } from "@/components/haas/projects/CreateProjectDia
 
 interface ProjectActionsProps {
   projectId: string;
-  project: Project;
+  project: Omit<Partial<Project>, "createdAt" | "updatedAt"> & {
+    id: string;
+    name: string;
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
+    [key: string]: any;
+  };
+  children?: React.ReactNode;
 }
 
-export default function ProjectActions({ projectId, project }: ProjectActionsProps) {
+export default function ProjectActions({ projectId, project, children }: ProjectActionsProps) {
   const router = useRouter();
-  
+
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -69,6 +76,7 @@ export default function ProjectActions({ projectId, project }: ProjectActionsPro
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 border-slate-200 dark:border-slate-800 shadow-sm">
+          {children}
           <DropdownMenuItem asChild>
             <Link href={`/projects/${projectId}/experiments/new`} className="cursor-pointer flex items-center font-medium">
               <Play className="mr-2 h-4 w-4 text-emerald-500" />
@@ -81,8 +89,8 @@ export default function ProjectActions({ projectId, project }: ProjectActionsPro
             <span>Editar Projeto</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
-          <DropdownMenuItem 
-            onClick={() => setShowDeleteDialog(true)} 
+          <DropdownMenuItem
+            onClick={() => setShowDeleteDialog(true)}
             className="cursor-pointer text-red-600 focus:text-red-600 dark:text-red-500 dark:focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-950/50"
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -92,10 +100,10 @@ export default function ProjectActions({ projectId, project }: ProjectActionsPro
       </DropdownMenu>
 
       {/* Edit Dialog via Reused Wizard */}
-      <CreateProjectDialog 
-        project={project} 
-        open={isEditDialogOpen} 
-        onOpenChange={setIsEditDialogOpen} 
+      <CreateProjectDialog
+        project={project}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
       />
 
       {/* Delete Alert Dialog */}
@@ -111,7 +119,7 @@ export default function ProjectActions({ projectId, project }: ProjectActionsPro
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 handleDelete();

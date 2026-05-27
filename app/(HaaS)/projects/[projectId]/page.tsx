@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CalendarDays, Building, Server, Beaker, Radio } from 'lucide-react';
 import ProjectActions from './ProjectActions';
+import Link from 'next/link';
 
 export default async function ProjectDetailsPage({ params }: { params: Promise<{ projectId: string }> }) {
     const resolvedParams = await params;
@@ -192,9 +193,11 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                         </TableHeader>
                                         <TableBody>
                                             {project.experiments.map((exp) => (
-                                                <TableRow key={exp.id}>
+                                                <TableRow key={exp.id} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                                     <TableCell className="font-medium text-slate-900 dark:text-slate-100">
-                                                        {exp.name}
+                                                        <Link href={`/projects/${project.id}/experiments/${exp.id}`} className="block w-full h-full">
+                                                            {exp.name}
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Badge

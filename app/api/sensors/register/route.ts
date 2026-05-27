@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { device_id, driver, interval, firmware_version, gateway_id } = body;
+    const { device_id, driver, interval, firmware_version, gateway_id, schema } = body;
 
     if (!device_id) {
       return NextResponse.json({ error: 'Missing device_id' }, { status: 400 });
@@ -69,7 +69,8 @@ export async function POST(req: Request) {
       ...existingConfig,
       firmware_version: firmware_version || 'unknown',
       interval: interval || 10,
-      name: (existingConfig as any).name || `Sensor - ${device_id.slice(-4)}`
+      name: (existingConfig as any).name || `Sensor - ${device_id.slice(-4)}`,
+      ...(schema ? { schema } : {})
     };
 
     const device = await prisma.device.upsert({

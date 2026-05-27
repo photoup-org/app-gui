@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { FolderOpen, Maximize2, MoreVerticalIcon, SquarePlus } from "lucide-react";
+import { FolderOpen, Info, Maximize2, MoreVerticalIcon, SquarePlus } from "lucide-react";
 import { ProjectSummary, RecentProject } from "@/lib/data/overview";
 import { Button } from "@/components/ui/button";
 import { useProjectStore, ProjectDetailView } from "@/hooks/useProjectStore";
@@ -13,6 +13,9 @@ import { cn, getInitials } from "@/lib/utils";
 import { useDeleteStore } from "@/hooks/useDeleteStore";
 import { deleteProjectAction } from "@/actions/projects";
 import { ProjectDetailsDialogs } from "@/components/haas/projects/ProjectDetailsDialogs";
+import { useRouter } from "next/navigation";
+import ProjectActions from "@/app/(HaaS)/projects/[projectId]/ProjectActions";
+import Link from "next/link";
 
 interface ProjectSummaryWidgetProps {
   data: ProjectSummary;
@@ -42,7 +45,15 @@ export function ProjectSummaryWidget({ data }: ProjectSummaryWidgetProps) {
           {activeProject.members && activeProject.members.length > 0 && (
             <MemberList members={activeProject.members} />
           )}
-          <ProjectMenu id={activeProject.id} name={activeProject.name} />
+          <ProjectActions projectId={activeProject.id} project={activeProject}>
+            <DropdownMenuItem asChild>
+              <Link href={`/projects/${activeProject.id}`} className="cursor-pointer flex items-center font-medium">
+                <Info className="mr-2 h-4 w-4 text-info" />
+                <span> Ver Detalhes</span>
+              </Link>
+            </DropdownMenuItem>
+
+          </ProjectActions>
         </div>
       </CardHeader>
 
@@ -173,57 +184,6 @@ const ProjectSummaryParamCard = ({
     </button>
   );
 }
-
-const ProjectMenu = ({ id, name }: { id: string, name: string }) => {
-  const { openDelete } = useDeleteStore();
-
-  const handleAction = (actionName: string) => {
-    toast.info(`Ação "${actionName}" para o projeto: ${name}`);
-  };
-
-  const handleDeleteClick = () => {
-    openDelete({
-      title: "Eliminar Projeto?",
-      description: `Tem a certeza que deseja eliminar o projeto "${name}"? Esta ação é irreversível e apagará todos os dados associados, devolvendo os equipamentos ao inventário.`,
-      action: async () => {
-        const res = await deleteProjectAction(id);
-        if (res.success) {
-          toast.success("Projeto eliminado com sucesso.");
-        } else {
-          toast.error(res.error);
-        }
-      }
-    });
-  };
-
-
-  return <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button
-        variant={"ghost"}
-        size={"icon"}
-        className="rounded-full"
-      >
-        <MoreVerticalIcon className="w-5 h-5 cursor-pointer" />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="w-40 rounded-xl">
-      <DropdownMenuItem onClick={() => handleAction("Ver Detalhes")}>
-        Ver Detalhes
-      </DropdownMenuItem>
-      <DropdownMenuItem onClick={() => handleAction("Configurações")}>
-        Configurações
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        className="text-destructive focus:text-destructive"
-        onClick={handleDeleteClick}
-      >
-        Eliminar
-      </DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-}
-
 
 const NoProjects = () => {
   const { openDialog } = useProjectStore();

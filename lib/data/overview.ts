@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { Device, HardwareProduct, DeviceStatus } from "@prisma/client";
+import { Device, HardwareProduct, DeviceStatus, ProjectStatus } from "@prisma/client";
 
 export type DeviceWithProduct = Device & { 
   product: Omit<HardwareProduct, "price"> & { price: number } 
@@ -58,7 +58,7 @@ export interface RecentProject {
   id: string;
   name: string;
   description: string | null;
-  status: string;
+  status: ProjectStatus;
   createdAt: string; // pre-formatted pt-PT: "DD/MM/YYYY HH:MM"
   updatedAt: Date;
   activeExperimentsCount: number;

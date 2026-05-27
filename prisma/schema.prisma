@@ -130,9 +130,8 @@ model Device {
   department   Department          @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   product      HardwareProduct     @relation(fields: [productId], references: [id])
   readings     SensorReading[]
-  experimentId String?
   config       Json?               @default("{}")
-  experiment   Experiment?         @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+  experiments  Experiment[]
   calibrations CalibrationRecord[]
   alerts       Alert[]
   projectId    String?
