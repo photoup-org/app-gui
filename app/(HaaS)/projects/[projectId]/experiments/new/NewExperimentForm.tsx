@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
@@ -31,12 +33,17 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
     const liveDevices = useMqttStore((state) => state.liveDevices);
 
     const form = useForm<CreateExperimentFormValues>({
-        resolver: zodResolver(createExperimentSchema),
+        resolver: zodResolver(createExperimentSchema) as any,
         defaultValues: {
             name: "",
             startDate: new Date(),
             endDate: null,
             deviceIds: [],
+            settings: {
+                storageFrequency: 60,
+                aggregationStrategy: "AVERAGE",
+                exportDelimiter: ";",
+            }
         },
     });
 
@@ -278,6 +285,84 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                         </FormItem>
                     )}
                 />
+
+                <Separator className="dark:border-slate-800" />
+
+                <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="advanced" className="border-none">
+                        <AccordionTrigger className="hover:no-underline px-1">
+                            <div className="flex items-center gap-2">
+                                <span className="font-semibold text-slate-900 dark:text-slate-100">Configurações Avançadas</span>
+                            </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pt-4 pb-6 px-1">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="settings.storageFrequency"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-slate-900 dark:text-slate-100 font-semibold">Frequência de Armazenamento (s)</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" min={1} placeholder="Ex: 60" {...field} className="bg-slate-50 dark:bg-slate-900/50" />
+                                            </FormControl>
+                                            <FormDescription>De quanto em quanto tempo guardar uma amostra.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                
+                                <FormField
+                                    control={form.control}
+                                    name="settings.aggregationStrategy"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-slate-900 dark:text-slate-100 font-semibold">Estratégia de Agregação</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="bg-slate-50 dark:bg-slate-900/50">
+                                                        <SelectValue placeholder="Selecione..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="AVERAGE">Média (AVERAGE)</SelectItem>
+                                                    <SelectItem value="MAX">Máximo (MAX)</SelectItem>
+                                                    <SelectItem value="MIN">Mínimo (MIN)</SelectItem>
+                                                    <SelectItem value="LAST_VALUE">Último Valor (LAST_VALUE)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormDescription>Como agregar os dados durante a janela de frequência.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="settings.exportDelimiter"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-slate-900 dark:text-slate-100 font-semibold">Delimitador de Exportação (CSV)</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger className="bg-slate-50 dark:bg-slate-900/50">
+                                                        <SelectValue placeholder="Selecione..." />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value=";">Ponto e Vírgula (;)</SelectItem>
+                                                    <SelectItem value=":">Dois Pontos (:)</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormDescription>Caractere utilizado na exportação final.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
 
                 <div className="flex justify-end pt-4">
                     <Button 

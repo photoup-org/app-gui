@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { createExperimentSchema, CreateExperimentFormValues } from './validations';
 import { ExperimentStatus } from '@prisma/client';
+import { publishMQTTMessage } from '@/lib/mqtt';
 
 export async function createExperimentAction(projectId: string, data: CreateExperimentFormValues) {
   try {
@@ -16,6 +17,7 @@ export async function createExperimentAction(projectId: string, data: CreateExpe
         startDate: validatedData.startDate,
         endDate: validatedData.endDate || undefined,
         status: 'RUNNING', 
+        settings: validatedData.settings || undefined,
         lastRunAt: new Date(),
         devices: {
           connect: validatedData.deviceIds.map((id) => ({ id }))
@@ -35,7 +37,7 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
   try {
     const experiment = await prisma.experiment.findUnique({
       where: { id: experimentId },
-      select: { status: true, lastRunAt: true, devices: { select: { status: true } } }
+      select: { status: true, lastRunAt: true, settings: true, devices: { select: { id: true, status: true } } }
     });
 
     if (!experiment) {
@@ -79,6 +81,20 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
       where: { id: experimentId },
       data
     });
+
+    try {
+      if (newStatus === 'RUNNING') {
+        const settings = (experiment.settings as any) || {};
+        const storageFrequency = settings.storageFrequency || 60;
+        const anchorTime = Math.floor(Date.now() / 1000);
+        const deviceIds = experiment.devices.map(d => d.id);
+        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, anchorTime, deviceIds });
+      } else if (newStatus === 'PAUSED' || newStatus === 'COMPLETED') {
+        await publishMQTTMessage(`cmd/experiments/${experimentId}/flush`, {});
+      }
+    } catch (mqttError) {
+      console.error('Failed to publish MQTT lifecycle hook:', mqttError);
+    }
 
     revalidatePath(`/projects/${projectId}`);
     revalidatePath(`/projects/${projectId}/experiments/${experimentId}`);

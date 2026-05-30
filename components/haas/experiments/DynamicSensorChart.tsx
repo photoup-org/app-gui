@@ -41,7 +41,7 @@ export default function DynamicSensorChart({ deviceId, telemetryData, deviceSche
     useEffect(() => {
         if (!deviceId) return;
 
-        const topic = `nodes/${deviceId}/telemetry`;
+        const topic = `ui/live/device/${deviceId}`;
         
         const unsubscribe = subscribe(topic, (payload: any) => {
             if (!payload) return;

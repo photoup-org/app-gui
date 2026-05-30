@@ -15,6 +15,7 @@ interface MqttState {
   gatewayInfo: GatewayInfo | null;
   liveDevices: Record<string, { status: string, last_seen: number }>;
   lastRegistrationUpdate: number;
+  liveTelemetry: Record<string, any>;
 }
 
 interface MqttActions {
@@ -31,6 +32,7 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
   gatewayInfo: null,
   liveDevices: {},
   lastRegistrationUpdate: 0,
+  liveTelemetry: {},
 
   connect: (brokerUrl) => {
     const mqttUrl = brokerUrl || process.env.MQTT_CONNECTION_URL;
@@ -64,6 +66,9 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
       });
       mqttClient.subscribe('system/devices/registered', (err) => {
         if (err) console.error('[MQTT] Failed to subscribe to system/devices/registered:', err);
+      });
+      mqttClient.subscribe('ui/live/device/+', (err) => {
+        if (err) console.error('[MQTT] Failed to subscribe to ui/live/device/+:', err);
       });
       mqttClient.publish('system/devices/request', JSON.stringify({}));
 
@@ -109,6 +114,38 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
           }));
         }
         return;
+      }
+
+      // Intercept new topic structure
+      if (topic.startsWith('ui/live/device/')) {
+        const deviceId = topic.split('/').pop();
+        if (!deviceId) return;
+        
+        try {
+          const payload = JSON.parse(payloadString);
+
+          set((state) => ({
+            liveTelemetry: {
+              ...state.liveTelemetry,
+              [deviceId]: payload
+            }
+          }));
+
+          // Still execute callbacks for components using the subscribe hook (e.g. DynamicSensorChart)
+          const callbacks = get().listeners[topic];
+          if (callbacks) {
+            callbacks.forEach((cb) => {
+              try {
+                cb(payload);
+              } catch (err) {
+                console.error(`[MQTT] Error executing callback for topic ${topic}:`, err);
+              }
+            });
+          }
+        } catch (err) {
+          console.error("Failed to parse live telemetry:", err);
+        }
+        return; // Exit early so it doesn't fall into older parsers
       }
 
       try {

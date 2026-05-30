@@ -5,6 +5,11 @@ export const createExperimentSchema = z.object({
   startDate: z.date(),
   endDate: z.date().optional().nullable(),
   deviceIds: z.array(z.string()),
+  settings: z.object({
+    storageFrequency: z.coerce.number().min(1),
+    aggregationStrategy: z.enum(['AVERAGE', 'MAX', 'MIN', 'LAST_VALUE']),
+    exportDelimiter: z.enum([':', ';']),
+  }).optional(),
 });
 
 export type CreateExperimentFormValues = z.infer<typeof createExperimentSchema>;
