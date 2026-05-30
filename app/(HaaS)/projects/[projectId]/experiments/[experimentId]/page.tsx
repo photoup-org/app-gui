@@ -103,7 +103,8 @@ export default async function ExperimentDetailsPage({
                     <ExperimentControls 
                         experimentId={experiment.id} 
                         projectId={projectId} 
-                        currentStatus={experiment.status} 
+                        currentStatus={experiment.status}
+                        devices={experiment.devices} 
                     />
                 </div>
             </div>
@@ -153,6 +154,7 @@ export default async function ExperimentDetailsPage({
                         {devicesWithTelemetry.map(device => (
                             <DynamicSensorChart
                                 key={device.id}
+                                deviceId={device.id}
                                 telemetryData={device.telemetry}
                                 deviceSchema={device.schema}
                                 deviceName={`${device.product.name} (${device.serialNumber.slice(-4)})`}

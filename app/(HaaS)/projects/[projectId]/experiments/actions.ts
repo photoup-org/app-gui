@@ -35,11 +35,18 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
   try {
     const experiment = await prisma.experiment.findUnique({
       where: { id: experimentId },
-      select: { status: true, lastRunAt: true }
+      select: { status: true, lastRunAt: true, devices: { select: { status: true } } }
     });
 
     if (!experiment) {
       return { success: false, error: 'Experiência não encontrada' };
+    }
+
+    if (newStatus === 'RUNNING') {
+      const offlineDevices = experiment.devices.filter(d => d.status !== 'ACTIVE');
+      if (offlineDevices.length > 0) {
+        throw new Error("Cannot start experiment: One or more allocated devices are offline.");
+      }
     }
 
     const currentStatus = experiment.status;
@@ -78,6 +85,9 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
     return { success: true };
   } catch (error) {
     console.error('Failed to update experiment lifecycle:', error);
-    return { success: false, error: 'Falha ao atualizar o estado da experiência' };
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Falha ao atualizar o estado da experiência' 
+    };
   }
 }

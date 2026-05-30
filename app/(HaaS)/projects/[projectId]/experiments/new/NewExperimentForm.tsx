@@ -18,6 +18,7 @@ import { CalendarIcon, CheckCircle2, Loader2, Radio, AlertTriangle } from "lucid
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useMqttStore } from "@/hooks/useMqttStore";
 
 interface NewExperimentFormProps {
     projectId: string;
@@ -27,6 +28,7 @@ interface NewExperimentFormProps {
 export default function NewExperimentForm({ projectId, devices }: NewExperimentFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const liveDevices = useMqttStore((state) => state.liveDevices);
 
     const form = useForm<CreateExperimentFormValues>({
         resolver: zodResolver(createExperimentSchema),
@@ -38,7 +40,23 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
         },
     });
 
+    const selectedDeviceIds = form.watch("deviceIds") || [];
+    const isAnySelectedDeviceOffline = selectedDeviceIds.some(id => {
+        const status = liveDevices[id]?.status;
+        return status !== 'online' && status !== 'busy';
+    });
+
     function onSubmit(data: CreateExperimentFormValues) {
+        const hasOfflineDevice = data.deviceIds.some(id => {
+            const status = liveDevices[id]?.status;
+            return status !== 'online' && status !== 'busy';
+        });
+
+        if (hasOfflineDevice) {
+            toast.error("Não é possível criar a experiência: um ou mais equipamentos selecionados estão offline.");
+            return;
+        }
+
         startTransition(async () => {
             const result = await createExperimentAction(projectId, data);
             
@@ -101,7 +119,6 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                             mode="single"
                                             selected={field.value}
                                             onSelect={field.onChange}
-                                            initialFocus
                                         />
                                     </PopoverContent>
                                 </Popover>
@@ -140,7 +157,6 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                             mode="single"
                                             selected={field.value || undefined}
                                             onSelect={field.onChange}
-                                            initialFocus
                                         />
                                     </PopoverContent>
                                 </Popover>
@@ -172,9 +188,13 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                             ) : (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {devices.map((device) => {
+                                        const mqttStatus = liveDevices[device.id]?.status;
+                                        const isPhysicallyOnline = mqttStatus === 'online' || mqttStatus === 'busy';
+                                        const isOffline = !isPhysicallyOnline;
+
                                         const isMaintenance = device.status === 'MAINTENANCE';
                                         const isRunning = device.experiments && device.experiments.length > 0;
-                                        const isDisabled = isMaintenance || isRunning;
+                                        const isDisabled = isMaintenance || isRunning || isOffline;
                                         const isSelected = field.value?.includes(device.id);
 
                                         return (
@@ -190,7 +210,7 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                                 className={cn(
                                                     "relative flex flex-col p-4 border rounded-xl transition-all duration-200 select-none",
                                                     isDisabled 
-                                                        ? "opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800" 
+                                                        ? "opacity-50 pointer-events-none cursor-not-allowed bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800" 
                                                         : "cursor-pointer bg-white dark:bg-slate-950",
                                                     !isDisabled && isSelected 
                                                         ? "border-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/20 ring-1 ring-indigo-600" 
@@ -212,7 +232,7 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                                 <div className="flex items-center gap-3 mb-3">
                                                     <div className={cn(
                                                         "p-2 rounded-lg",
-                                                        isDisabled ? "bg-slate-100 dark:bg-slate-800" : "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400"
+                                                        isDisabled ? "bg-slate-200 dark:bg-slate-800" : "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400"
                                                     )}>
                                                         <Radio className="h-5 w-5" />
                                                     </div>
@@ -228,6 +248,11 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
 
                                                 {/* Conflict/Status Badges */}
                                                 <div className="mt-auto pt-2 flex flex-wrap gap-2">
+                                                    {isOffline && !isMaintenance && !isRunning && (
+                                                        <Badge variant="destructive" className="text-[10px] flex items-center gap-1 bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 border-none">
+                                                            Offline
+                                                        </Badge>
+                                                    )}
                                                     {isMaintenance && (
                                                         <Badge variant="destructive" className="text-[10px] flex items-center gap-1">
                                                             <AlertTriangle className="h-3 w-3" /> Manutenção
@@ -257,7 +282,7 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                 <div className="flex justify-end pt-4">
                     <Button 
                         type="submit" 
-                        disabled={isPending}
+                        disabled={isPending || isAnySelectedDeviceOffline}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[140px]"
                     >
                         {isPending ? (
