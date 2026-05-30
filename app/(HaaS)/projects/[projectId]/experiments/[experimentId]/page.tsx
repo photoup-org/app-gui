@@ -6,6 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import { Beaker, CalendarDays, ArrowLeft, Info, Settings } from 'lucide-react';
 import Link from 'next/link';
 import DynamicSensorChart from '@/components/haas/experiments/DynamicSensorChart';
+import ExperimentControls from '../ExperimentControls';
+import ExperimentTimer from '../ExperimentTimer';
 
 export default async function ExperimentDetailsPage({
     params
@@ -76,20 +78,33 @@ export default async function ExperimentDetailsPage({
                         >
                             {experiment.status}
                         </Badge>
+                        <ExperimentTimer 
+                            status={experiment.status}
+                            accumulatedSeconds={experiment.accumulatedSeconds}
+                            lastRunAt={experiment.lastRunAt}
+                            endDate={experiment.endDate}
+                        />
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 md:mt-10">
-                    <div className="flex items-center gap-1.5">
-                        <CalendarDays className="h-4 w-4" />
-                        Início: {new Date(experiment.startDate).toLocaleDateString('pt-PT')}
-                    </div>
-                    {experiment.endDate && (
-                        <div className="flex items-center gap-1.5 border-l border-slate-300 dark:border-slate-700 pl-4">
+                <div className="flex flex-col md:items-end gap-3 md:mt-10">
+                    <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                        <div className="flex items-center gap-1.5">
                             <CalendarDays className="h-4 w-4" />
-                            Fim: {new Date(experiment.endDate).toLocaleDateString('pt-PT')}
+                            Início: {new Date(experiment.startDate).toLocaleDateString('pt-PT')}
                         </div>
-                    )}
+                        {experiment.endDate && (
+                            <div className="flex items-center gap-1.5 border-l border-slate-300 dark:border-slate-700 pl-4">
+                                <CalendarDays className="h-4 w-4" />
+                                Fim: {new Date(experiment.endDate).toLocaleDateString('pt-PT')}
+                            </div>
+                        )}
+                    </div>
+                    <ExperimentControls 
+                        experimentId={experiment.id} 
+                        projectId={projectId} 
+                        currentStatus={experiment.status} 
+                    />
                 </div>
             </div>
 

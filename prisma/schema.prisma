@@ -321,17 +321,19 @@ model ProjectMember {
 }
 
 model Experiment {
-  id        String           @id @default(cuid())
-  name      String
-  projectId String
-  status    ExperimentStatus @default(RUNNING)
-  startDate DateTime         @default(now())
-  endDate   DateTime?
-  settings  Json?
-  project   Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  devices   Device[]
-  alerts    Alert[]
-  readings  SensorReading[]
+  id                 String           @id @default(cuid())
+  name               String
+  projectId          String
+  status             ExperimentStatus @default(RUNNING)
+  startDate          DateTime         @default(now())
+  endDate            DateTime?
+  settings           Json?
+  accumulatedSeconds Int              @default(0)
+  lastRunAt          DateTime?
+  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  devices            Device[]
+  alerts             Alert[]
+  readings           SensorReading[]
 }
 
 model SystemLog {
