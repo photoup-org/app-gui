@@ -8,7 +8,7 @@ const payloadSchema = z.object({
     z.object({
       deviceId: z.string(),
       timestamp: z.string(), // ISO String or Unix timestamp could be passed, but ISO string is safer
-      data: z.record(z.number()),
+      data: z.record(z.string(), z.number()),
     })
   ),
 });
@@ -27,6 +27,21 @@ export async function POST(req: Request) {
 
     const { experimentId, readings } = result.data;
     
+    if (experimentId) {
+      const experiment = await prisma.experiment.findUnique({
+        where: { id: experimentId },
+        select: { status: true }
+      });
+
+      if (!experiment || experiment.status !== 'RUNNING') {
+        console.warn(`[Telemetry API] Rejected telemetry for experiment ${experimentId}. Status is ${experiment?.status || 'NOT_FOUND'}`);
+        return NextResponse.json(
+          { error: "Data rejected. Experiment is not currently RUNNING." }, 
+          { status: 403 }
+        );
+      }
+    }
+
     // Flatten the nested data object into individual SensorReading rows
     const sensorReadingsData = readings.flatMap((reading) => {
       const timestamp = new Date(reading.timestamp);

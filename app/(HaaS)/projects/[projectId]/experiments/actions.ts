@@ -16,9 +16,8 @@ export async function createExperimentAction(projectId: string, data: CreateExpe
         name: validatedData.name,
         startDate: validatedData.startDate,
         endDate: validatedData.endDate || undefined,
-        status: 'RUNNING', 
+        status: 'PLANNED', 
         settings: validatedData.settings || undefined,
-        lastRunAt: new Date(),
         devices: {
           connect: validatedData.deviceIds.map((id) => ({ id }))
         }
@@ -37,7 +36,7 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
   try {
     const experiment = await prisma.experiment.findUnique({
       where: { id: experimentId },
-      select: { status: true, lastRunAt: true, settings: true, devices: { select: { id: true, status: true } } }
+      select: { status: true, lastRunAt: true, settings: true, devices: { select: { id: true, status: true, serialNumber: true } } }
     });
 
     if (!experiment) {
@@ -86,10 +85,16 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
       if (newStatus === 'RUNNING') {
         const settings = (experiment.settings as any) || {};
         const storageFrequency = parseInt(settings.storageFrequency) || 60;
+        const aggregationStrategy = settings.aggregationStrategy || 'AVG';
         const anchorTime = Math.floor(Date.now() / 1000);
-        const deviceIds = experiment.devices.map(d => d.id);
-        console.log("MQTT Payload:", { storageFrequency, anchorTime, deviceIds });
-        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, anchorTime, deviceIds });
+        const deviceMap = experiment.devices.reduce((acc, d) => {
+          if (d.serialNumber) acc[d.serialNumber] = d.id;
+          acc[d.id] = d.id;
+          return acc;
+        }, {} as Record<string, string>);
+        
+        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap });
+        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap });
       } else if (newStatus === 'PAUSED' || newStatus === 'COMPLETED') {
         await publishMQTTMessage(`cmd/experiments/${experimentId}/flush`, {});
       }

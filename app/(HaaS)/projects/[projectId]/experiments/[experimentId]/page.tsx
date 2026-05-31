@@ -25,6 +25,7 @@ export default async function ExperimentDetailsPage({
                 include: {
                     product: true,
                     readings: {
+                        where: { experimentId: experimentId },
                         orderBy: { timestamp: 'desc' },
                         take: 1000
                     }
@@ -104,7 +105,11 @@ export default async function ExperimentDetailsPage({
                         experimentId={experiment.id} 
                         projectId={projectId} 
                         currentStatus={experiment.status}
-                        devices={experiment.devices} 
+                        devices={experiment.devices.map(d => ({
+                            id: d.id,
+                            status: d.status,
+                            product: { name: d.product.name }
+                        }))} 
                     />
                 </div>
             </div>
@@ -158,6 +163,7 @@ export default async function ExperimentDetailsPage({
                                 telemetryData={device.telemetry}
                                 deviceSchema={device.schema}
                                 deviceName={`${device.product.name} (${device.serialNumber.slice(-4)})`}
+                                experimentStatus={experiment.status}
                             />
                         ))}
                     </div>

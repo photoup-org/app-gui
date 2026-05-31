@@ -15,7 +15,8 @@ interface MqttState {
   gatewayInfo: GatewayInfo | null;
   liveDevices: Record<string, { status: string, last_seen: number }>;
   lastRegistrationUpdate: number;
-  liveTelemetry: Record<string, any>;
+  liveValues: Record<string, any>;
+  chartSeries: Record<string, any[]>;
 }
 
 interface MqttActions {
@@ -32,7 +33,8 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
   gatewayInfo: null,
   liveDevices: {},
   lastRegistrationUpdate: 0,
-  liveTelemetry: {},
+  liveValues: {},
+  chartSeries: {},
 
   connect: (brokerUrl) => {
     const mqttUrl = brokerUrl || process.env.MQTT_CONNECTION_URL;
@@ -67,9 +69,7 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
       mqttClient.subscribe('system/devices/registered', (err) => {
         if (err) console.error('[MQTT] Failed to subscribe to system/devices/registered:', err);
       });
-      mqttClient.subscribe('ui/live/device/+', (err) => {
-        if (err) console.error('[MQTT] Failed to subscribe to ui/live/device/+:', err);
-      });
+
       mqttClient.publish('system/devices/request', JSON.stringify({}));
 
       // Re-subscribe to all active topics in the listeners registry
@@ -118,20 +118,52 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
 
       // Intercept new topic structure
       if (topic.startsWith('ui/live/device/')) {
-        const deviceId = topic.split('/').pop();
-        if (!deviceId) return;
+        const parts = topic.split('/');
+        const deviceId = parts[3];
+        const streamType = parts[4];
+        if (!deviceId || !streamType) return;
         
         try {
           const payload = JSON.parse(payloadString);
 
-          set((state) => ({
-            liveTelemetry: {
-              ...state.liveTelemetry,
-              [deviceId]: payload
-            }
-          }));
+          if (streamType === 'raw') {
+            set((state) => ({
+              liveValues: {
+                ...state.liveValues,
+                [deviceId]: payload
+              }
+            }));
+          } else if (streamType === 'sync') {
+            const timestamp = payload.timestamp || new Date().toISOString();
+            const newReadings: any[] = [];
+            
+            Object.keys(payload).forEach(key => {
+                if (key !== 'timestamp' && key !== 'device_id' && key !== 'deviceId') {
+                    newReadings.push({
+                        id: Math.random().toString(36).substring(7),
+                        deviceId: deviceId,
+                        metricType: key,
+                        value: Number(payload[key]),
+                        timestamp: timestamp
+                    });
+                }
+            });
 
-          // Still execute callbacks for components using the subscribe hook (e.g. DynamicSensorChart)
+            if (newReadings.length > 0) {
+              set((state) => {
+                const currentSeries = state.chartSeries[deviceId] || [];
+                const combined = [...currentSeries, ...newReadings];
+                return {
+                  chartSeries: {
+                    ...state.chartSeries,
+                    [deviceId]: combined.slice(-1000)
+                  }
+                };
+              });
+            }
+          }
+
+          // Still execute callbacks for components using the subscribe hook
           const callbacks = get().listeners[topic];
           if (callbacks) {
             callbacks.forEach((cb) => {
