@@ -9,6 +9,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ProjectExperimentsView } from "@/components/haas/dashboard/ProjectExperimentsView";
+import { ProjectEquipmentView } from "@/components/haas/dashboard/ProjectEquipmentView";
+
 
 export function ProjectDetailsDialogs() {
   const { activeDetailView, activeProjectId, closeDetailView } = useProjectStore();
@@ -50,9 +52,7 @@ export function ProjectDetailsDialogs() {
             </div>
           )}
           {activeDetailView === 'DEVICES' && (
-            <div className="p-8 text-center text-muted-foreground border border-dashed rounded-lg">
-              [Tabela de Equipamentos]
-            </div>
+            <ProjectEquipmentView projectId={activeProjectId} />
           )}
         </div>
       </DialogContent>

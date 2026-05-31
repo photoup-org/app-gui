@@ -28,3 +28,31 @@ export async function getExperimentsByProjectIdAction(projectId: string) {
         return { success: false, error: "Failed to fetch experiments" };
     }
 }
+
+export async function getProjectEquipmentAction(projectId: string) {
+    try {
+        const devices = await prisma.device.findMany({
+            where: { projectId },
+            include: {
+                product: {
+                    select: {
+                        id: true,
+                        name: true,
+                        type: true
+                    }
+                },
+                experiments: {
+                    where: { status: 'RUNNING' },
+                    select: { id: true }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+        return { success: true, data: devices };
+    } catch (error) {
+        console.error("Failed to fetch project equipment:", error);
+        return { success: false, error: "Failed to fetch project equipment" };
+    }
+}

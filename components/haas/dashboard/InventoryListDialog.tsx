@@ -9,6 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { InventoryStatusView } from "@/components/haas/dashboard/InventoryStatusView";
 
 export function InventoryListDialog() {
   const { activeCategory, closeDialog } = useInventoryDialogStore();
@@ -51,10 +52,8 @@ export function InventoryListDialog() {
         </DialogHeader>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto pr-2 mt-2">
-          <div className="p-8 text-center text-muted-foreground border border-dashed rounded-lg bg-muted/20">
-            [Tabela de Equipamentos {activeCategory} - A ser implementada]
-          </div>
+        <div className="flex-1 mt-2">
+          {activeCategory && <InventoryStatusView status={activeCategory} />}
         </div>
       </DialogContent>
     </Dialog>

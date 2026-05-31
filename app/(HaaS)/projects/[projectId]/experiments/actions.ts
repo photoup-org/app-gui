@@ -123,6 +123,7 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
 
     revalidatePath(`/projects/${projectId}`);
     revalidatePath(`/projects/${projectId}/experiments/${experimentId}`);
+    revalidatePath('/dashboard');
     return { success: true };
   } catch (error) {
     console.error('Failed to update experiment lifecycle:', error);

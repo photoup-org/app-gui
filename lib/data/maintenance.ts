@@ -44,6 +44,10 @@ export async function getInventoryStatus(departmentId: string): Promise<DeviceWi
       },
       include: {
         product: true,
+        experiments: {
+          where: { status: 'RUNNING' },
+          select: { id: true }
+        }
       },
     });
 

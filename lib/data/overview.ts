@@ -2,7 +2,8 @@ import prisma from "@/lib/prisma";
 import { Device, HardwareProduct, DeviceStatus, ProjectStatus } from "@prisma/client";
 
 export type DeviceWithProduct = Device & { 
-  product: Omit<HardwareProduct, "price"> & { price: number } 
+  product: Omit<HardwareProduct, "price"> & { price: number };
+  experiments?: { id: string }[];
 };
 
 export interface SensorSummary {
@@ -28,6 +29,10 @@ export async function getSensorSummary(departmentId: string): Promise<SensorSumm
       },
       include: {
         product: true,
+        experiments: {
+          where: { status: 'RUNNING' },
+          select: { id: true }
+        }
       },
       orderBy: { createdAt: 'desc' }
     });

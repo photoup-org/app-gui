@@ -26,6 +26,8 @@ const InventorySummary = ({ devices }: InventorySummaryProps) => {
         const mqttData = liveDevices[d.id];
         const isPhysicallyOnline = mqttData?.status === 'online' || mqttData?.status === 'busy';
 
+        const isAllocatedToRunningExperiment = d.experiments && d.experiments.length > 0;
+
         // Condition D: Administrative Override (Prisma is MAINTENANCE or PENDING_CONNECTION)
         if (d.status === 'MAINTENANCE') {
             maintenance++;
@@ -34,7 +36,7 @@ const InventorySummary = ({ devices }: InventorySummaryProps) => {
         }
         // Physically Online
         else if (isPhysicallyOnline && d.status === 'ACTIVE') {
-            if (mqttData?.status === 'busy') {
+            if (isAllocatedToRunningExperiment) {
                 busy++;
             } else {
                 active++;
