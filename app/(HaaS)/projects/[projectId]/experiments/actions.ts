@@ -85,9 +85,10 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
     try {
       if (newStatus === 'RUNNING') {
         const settings = (experiment.settings as any) || {};
-        const storageFrequency = settings.storageFrequency || 60;
+        const storageFrequency = parseInt(settings.storageFrequency) || 60;
         const anchorTime = Math.floor(Date.now() / 1000);
         const deviceIds = experiment.devices.map(d => d.id);
+        console.log("MQTT Payload:", { storageFrequency, anchorTime, deviceIds });
         await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, anchorTime, deviceIds });
       } else if (newStatus === 'PAUSED' || newStatus === 'COMPLETED') {
         await publishMQTTMessage(`cmd/experiments/${experimentId}/flush`, {});
