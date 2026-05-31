@@ -113,3 +113,27 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
     };
   }
 }
+
+export async function deleteExperimentAction(experimentId: string, projectId: string) {
+  try {
+    const experiment = await prisma.experiment.findUnique({ 
+      where: { id: experimentId }, 
+      select: { status: true } 
+    });
+    
+    if (experiment && ['RUNNING', 'PAUSED'].includes(experiment.status)) {
+      return { success: false, error: "Não é possível apagar uma experiência ativa. Por favor, termine ou aborte a experiência primeiro." };
+    }
+
+    await prisma.experiment.delete({
+      where: { id: experimentId }
+    });
+  } catch (error) {
+    console.error('Failed to delete experiment:', error);
+    return { success: false, error: 'Falha ao apagar experiência' };
+  }
+
+  revalidatePath(`/projects/${projectId}`);
+  const { redirect } = await import('next/navigation');
+  redirect(`/projects/${projectId}`);
+}

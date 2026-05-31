@@ -200,8 +200,8 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                         const isOffline = !isPhysicallyOnline;
 
                                         const isMaintenance = device.status === 'MAINTENANCE';
-                                        const isRunning = device.experiments && device.experiments.length > 0;
-                                        const isDisabled = isMaintenance || isRunning || isOffline;
+                                        const isAllocated = device.isAllocated;
+                                        const isDisabled = isMaintenance || isAllocated || isOffline;
                                         const isSelected = field.value?.includes(device.id);
 
                                         return (
@@ -253,9 +253,13 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                                     </div>
                                                 </div>
 
-                                                {/* Conflict/Status Badges */}
                                                 <div className="mt-auto pt-2 flex flex-wrap gap-2">
-                                                    {isOffline && !isMaintenance && !isRunning && (
+                                                    {isAllocated && (
+                                                        <Badge variant="secondary" className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-500 hover:bg-amber-100 border-none">
+                                                            Em uso
+                                                        </Badge>
+                                                    )}
+                                                    {isOffline && !isMaintenance && !isAllocated && (
                                                         <Badge variant="destructive" className="text-[10px] flex items-center gap-1 bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 border-none">
                                                             Offline
                                                         </Badge>
@@ -263,11 +267,6 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                                     {isMaintenance && (
                                                         <Badge variant="destructive" className="text-[10px] flex items-center gap-1">
                                                             <AlertTriangle className="h-3 w-3" /> Manutenção
-                                                        </Badge>
-                                                    )}
-                                                    {isRunning && (
-                                                        <Badge variant="secondary" className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500 hover:bg-amber-100">
-                                                            Ocupado (Em Curso)
                                                         </Badge>
                                                     )}
                                                     {!isDisabled && (
@@ -367,7 +366,7 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                 <div className="flex justify-end pt-4">
                     <Button 
                         type="submit" 
-                        disabled={isPending || isAnySelectedDeviceOffline}
+                        disabled={isPending || isAnySelectedDeviceOffline || selectedDeviceIds.length === 0}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[140px]"
                     >
                         {isPending ? (

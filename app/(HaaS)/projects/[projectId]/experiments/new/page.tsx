@@ -18,7 +18,7 @@ export default async function NewExperimentPage({
                 include: {
                     product: true,
                     experiments: {
-                        where: { status: 'RUNNING' }
+                        where: { status: { in: ['RUNNING', 'PAUSED', 'PLANNED'] } }
                     }
                 }
             }
@@ -30,15 +30,19 @@ export default async function NewExperimentPage({
     }
 
     // Serialize devices to plain objects to avoid passing Decimal objects from Prisma
-    const serializedDevices = project.devices.map(device => ({
-        id: device.id,
-        serialNumber: device.serialNumber,
-        status: device.status,
-        experiments: device.experiments.map(e => ({ id: e.id, status: e.status })),
-        product: {
-            name: device.product.name,
-        }
-    }));
+    const serializedDevices = project.devices.map(device => {
+        const isAllocated = device.experiments.some(e => ['RUNNING', 'PAUSED', 'PLANNED'].includes(e.status));
+        return {
+            id: device.id,
+            serialNumber: device.serialNumber,
+            status: device.status,
+            experiments: device.experiments.map(e => ({ id: e.id, status: e.status })),
+            isAllocated,
+            product: {
+                name: device.product.name,
+            }
+        };
+    });
 
     return (
         <div className="max-w-4xl mx-auto p-6 space-y-8 w-full animate-in fade-in duration-500">

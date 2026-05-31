@@ -8,6 +8,7 @@ import Link from 'next/link';
 import DynamicSensorChart from '@/components/haas/experiments/DynamicSensorChart';
 import ExperimentControls from '../ExperimentControls';
 import ExperimentTimer from '../ExperimentTimer';
+import { DeleteExperimentButton } from '@/components/haas/experiments/DeleteExperimentButton';
 
 export default async function ExperimentDetailsPage({
     params
@@ -101,16 +102,23 @@ export default async function ExperimentDetailsPage({
                             </div>
                         )}
                     </div>
-                    <ExperimentControls 
-                        experimentId={experiment.id} 
-                        projectId={projectId} 
-                        currentStatus={experiment.status}
-                        devices={experiment.devices.map(d => ({
-                            id: d.id,
-                            status: d.status,
-                            product: { name: d.product.name }
-                        }))} 
-                    />
+                    <div className="flex items-center gap-3">
+                        <ExperimentControls 
+                            experimentId={experiment.id} 
+                            projectId={projectId} 
+                            currentStatus={experiment.status}
+                            devices={experiment.devices.map(d => ({
+                                id: d.id,
+                                status: d.status,
+                                product: { name: d.product.name }
+                            }))} 
+                        />
+                        <DeleteExperimentButton 
+                            experimentId={experiment.id} 
+                            projectId={projectId}
+                            disabled={['RUNNING', 'PAUSED'].includes(experiment.status)} 
+                        />
+                    </div>
                 </div>
             </div>
 
