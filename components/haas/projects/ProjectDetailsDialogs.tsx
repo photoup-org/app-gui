@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { ProjectExperimentsView } from "@/components/haas/dashboard/ProjectExperimentsView";
 
 export function ProjectDetailsDialogs() {
   const { activeDetailView, activeProjectId, closeDetailView } = useProjectStore();
@@ -41,9 +42,7 @@ export function ProjectDetailsDialogs() {
         {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto pr-2">
           {activeDetailView === 'EXPERIMENTS' && (
-            <div className="p-8 text-center text-muted-foreground border border-dashed rounded-lg">
-              [Tabela de Experiências com Accordion]
-            </div>
+            <ProjectExperimentsView projectId={activeProjectId} />
           )}
           {activeDetailView === 'ALERTS' && (
             <div className="p-8 text-center text-muted-foreground border border-dashed rounded-lg">

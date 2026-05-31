@@ -7,7 +7,7 @@ import { CalendarDays, Building, Server, Beaker, Radio } from 'lucide-react';
 import ProjectActions from './ProjectActions';
 import Link from 'next/link';
 import { DeleteExperimentButton } from '@/components/haas/experiments/DeleteExperimentButton';
-
+import { ExperimentTable } from '@/components/haas/experiments/ExperimentTable';
 export default async function ProjectDetailsPage({ params }: { params: Promise<{ projectId: string }> }) {
     const resolvedParams = await params;
     const project = await prisma.project.findUnique({
@@ -30,6 +30,18 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
             experiments: {
                 orderBy: {
                     startDate: 'desc'
+                },
+                include: {
+                    devices: {
+                        include: {
+                            product: {
+                                select: {
+                                    id: true,
+                                    name: true
+                                }
+                            }
+                        }
+                    }
                 }
             },
             members: {
@@ -182,56 +194,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                                     Nenhuma experiência iniciada.
                                 </div>
                             ) : (
-                                <div className="rounded-md border dark:border-slate-800 overflow-hidden">
-                                    <Table>
-                                        <TableHeader className="bg-slate-50 dark:bg-slate-900">
-                                            <TableRow>
-                                                <TableHead>Nome</TableHead>
-                                                <TableHead>Estado</TableHead>
-                                                <TableHead>Início</TableHead>
-                                                <TableHead>Fim</TableHead>
-                                                <TableHead></TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {project.experiments.map((exp) => (
-                                                <TableRow key={exp.id} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                                    <TableCell className="font-medium text-slate-900 dark:text-slate-100">
-                                                        <Link href={`/projects/${project.id}/experiments/${exp.id}`} className="block w-full h-full">
-                                                            {exp.name}
-                                                        </Link>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge
-                                                            className={
-                                                                exp.status === 'RUNNING'
-                                                                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
-                                                                    : exp.status === 'COMPLETED'
-                                                                        ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400'
-                                                            }
-                                                        >
-                                                            {exp.status}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-slate-500 dark:text-slate-400 text-sm">
-                                                        {new Date(exp.startDate).toLocaleDateString('pt-PT')}
-                                                    </TableCell>
-                                                    <TableCell className="text-slate-500 dark:text-slate-400 text-sm">
-                                                        {exp.endDate ? new Date(exp.endDate).toLocaleDateString('pt-PT') : '-'}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <DeleteExperimentButton
-                                                            experimentId={exp.id}
-                                                            projectId={project.id}
-                                                            disabled={['RUNNING', 'PAUSED'].includes(exp.status)}
-                                                        />
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                                <ExperimentTable experiments={project.experiments} projectId={project.id} />
                             )}
                         </CardContent>
                     </Card>

@@ -9,6 +9,7 @@ import DynamicSensorChart from '@/components/haas/experiments/DynamicSensorChart
 import ExperimentControls from '../ExperimentControls';
 import ExperimentTimer from '../ExperimentTimer';
 import { DeleteExperimentButton } from '@/components/haas/experiments/DeleteExperimentButton';
+import { ExportDataButton } from '@/components/haas/experiments/ExportDataButton';
 import { SENSOR_DICTIONARY } from '@/lib/sensor-schemas';
 
 export default async function ExperimentDetailsPage({
@@ -113,6 +114,7 @@ export default async function ExperimentDetailsPage({
                                 product: { name: d.product.name }
                             }))} 
                         />
+                        <ExportDataButton experimentId={experiment.id} />
                         <DeleteExperimentButton 
                             experimentId={experiment.id} 
                             projectId={projectId}

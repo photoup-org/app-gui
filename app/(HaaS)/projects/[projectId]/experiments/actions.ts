@@ -156,3 +156,61 @@ export async function deleteExperimentAction(experimentId: string, projectId: st
   const { redirect } = await import('next/navigation');
   redirect(`/projects/${projectId}`);
 }
+
+export async function getExperimentTelemetryForExport(experimentId: string) {
+  try {
+    const experiment = await prisma.experiment.findUnique({
+      where: { id: experimentId },
+      include: {
+        project: true
+      }
+    });
+
+    if (!experiment) {
+      return { success: false, error: 'Experiência não encontrada' };
+    }
+
+    const readings = await prisma.sensorReading.findMany({
+      where: { experimentId },
+      orderBy: { timestamp: 'asc' },
+      include: {
+        device: {
+          select: {
+            serialNumber: true
+          }
+        }
+      }
+    });
+
+    // Formatting for client side
+    const settings = typeof experiment.settings === 'object' && experiment.settings !== null 
+      ? experiment.settings as Record<string, any> 
+      : {};
+
+    const exportData = {
+      project: {
+        name: experiment.project.name,
+        description: experiment.project.description,
+        createdAt: experiment.project.createdAt
+      },
+      experiment: {
+        name: experiment.name,
+        status: experiment.status,
+        startDate: experiment.startDate,
+        endDate: experiment.endDate,
+        storageFrequency: settings.storageFrequency || 60,
+        aggregationStrategy: settings.aggregationStrategy || 'AVG'
+      },
+      telemetry: readings
+    };
+
+    return { 
+      success: true, 
+      data: exportData,
+      experimentName: experiment.name
+    };
+  } catch (error) {
+    console.error('Failed to fetch telemetry for export:', error);
+    return { success: false, error: 'Falha ao obter os dados da experiência' };
+  }
+}
