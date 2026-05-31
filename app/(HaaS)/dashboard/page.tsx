@@ -4,12 +4,15 @@ import { DashboardOverviewRow } from "@/components/haas/dashboard/overview/Dashb
 import OverviewSkeleton from "@/components/haas/dashboard/overview/OverviewSkeleton";
 import SensorOverviewRow from "@/components/haas/dashboard/sensor-overview/SensorOverviewRow";
 import { SystemAdminRow } from "@/components/haas/dashboard/system-admin/SystemAdminRow";
-
+import { RunningExperimentsWidget } from "@/components/haas/dashboard/RunningExperimentsWidget";
 
 
 export default async function DashboardPage() {
   return (
     <div className="flex flex-col items-start w-full gap-8">
+      <Suspense fallback={<div className="w-full h-32 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-lg" />}>
+        <RunningExperimentsWidget />
+      </Suspense>
       <Suspense fallback={<PendingHardwareSkeleton />}>
         <PendingHardwareSection />
       </Suspense>
