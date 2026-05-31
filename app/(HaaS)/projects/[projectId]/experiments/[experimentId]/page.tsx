@@ -9,6 +9,7 @@ import DynamicSensorChart from '@/components/haas/experiments/DynamicSensorChart
 import ExperimentControls from '../ExperimentControls';
 import ExperimentTimer from '../ExperimentTimer';
 import { DeleteExperimentButton } from '@/components/haas/experiments/DeleteExperimentButton';
+import { SENSOR_DICTIONARY } from '@/lib/sensor-schemas';
 
 export default async function ExperimentDetailsPage({
     params
@@ -44,9 +45,8 @@ export default async function ExperimentDetailsPage({
         // Reverse readings to be chronological left-to-right
         const reversedReadings = [...device.readings].reverse();
 
-        // Extract schema safely from device config
-        const configObj = (device.config && typeof device.config === 'object') ? device.config : {};
-        const schema = Array.isArray((configObj as any).schema) ? (configObj as any).schema : [];
+        // Resolve schema strictly based on device product SKU using the dictionary
+        const schema = SENSOR_DICTIONARY[device.product.sku] || [];
 
         return {
             ...device,
@@ -164,16 +164,38 @@ export default async function ExperimentDetailsPage({
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                        {devicesWithTelemetry.map(device => (
-                            <DynamicSensorChart
-                                key={device.id}
-                                deviceId={device.id}
-                                telemetryData={device.telemetry}
-                                deviceSchema={device.schema}
-                                deviceName={`${device.product.name} (${device.serialNumber.slice(-4)})`}
-                                experimentStatus={experiment.status}
-                            />
-                        ))}
+                        {devicesWithTelemetry.map(device => {
+                            if (!device.schema || device.schema.length === 0) {
+                                return (
+                                    <Card key={device.id} className="border-slate-200 dark:border-slate-800 shadow-sm col-span-full">
+                                        <CardHeader>
+                                            <CardTitle className="text-lg">{`${device.product.name} (${device.serialNumber.slice(-4)})`}</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="text-sm text-slate-500 py-8 text-center border border-dashed rounded-lg">
+                                                Nenhum esquema de telemetria definido para este dispositivo.
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            }
+
+                            return device.schema.map(cap => (
+                                <DynamicSensorChart
+                                    key={`${device.id}-${cap.key}`}
+                                    deviceId={device.id}
+                                    telemetryData={device.telemetry}
+                                    metricKey={cap.key}
+                                    chartTitle={cap.label}
+                                    unit={cap.unit}
+                                    color={cap.color}
+                                    min={cap.min}
+                                    max={cap.max}
+                                    deviceLabel={`${device.product.name} (${device.serialNumber.slice(-4)})`}
+                                    experimentStatus={experiment.status}
+                                />
+                            ));
+                        })}
                     </div>
                 )}
             </div>
