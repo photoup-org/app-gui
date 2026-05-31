@@ -88,7 +88,10 @@ export async function getAvailableDevicesAction() {
         const devices = await prisma.device.findMany({
             where: {
                 departmentId: user.departmentId,
-                status: "ACTIVE"
+                status: "ACTIVE",
+                product: {
+                    type: { not: "GATEWAY" }
+                }
             },
             include: {
                 product: {
@@ -138,6 +141,15 @@ export async function createProjectAction(data: {
     const userDeptId = user.departmentId;
     const userId = user.id;
     let newProjectId: string | null = null;
+
+    const selectedDevices = await prisma.device.findMany({
+        where: { id: { in: data.deviceIds } },
+        include: { product: true }
+    });
+
+    if (selectedDevices.some(d => d.product.type === 'GATEWAY')) {
+        return { success: false, error: "Não é possível associar um Gateway diretamente como equipamento do projeto. Selecione apenas sensores." };
+    }
 
     try {
         const newProject = await prisma.$transaction(async (tx) => {
@@ -211,6 +223,15 @@ export async function updateProjectAction(projectId: string, data: {
   deviceIds: string[];
   settings: any;
 }) {
+  const selectedDevices = await prisma.device.findMany({
+      where: { id: { in: data.deviceIds } },
+      include: { product: true }
+  });
+
+  if (selectedDevices.some(d => d.product.type === 'GATEWAY')) {
+      return { success: false, error: "Não é possível associar um Gateway diretamente como equipamento do projeto. Selecione apenas sensores." };
+  }
+
   try {
     await prisma.$transaction(async (tx) => {
       // Update name, description, settings, and devices in one go

@@ -15,6 +15,11 @@ export default async function NewExperimentPage({
         where: { id: resolvedParams.projectId },
         include: {
             devices: {
+                where: {
+                    product: {
+                        type: { not: 'GATEWAY' }
+                    }
+                },
                 include: {
                     product: true,
                     experiments: {

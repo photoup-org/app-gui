@@ -245,8 +245,9 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
   // Filter devices by search input (memoized to prevent recalculation on unrelated form edits)
   const filteredDevices = React.useMemo(() => {
     const search = deviceSearch.toLowerCase();
-    if (!search) return allDevices;
-    return allDevices.filter((d) => {
+    const selectableSensors = allDevices.filter(device => device.product.type !== 'GATEWAY');
+    if (!search) return selectableSensors;
+    return selectableSensors.filter((d) => {
       return (
         d.serialNumber.toLowerCase().includes(search) ||
         d.product.name.toLowerCase().includes(search)

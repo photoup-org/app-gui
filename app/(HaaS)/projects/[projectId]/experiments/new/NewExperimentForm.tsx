@@ -48,13 +48,16 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
     });
 
     const selectedDeviceIds = form.watch("deviceIds") || [];
-    const isAnySelectedDeviceOffline = selectedDeviceIds.some(id => {
-        const status = liveDevices[id]?.status;
+    const isAnyProjectDeviceOffline = devices.some(device => {
+        if (device.status !== 'ACTIVE') return true;
+        const status = liveDevices[device.id]?.status;
         return status !== 'online' && status !== 'busy';
     });
 
     function onSubmit(data: CreateExperimentFormValues) {
         const hasOfflineDevice = data.deviceIds.some(id => {
+            const device = devices.find(d => d.id === id);
+            if (device && device.status !== 'ACTIVE') return true;
             const status = liveDevices[id]?.status;
             return status !== 'online' && status !== 'busy';
         });
@@ -197,9 +200,11 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                     {devices.map((device) => {
                                         const mqttStatus = liveDevices[device.id]?.status;
                                         const isPhysicallyOnline = mqttStatus === 'online' || mqttStatus === 'busy';
-                                        const isOffline = !isPhysicallyOnline;
-
+                                        
                                         const isMaintenance = device.status === 'MAINTENANCE';
+                                        const isOfflineDb = device.status === 'OFFLINE';
+                                        const isOffline = isOfflineDb || !isPhysicallyOnline;
+
                                         const isAllocated = device.isAllocated;
                                         const isDisabled = isMaintenance || isAllocated || isOffline;
                                         const isSelected = field.value?.includes(device.id);
@@ -231,9 +236,17 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                                                     ) : (
                                                         <div className={cn(
                                                             "h-5 w-5 rounded-full border-2",
-                                                            isDisabled ? "border-slate-300 dark:border-slate-700" : "border-slate-300 dark:border-slate-600"
+                                                            isDisabled ? "border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800" : "border-slate-300 dark:border-slate-600"
                                                         )} />
                                                     )}
+                                                    <input 
+                                                        type="checkbox" 
+                                                        className="sr-only" 
+                                                        disabled={isDisabled} 
+                                                        checked={isSelected} 
+                                                        readOnly 
+                                                        aria-hidden="true" 
+                                                    />
                                                 </div>
 
                                                 <div className="flex items-center gap-3 mb-3">
@@ -366,7 +379,7 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                 <div className="flex justify-end pt-4">
                     <Button 
                         type="submit" 
-                        disabled={isPending || isAnySelectedDeviceOffline || selectedDeviceIds.length === 0}
+                        disabled={isPending || isAnyProjectDeviceOffline || selectedDeviceIds.length === 0}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[140px]"
                     >
                         {isPending ? (

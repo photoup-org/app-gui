@@ -10,6 +10,25 @@ export async function createExperimentAction(projectId: string, data: CreateExpe
   try {
     const validatedData = createExperimentSchema.parse(data);
 
+    const selectedDevices = await prisma.device.findMany({
+      where: { id: { in: validatedData.deviceIds } },
+      select: { 
+        status: true,
+        product: { select: { type: true, name: true } } 
+      }
+    });
+
+    const hasGateway = selectedDevices.some(d => d.product.type === 'GATEWAY');
+    if (hasGateway) {
+      throw new Error("Não é possível alocar um Gateway a uma experiência. Selecione apenas sensores.");
+    }
+
+    const offlineDevices = selectedDevices.filter(d => d.status !== 'ACTIVE');
+    if (offlineDevices.length > 0) {
+      const names = offlineDevices.map(d => d.product.name).join(', ');
+      throw new Error(`Não é possível iniciar a experiência. Os seguintes sensores estão offline ou em manutenção: ${names}`);
+    }
+
     const experiment = await prisma.experiment.create({
       data: {
         projectId,
