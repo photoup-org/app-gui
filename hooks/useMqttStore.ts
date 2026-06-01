@@ -26,7 +26,42 @@ interface MqttActions {
   publish: (topic: string, payload: any) => void;
 }
 
-export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
+let liveValuesBuffer: Record<string, any> = {};
+let chartSeriesBuffer: Record<string, any[]> = {};
+let isBufferDirty = false;
+
+export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
+  // 10Hz (100ms) flush interval to prevent React reconciliation thrashing
+  setInterval(() => {
+    if (!isBufferDirty) return;
+    set((state) => {
+      let newLiveValues = state.liveValues;
+      if (Object.keys(liveValuesBuffer).length > 0) {
+        newLiveValues = { ...state.liveValues, ...liveValuesBuffer };
+      }
+      
+      let newChartSeries = state.chartSeries;
+      if (Object.keys(chartSeriesBuffer).length > 0) {
+        newChartSeries = { ...state.chartSeries };
+        Object.keys(chartSeriesBuffer).forEach(deviceId => {
+          const currentSeries = newChartSeries[deviceId] || [];
+          const combined = [...currentSeries, ...chartSeriesBuffer[deviceId]];
+          newChartSeries[deviceId] = combined.slice(-1000);
+        });
+      }
+
+      liveValuesBuffer = {};
+      chartSeriesBuffer = {};
+      isBufferDirty = false;
+
+      return {
+        liveValues: newLiveValues,
+        chartSeries: newChartSeries
+      };
+    });
+  }, 100);
+
+  return {
   client: null,
   isConnected: false,
   listeners: {},
@@ -127,12 +162,8 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
           const payload = JSON.parse(payloadString);
 
           if (streamType === 'raw') {
-            set((state) => ({
-              liveValues: {
-                ...state.liveValues,
-                [deviceId]: payload
-              }
-            }));
+            liveValuesBuffer[deviceId] = payload;
+            isBufferDirty = true;
           } else if (streamType === 'sync') {
             const timestamp = payload.timestamp || new Date().toISOString();
             const newReadings: any[] = [];
@@ -150,16 +181,11 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
             });
 
             if (newReadings.length > 0) {
-              set((state) => {
-                const currentSeries = state.chartSeries[deviceId] || [];
-                const combined = [...currentSeries, ...newReadings];
-                return {
-                  chartSeries: {
-                    ...state.chartSeries,
-                    [deviceId]: combined.slice(-1000)
-                  }
-                };
-              });
+              if (!chartSeriesBuffer[deviceId]) {
+                chartSeriesBuffer[deviceId] = [];
+              }
+              chartSeriesBuffer[deviceId].push(...newReadings);
+              isBufferDirty = true;
             }
           }
 
@@ -280,4 +306,5 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => ({
       }
     });
   },
-}));
+};
+});

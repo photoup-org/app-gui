@@ -1,9 +1,15 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { getAppSession } from "@/lib/auth/session";
 
 export async function getExperimentsByProjectIdAction(projectId: string) {
     try {
+        const session = await getAppSession();
+        if (!session?.user) {
+            return { success: false, error: "Unauthorized" };
+        }
+
         const experiments = await prisma.experiment.findMany({
             where: { projectId },
             orderBy: {
@@ -31,6 +37,11 @@ export async function getExperimentsByProjectIdAction(projectId: string) {
 
 export async function getProjectEquipmentAction(projectId: string) {
     try {
+        const session = await getAppSession();
+        if (!session?.user) {
+            return { success: false, error: "Unauthorized" };
+        }
+
         const devices = await prisma.device.findMany({
             where: { projectId },
             include: {

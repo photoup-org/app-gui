@@ -1,12 +1,7 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+"use client";
+
 import { Device, HardwareProduct } from "@prisma/client";
+import { DataTable, ColumnDef } from "@/components/ui/data-table";
 
 type DeviceWithProduct = Device & { 
   product: Pick<HardwareProduct, "id" | "name" | "type">;
@@ -27,54 +22,51 @@ interface EquipmentTableProps {
 }
 
 export function EquipmentTable({ devices }: EquipmentTableProps) {
-  if (devices.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed rounded-lg bg-muted/20">
-        <p className="text-sm text-muted-foreground">Nenhum equipamento alocado</p>
-      </div>
-    );
-  }
+  const columns: ColumnDef<DeviceWithProduct>[] = [
+    {
+      header: "Nome",
+      className: "font-medium",
+      cell: (device) => device.product.name,
+    },
+    {
+      header: "S/N",
+      className: "text-muted-foreground font-mono text-xs",
+      cell: (device) => device.serialNumber,
+    },
+    {
+      header: "Tipo",
+      cell: (device) => {
+        let typeLabel = device.product.type;
+        if (typeLabel === "GATEWAY") return "Gateway";
+        if (typeLabel.includes("SENSOR")) return "Sensor";
+        return typeLabel;
+      },
+    },
+    {
+      header: "Estado",
+      cell: (device) => {
+        const isBusy = device.experiments && device.experiments.length > 0;
+        const effectiveStatus = isBusy ? "IN_USE" : device.status;
+        const uiConfig = STATUS_UI_MAP[effectiveStatus] || { 
+          label: effectiveStatus, 
+          colorClass: 'bg-gray-200 text-black' 
+        };
+
+        return (
+          <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase font-semibold tracking-wider ${uiConfig.colorClass}`}>
+            {uiConfig.label}
+          </span>
+        );
+      },
+    }
+  ];
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>S/N</TableHead>
-            <TableHead>Tipo</TableHead>
-            <TableHead>Estado</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {devices.map((device) => {
-            const isBusy = device.experiments && device.experiments.length > 0;
-            const effectiveStatus = isBusy ? "IN_USE" : device.status;
-            
-            const uiConfig = STATUS_UI_MAP[effectiveStatus] || { 
-              label: effectiveStatus, 
-              colorClass: 'bg-gray-200 text-black' 
-            };
-
-            let typeLabel = device.product.type;
-            if (typeLabel === "GATEWAY") typeLabel = "Gateway";
-            else if (typeLabel.includes("SENSOR")) typeLabel = "Sensor";
-
-            return (
-              <TableRow key={device.id}>
-                <TableCell className="font-medium">{device.product.name}</TableCell>
-                <TableCell className="text-muted-foreground font-mono text-xs">{device.serialNumber}</TableCell>
-                <TableCell>{typeLabel}</TableCell>
-                <TableCell>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase font-semibold tracking-wider ${uiConfig.colorClass}`}>
-                    {uiConfig.label}
-                  </span>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+    <DataTable
+      data={devices}
+      columns={columns}
+      keyExtractor={(device) => device.id}
+      emptyMessage="Nenhum equipamento alocado"
+    />
   );
 }

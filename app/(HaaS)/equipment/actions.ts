@@ -2,9 +2,15 @@
 
 import prisma from "@/lib/prisma";
 import { DeviceStatus } from "@prisma/client";
+import { getAppSession } from "@/lib/auth/session";
 
 export async function getDevicesByStatusAction(status: string) {
     try {
+        const session = await getAppSession();
+        if (!session?.user) {
+            return { success: false, error: "Unauthorized" };
+        }
+
         // Map UI pseudo-statuses (BUSY, OFFLINE) to their Prisma base status (ACTIVE)
         const queryStatus = (status === 'BUSY' || status === 'OFFLINE') 
             ? 'ACTIVE' 
