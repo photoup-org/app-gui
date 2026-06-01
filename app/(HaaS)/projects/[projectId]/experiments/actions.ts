@@ -55,7 +55,13 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
   try {
     const experiment = await prisma.experiment.findUnique({
       where: { id: experimentId },
-      select: { status: true, lastRunAt: true, settings: true, devices: { select: { id: true, status: true, serialNumber: true } } }
+      select: { 
+        status: true, 
+        lastRunAt: true, 
+        settings: true, 
+        devices: { select: { id: true, status: true, serialNumber: true } },
+        project: { select: { departmentId: true } }
+      }
     });
 
     if (!experiment) {
@@ -112,8 +118,10 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
           return acc;
         }, {} as Record<string, string>);
         
-        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap });
-        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap });
+        const departmentId = experiment.project?.departmentId;
+        
+        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap, departmentId });
+        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap, departmentId });
       } else if (newStatus === 'PAUSED' || newStatus === 'COMPLETED') {
         await publishMQTTMessage(`cmd/experiments/${experimentId}/flush`, {});
       }

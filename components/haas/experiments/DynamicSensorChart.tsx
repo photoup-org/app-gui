@@ -36,41 +36,40 @@ interface DynamicSensorChartProps {
     experimentStatus: string;
 }
 
-export default function DynamicSensorChart({ 
-    deviceId, 
-    telemetryData, 
-    metricKey, 
-    chartTitle, 
-    unit, 
-    color, 
-    min, 
-    max, 
-    deviceLabel, 
-    experimentStatus 
+export default function DynamicSensorChart({
+    deviceId,
+    telemetryData,
+    metricKey,
+    chartTitle,
+    unit,
+    color,
+    min,
+    max,
+    deviceLabel,
+    experimentStatus
 }: DynamicSensorChartProps) {
     const storeChartSeriesRaw = useMqttStore(state => state.chartSeries[deviceId]);
     const liveValuesRaw = useMqttStore(state => state.liveValues[deviceId]);
     const subscribe = useMqttStore(state => state.subscribe);
+    const departmentId = useMqttStore(state => state.departmentId);
 
     useEffect(() => {
-        if (!deviceId) return;
+        if (!deviceId || !departmentId) return;
 
         // Trigger subscriptions so the client requests data from the broker. 
         // We pass a no-op callback since the global store handles state updates.
-        const unsubRaw = subscribe(`ui/live/device/${deviceId}/raw`, () => { });
-        const unsubSync = subscribe(`ui/live/device/${deviceId}/sync`, () => { });
+        const unsubSync = subscribe(`ui/live/department/${departmentId}/device/${deviceId}/sync`, () => { });
 
         return () => {
-            unsubRaw();
             unsubSync();
         };
-    }, [deviceId, subscribe]);
+    }, [deviceId, departmentId, subscribe]);
 
     const storeChartSeries = storeChartSeriesRaw || [];
     const liveValues = liveValuesRaw || {};
 
     const chartData = [...(telemetryData || []), ...storeChartSeries].slice(-1000);
-    
+
     const metricData = chartData
         .filter((reading) => reading.metricType === metricKey)
         .map((reading) => ({
@@ -105,7 +104,7 @@ export default function DynamicSensorChart({
                             Sem dados registados
                         </div>
                     ) : (
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                             <LineChart data={metricData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
                                 <XAxis

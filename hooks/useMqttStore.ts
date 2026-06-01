@@ -85,8 +85,9 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
       // If we already have a client but received a new departmentId, we should store it
       if (departmentId && departmentId !== get().departmentId) {
          set({ departmentId });
-         // Subscribe to the new tenant's log topic
+         // Subscribe to the new tenant's log topic and telemetry
          client.subscribe(`ui/live/${departmentId}/logs`);
+         client.subscribe(`ui/live/department/${departmentId}/device/+/sync`);
       }
       return;
     }
@@ -121,11 +122,14 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
         if (err) console.error('[MQTT] Failed to subscribe to system/devices/registered:', err);
       });
 
-      // Subscribe to tenant-scoped logs if departmentId is available
+      // Subscribe to tenant-scoped logs and telemetry if departmentId is available
       const currentDeptId = get().departmentId;
       if (currentDeptId) {
         mqttClient.subscribe(`ui/live/${currentDeptId}/logs`, (err) => {
-           if (err) console.error(`[MQTT] Failed to subscribe to ui/live/${currentDeptId}/logs:`, err);
+           if (err) console.error(`[MQTT] Failed to subscribe to logs:`, err);
+        });
+        mqttClient.subscribe(`ui/live/department/${currentDeptId}/device/+/sync`, (err) => {
+           if (err) console.error(`[MQTT] Failed to subscribe to telemetry:`, err);
         });
       }
 
@@ -175,8 +179,11 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
         return;
       }
 
+      const parts = topic.split('/');
+      const currentDeptId = get().departmentId;
+
       // Handle Tenant-Scoped Live Logs
-      if (topic.startsWith('ui/live/') && topic.endsWith('/logs')) {
+      if (currentDeptId && topic === `ui/live/${currentDeptId}/logs`) {
         try {
           const payload = JSON.parse(payloadString);
           
@@ -199,42 +206,36 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
         return;
       }
 
-      // Intercept new topic structure
-      if (topic.startsWith('ui/live/device/')) {
-        const parts = topic.split('/');
-        const deviceId = parts[3];
-        const streamType = parts[4];
-        if (!deviceId || !streamType) return;
-        
+      // Handle Telemetry
+      if (parts.length === 7 && parts[4] === 'device' && parts[6] === 'sync') {
+        const deviceId = parts[5];
         try {
           const payload = JSON.parse(payloadString);
+          
+          // Populate live values for immediate UI rendering
+          liveValuesBuffer[deviceId] = payload;
 
-          if (streamType === 'raw') {
-            liveValuesBuffer[deviceId] = payload;
-            isBufferDirty = true;
-          } else if (streamType === 'sync') {
-            const timestamp = payload.timestamp || new Date().toISOString();
-            const newReadings: any[] = [];
-            
-            Object.keys(payload).forEach(key => {
-                if (key !== 'timestamp' && key !== 'device_id' && key !== 'deviceId') {
-                    newReadings.push({
-                        id: Math.random().toString(36).substring(7),
-                        deviceId: deviceId,
-                        metricType: key,
-                        value: Number(payload[key]),
-                        timestamp: timestamp
-                    });
-                }
-            });
-
-            if (newReadings.length > 0) {
-              if (!chartSeriesBuffer[deviceId]) {
-                chartSeriesBuffer[deviceId] = [];
+          const timestamp = payload.timestamp || new Date().toISOString();
+          const newReadings: any[] = [];
+          
+          Object.keys(payload).forEach(key => {
+              if (key !== 'timestamp' && key !== 'device_id' && key !== 'deviceId') {
+                  newReadings.push({
+                      id: Math.random().toString(36).substring(7),
+                      deviceId: deviceId,
+                      metricType: key,
+                      value: Number(payload[key]),
+                      timestamp: timestamp
+                  });
               }
-              chartSeriesBuffer[deviceId].push(...newReadings);
-              isBufferDirty = true;
+          });
+
+          if (newReadings.length > 0) {
+            if (!chartSeriesBuffer[deviceId]) {
+              chartSeriesBuffer[deviceId] = [];
             }
+            chartSeriesBuffer[deviceId].push(...newReadings);
+            isBufferDirty = true;
           }
 
           // Still execute callbacks for components using the subscribe hook
@@ -251,7 +252,20 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
         } catch (err) {
           console.error("Failed to parse live telemetry:", err);
         }
-        return; // Exit early so it doesn't fall into older parsers
+        return; // Exit early
+      }
+
+      // Handle raw values
+      if (parts.length === 7 && parts[4] === 'device' && parts[6] === 'raw') {
+        const deviceId = parts[5];
+        try {
+          const payload = JSON.parse(payloadString);
+          liveValuesBuffer[deviceId] = payload;
+          isBufferDirty = true;
+        } catch (err) {
+          console.error("Failed to parse raw telemetry:", err);
+        }
+        return;
       }
 
       try {
