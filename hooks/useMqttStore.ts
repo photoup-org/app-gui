@@ -17,10 +17,13 @@ interface MqttState {
   lastRegistrationUpdate: number;
   liveValues: Record<string, any>;
   chartSeries: Record<string, any[]>;
+  departmentId: string | null;
+  liveLogs: any[];
+  liveAlerts: any[];
 }
 
 interface MqttActions {
-  connect: (brokerUrl?: string) => void;
+  connect: (brokerUrl?: string, departmentId?: string) => void;
   disconnect: () => void;
   subscribe: (topic: string, callback: (payload: any) => void) => () => void;
   publish: (topic: string, payload: any) => void;
@@ -70,13 +73,26 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
   lastRegistrationUpdate: 0,
   liveValues: {},
   chartSeries: {},
+  departmentId: null,
+  liveLogs: [],
+  liveAlerts: [],
 
-  connect: (brokerUrl) => {
+  connect: (brokerUrl, departmentId) => {
     const mqttUrl = brokerUrl || process.env.MQTT_CONNECTION_URL;
     const { client } = get();
     // Prevent duplicate client connections
     if (client) {
+      // If we already have a client but received a new departmentId, we should store it
+      if (departmentId && departmentId !== get().departmentId) {
+         set({ departmentId });
+         // Subscribe to the new tenant's log topic
+         client.subscribe(`ui/live/${departmentId}/logs`);
+      }
       return;
+    }
+
+    if (departmentId) {
+       set({ departmentId });
     }
 
     console.log(`[MQTT] Connecting to broker at ${mqttUrl}...`);
@@ -104,6 +120,14 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
       mqttClient.subscribe('system/devices/registered', (err) => {
         if (err) console.error('[MQTT] Failed to subscribe to system/devices/registered:', err);
       });
+
+      // Subscribe to tenant-scoped logs if departmentId is available
+      const currentDeptId = get().departmentId;
+      if (currentDeptId) {
+        mqttClient.subscribe(`ui/live/${currentDeptId}/logs`, (err) => {
+           if (err) console.error(`[MQTT] Failed to subscribe to ui/live/${currentDeptId}/logs:`, err);
+        });
+      }
 
       mqttClient.publish('system/devices/request', JSON.stringify({}));
 
@@ -147,6 +171,30 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
               }
             }
           }));
+        }
+        return;
+      }
+
+      // Handle Tenant-Scoped Live Logs
+      if (topic.startsWith('ui/live/') && topic.endsWith('/logs')) {
+        try {
+          const payload = JSON.parse(payloadString);
+          
+          set((state) => {
+            if (payload.category === 'ALERT' || payload.level === 'ERROR' || payload.level === 'CRITICAL') {
+              if (state.liveAlerts.some(alert => alert.id === payload.id)) return state;
+              return {
+                liveAlerts: [payload, ...state.liveAlerts].slice(0, 100)
+              };
+            } else {
+              if (state.liveLogs.some(log => log.id === payload.id)) return state;
+              return {
+                liveLogs: [payload, ...state.liveLogs].slice(0, 100)
+              };
+            }
+          });
+        } catch (err) {
+          console.error("Failed to parse live log:", err);
         }
         return;
       }

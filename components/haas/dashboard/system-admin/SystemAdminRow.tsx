@@ -1,4 +1,5 @@
-import { checkNetworkReadiness, getRecentLogs, getTeamSummary } from "@/lib/data/system";
+import { checkNetworkReadiness, getTeamSummary } from "@/lib/data/system";
+import { getRecentLogsAction } from "@/app/(HaaS)/logs/actions";
 import { getAppSession } from "@/lib/auth/session";
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import { NetworkTestWidget } from "./NetworkTestWidget";
@@ -17,7 +18,7 @@ export async function SystemAdminRow() {
 
   const [isNetworkReady, logsData, teamData] = await Promise.all([
     checkNetworkReadiness(departmentId),
-    getRecentLogs(departmentId, 5),
+    getRecentLogsAction(5),
     getTeamSummary(departmentId),
   ]);
 

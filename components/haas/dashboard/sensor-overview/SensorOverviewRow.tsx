@@ -2,7 +2,8 @@ import DashboardRow from "../DashboardRow"
 import AlertSummary from "./AlertSummary"
 import CalibrationSummary from "./CalibrationSummary"
 import InventorySummary from "./InventorySummary"
-import { getInventoryStatus, getCalibrationList, getAlertsSummary } from "@/lib/data/maintenance"
+import { getInventoryStatus, getCalibrationList } from "@/lib/data/maintenance"
+import { getRecentAlertsAction } from "@/app/(HaaS)/logs/actions"
 import { getAppSession } from "@/lib/auth/session"
 import { getUserWorkspaceContext } from "@/lib/services/workspace"
 
@@ -22,14 +23,14 @@ const SensorOverviewRow = async ({ calibrationPage = 1 }: SensorOverviewRowProps
     const [inventoryData, calibrationData, alertsData] = await Promise.all([
         getInventoryStatus(departmentId),
         getCalibrationList(departmentId, calibrationPage, 5), // exactly 5 items per visual design
-        getAlertsSummary(departmentId, 15), // last 15 days
+        getRecentAlertsAction(10), 
     ]);
 
     return (
         <DashboardRow className="h-80">
             <InventorySummary devices={inventoryData} />
             <CalibrationSummary data={calibrationData} />
-            <AlertSummary data={alertsData} />
+            <AlertSummary initialAlerts={alertsData} />
         </DashboardRow>
     )
 }

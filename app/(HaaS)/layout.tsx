@@ -12,6 +12,7 @@ import { CreateProjectDialog } from "@/components/haas/projects/CreateProjectDia
 import { DeviceDetailsDialog } from "@/components/haas/devices/DeviceDetailsDialog";
 import { DeviceChartDialog } from "@/components/haas/devices/DeviceChartDialog";
 import { MqttConnectionManager } from "@/components/haas/providers/MqttConnectionManager";
+import { AlertNotifier } from "@/components/haas/providers/AlertNotifier";
 
 import { getPlanUsageStats } from "@/lib/services/billing";
 import prisma from "@/lib/prisma";
@@ -93,6 +94,7 @@ export default async function Layout({
   return (
     <AppProvider initialState={initialState}>
       <MqttConnectionManager />
+      <AlertNotifier />
       <AppTemplate>
         {hasClaimedGateway ? children : <HardwarePendingScreen latestOrder={latestOrder} />}
       </AppTemplate>

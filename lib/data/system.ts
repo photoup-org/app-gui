@@ -1,14 +1,6 @@
 import prisma from "@/lib/prisma";
 import { User, SystemLog } from "@prisma/client";
 
-export interface SystemLogWithUser extends SystemLog {
-  user: User | null;
-}
-
-export interface RecentLogsResponse {
-  logs: SystemLogWithUser[];
-  total: number;
-}
 
 export interface TeamSummaryResponse {
   members: User[];
@@ -39,51 +31,6 @@ export async function checkNetworkReadiness(departmentId: string): Promise<boole
   }
 }
 
-/**
- * Objective: Fetch the most recent system audit logs.
- * Query: prisma.systemLog.findMany filtering by departmentId.
- * Includes: Include the related user (to get their name/email if applicable).
- * Order: Order by createdAt: 'desc'.
- * Limit: Limit the results using the take parameter.
- * Transform: Return the array of logs along with a total count (prisma.systemLog.count).
- */
-export async function getRecentLogs(
-  departmentId: string,
-  take: number = 5
-): Promise<RecentLogsResponse> {
-  try {
-    const [logs, total] = await Promise.all([
-      prisma.systemLog.findMany({
-        where: {
-          departmentId,
-        },
-        include: {
-          user: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        take,
-      }),
-      prisma.systemLog.count({
-        where: {
-          departmentId,
-        },
-      }),
-    ]);
-
-    return {
-      logs,
-      total,
-    };
-  } catch (error) {
-    console.error("Error in getRecentLogs:", error);
-    return {
-      logs: [],
-      total: 0,
-    };
-  }
-}
 
 /**
  * Objective: Fetch team members and calculate plan limits.

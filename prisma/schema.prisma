@@ -336,16 +336,44 @@ model Experiment {
   readings           SensorReading[]
 }
 
+enum LogLevel {
+  INFO
+  WARN
+  ERROR
+  CRITICAL
+}
+
+enum LogCategory {
+  EXPERIMENT
+  ALERT
+  HARDWARE
+  SYSTEM
+}
+
 model SystemLog {
-  id           String   @id @default(cuid())
-  departmentId String
-  userId       String? // Optional: Links to the user who performed the action
-  actionType   String // e.g., "DEVICE_REGISTERED", "USER_INVITED"
-  description  String // e.g., "Novo sensor de pH registado..."
-  createdAt    DateTime @default(now())
+  id            String      @id @default(uuid())
+  timestamp     DateTime    @default(now())
+  
+  level         LogLevel
+  category      LogCategory
+  action        String      // e.g., "EXPERIMENT_STARTED", "THRESHOLD_EXCEEDED"
+  message       String      // Human-readable description
+  metadata      Json?       // Flexible payload for specific details (e.g., { "temperature": 45, "limit": 40 })
 
-  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  user       User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // Tenant Isolation
+  departmentId  String
+  department    Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade)
 
-  @@index([departmentId, createdAt(sort: Desc)])
+  // Relational Links (All Optional so a log can belong to any level)
+  projectId     String?
+  experimentId  String?
+  deviceId      String?
+  userId        String?     // The Auth0 user who triggered the event, if applicable
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([departmentId])
+  @@index([projectId])
+  @@index([experimentId])
+  @@index([deviceId])
+  @@index([timestamp])
 }

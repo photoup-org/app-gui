@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Filter, ExternalLink, MoreVertical, Terminal } from "lucide-react";
-import { SystemLogWithUser } from "@/lib/data/system";
+import { useMqttStore } from "@/hooks/useMqttStore";
+import { SystemLogWithUser } from "@/app/(HaaS)/logs/actions";
 
 interface SystemLogsWidgetProps {
   data: {
@@ -15,6 +16,12 @@ interface SystemLogsWidgetProps {
 }
 
 export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
+  const liveLogs = useMqttStore((state) => state.liveLogs);
+  
+  // Combine historical and live logs (avoiding duplicates if possible, or just concat and slice)
+  // Since liveLogs don't have standard IDs until persisted, we just prepend them
+  const allLogs = [...liveLogs, ...data.logs].slice(0, 50);
+
   // Helper to format Date: DD/MM/YYYY - HH:mm
   const formatLogDate = (dateVal: Date | string) => {
     const d = new Date(dateVal);
@@ -54,7 +61,7 @@ export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
 
         <CardContent className="pt-0 px-4">
           <ScrollArea className="h-[180px] pr-2">
-            {data.logs.length === 0 ? (
+            {allLogs.length === 0 ? (
               <div className="flex h-[150px] items-center justify-center">
                 <span className="text-xs text-slate-400 dark:text-slate-600">
                   Nenhum log registado.
@@ -62,9 +69,9 @@ export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
               </div>
             ) : (
               <div className="space-y-3">
-                {data.logs.map((log) => (
+                {allLogs.map((log, index) => (
                   <div
-                    key={log.id}
+                    key={log.id || index}
                     className="flex items-start justify-between gap-3 py-2 border-b border-slate-50 dark:border-slate-800/50 last:border-0"
                   >
                     {/* Left Icon */}
@@ -75,7 +82,7 @@ export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
                     {/* Middle Text */}
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 leading-snug wrap-break-word">
-                        {log.description}
+                        {log.message}
                         {log.user && (
                           <span className="text-slate-500 dark:text-slate-400 font-medium">
                             {" "}
@@ -84,7 +91,7 @@ export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
                         )}
                       </p>
                       <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block font-medium">
-                        {formatLogDate(log.createdAt)}
+                        {formatLogDate(log.timestamp)}
                       </span>
                     </div>
 
@@ -92,9 +99,13 @@ export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
                     <div className="flex items-center gap-1 shrink-0">
                       <Badge
                         variant="secondary"
-                        className="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border-0 text-[10px] font-bold px-2 py-0.5 hover:bg-indigo-100/50 dark:hover:bg-indigo-950"
+                        className={`border-0 text-[10px] font-bold px-2 py-0.5 ${
+                          log.level === 'WARN' 
+                            ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400' 
+                            : 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400'
+                        }`}
                       >
-                        Info
+                        {log.level === 'WARN' ? 'Aviso' : 'Info'}
                       </Badge>
                       <Button
                         variant="ghost"
