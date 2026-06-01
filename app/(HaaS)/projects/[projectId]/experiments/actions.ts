@@ -120,8 +120,8 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
         
         const departmentId = experiment.project?.departmentId;
         
-        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap, departmentId });
-        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap, departmentId });
+        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap, departmentId, settings });
+        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap, departmentId, settings });
       } else if (newStatus === 'PAUSED' || newStatus === 'COMPLETED') {
         await publishMQTTMessage(`cmd/experiments/${experimentId}/flush`, {});
       }

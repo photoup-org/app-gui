@@ -19,8 +19,13 @@ interface AlertSummaryProps {
 const AlertSummary = ({ initialAlerts }: AlertSummaryProps) => {
     const liveAlerts = useMqttStore((state) => state.liveAlerts);
     
-    // Combine live and initial
-    const allAlerts = [...liveAlerts, ...initialAlerts.alerts].slice(0, 50);
+    // Combine live and initial with strict deduplication
+    const allAlerts = [
+        ...liveAlerts,
+        ...initialAlerts.alerts.filter(
+            (initial) => !liveAlerts.some((live) => live.id === initial.id)
+        )
+    ].slice(0, 50);
 
     const formatLogDate = (dateVal: Date | string) => {
         const d = new Date(dateVal);

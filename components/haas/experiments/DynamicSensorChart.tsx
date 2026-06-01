@@ -59,9 +59,11 @@ export default function DynamicSensorChart({
         // Trigger subscriptions so the client requests data from the broker. 
         // We pass a no-op callback since the global store handles state updates.
         const unsubSync = subscribe(`ui/live/department/${departmentId}/device/${deviceId}/sync`, () => { });
+        const unsubRaw = subscribe(`ui/live/department/${departmentId}/device/${deviceId}/raw`, () => { });
 
         return () => {
             unsubSync();
+            unsubRaw();
         };
     }, [deviceId, departmentId, subscribe]);
 

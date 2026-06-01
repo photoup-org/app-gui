@@ -18,9 +18,13 @@ interface SystemLogsWidgetProps {
 export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
   const liveLogs = useMqttStore((state) => state.liveLogs);
   
-  // Combine historical and live logs (avoiding duplicates if possible, or just concat and slice)
-  // Since liveLogs don't have standard IDs until persisted, we just prepend them
-  const allLogs = [...liveLogs, ...data.logs].slice(0, 50);
+  // Combine historical and live logs with strict deduplication
+  const allLogs = [
+      ...liveLogs,
+      ...data.logs.filter(
+          (historical) => !liveLogs.some((live) => live.id === historical.id)
+      )
+  ].slice(0, 50);
 
   // Helper to format Date: DD/MM/YYYY - HH:mm
   const formatLogDate = (dateVal: Date | string) => {
