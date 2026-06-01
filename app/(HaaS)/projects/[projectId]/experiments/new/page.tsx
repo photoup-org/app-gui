@@ -45,6 +45,8 @@ export default async function NewExperimentPage({
             isAllocated,
             product: {
                 name: device.product.name,
+                sku: device.product.sku,
+                type: device.product.type
             }
         };
     });
@@ -72,7 +74,7 @@ export default async function NewExperimentPage({
             </div>
 
             <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-                <NewExperimentForm projectId={project.id} devices={serializedDevices} />
+                <NewExperimentForm projectId={project.id} devices={serializedDevices} projectSettings={project.settings} />
             </div>
         </div>
     );

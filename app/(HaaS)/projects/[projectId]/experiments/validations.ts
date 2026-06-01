@@ -9,6 +9,7 @@ export const createExperimentSchema = z.object({
     storageFrequency: z.coerce.number().min(1),
     aggregationStrategy: z.enum(['AVERAGE', 'MAX', 'MIN', 'LAST_VALUE']),
     exportDelimiter: z.enum([':', ';']),
+    devices: z.record(z.string(), z.any()).optional(),
   }).optional(),
 });
 

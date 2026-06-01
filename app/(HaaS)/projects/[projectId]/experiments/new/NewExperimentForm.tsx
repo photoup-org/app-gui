@@ -21,13 +21,20 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useMqttStore } from "@/hooks/useMqttStore";
+import { SENSOR_DICTIONARY } from "@/lib/sensor-schemas";
+import { Cpu } from "lucide-react";
+
+interface DeviceSetting {
+  [key: string]: string | undefined;
+}
 
 interface NewExperimentFormProps {
     projectId: string;
     devices: any[]; // Using any[] here to simplify, realistically it would be a Prisma generated type
+    projectSettings?: any;
 }
 
-export default function NewExperimentForm({ projectId, devices }: NewExperimentFormProps) {
+export default function NewExperimentForm({ projectId, devices, projectSettings }: NewExperimentFormProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const liveDevices = useMqttStore((state) => state.liveDevices);
@@ -43,11 +50,13 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                 storageFrequency: 60,
                 aggregationStrategy: "AVERAGE",
                 exportDelimiter: ";",
+                devices: projectSettings?.devices || {}
             }
         },
     });
 
     const selectedDeviceIds = form.watch("deviceIds") || [];
+    const selectedDevices = devices.filter((d) => selectedDeviceIds.includes(d.id));
     const isAnyProjectDeviceOffline = devices.some(device => {
         if (device.status !== 'ACTIVE') return true;
         const status = liveDevices[device.id]?.status;
@@ -67,8 +76,36 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
             return;
         }
 
+        // Clean settings dynamically: parse alert thresholds
+        const activeSettings: Record<string, any> = {};
+        data.deviceIds.forEach((id) => {
+            const device = devices.find(d => d.id === id);
+            if (!device || !device.product?.sku) return;
+            const capabilities = SENSOR_DICTIONARY[device.product.sku] || [];
+            const devSettings = data.settings?.devices?.[id] as DeviceSetting | undefined;
+            
+            if (devSettings) {
+                const cleanedSettings: Record<string, number | null> = {};
+                capabilities.forEach(cap => {
+                    const minVal = devSettings[`${cap.key}Min`];
+                    const maxVal = devSettings[`${cap.key}Max`];
+                    cleanedSettings[`${cap.key}Min`] = minVal ? parseFloat(minVal) : null;
+                    cleanedSettings[`${cap.key}Max`] = maxVal ? parseFloat(maxVal) : null;
+                });
+                activeSettings[id] = cleanedSettings;
+            }
+        });
+
+        const finalData = {
+            ...data,
+            settings: {
+                ...(data.settings || {}),
+                devices: activeSettings
+            }
+        };
+
         startTransition(async () => {
-            const result = await createExperimentAction(projectId, data);
+            const result = await createExperimentAction(projectId, finalData as any);
             
             if (result.success && result.experimentId) {
                 toast.success("Experiência criada com sucesso!");
@@ -297,6 +334,141 @@ export default function NewExperimentForm({ projectId, devices }: NewExperimentF
                         </FormItem>
                     )}
                 />
+
+                <Separator className="dark:border-slate-800" />
+
+                {/* Alerts Section */}
+                <div className="space-y-4">
+                  <div className="mb-4">
+                      <FormLabel className="text-lg font-semibold text-slate-900 dark:text-slate-100">Configuração de Limites & Alertas</FormLabel>
+                      <FormDescription>
+                          Defina os valores ideais de operação para cada equipamento. Estes limites foram pré-preenchidos com os valores por defeito do projeto.
+                      </FormDescription>
+                  </div>
+
+                  {selectedDevices.length === 0 ? (
+                    <div className="border border-dashed rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center gap-2">
+                      <Cpu className="h-8 w-8 text-muted-foreground/50" />
+                      <p className="text-sm font-medium">Nenhum equipamento selecionado no passo anterior.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {selectedDevices.map((device) => {
+                        const isSensor = device.product.type?.includes("SENSOR");
+                        return (
+                          <div key={device.id} className="border rounded-xl p-4 space-y-4 shadow-sm bg-card transition-all dark:bg-slate-900/20">
+                            <div className="flex items-center justify-between border-b pb-2">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-bold text-card-foreground">{device.product.name}</span>
+                                <span className="text-xs text-muted-foreground font-mono">S/N: {device.serialNumber}</span>
+                              </div>
+                              <Badge variant="outline" className="text-[10px] font-semibold bg-muted uppercase">
+                                {device.product.type}
+                              </Badge>
+                            </div>
+
+                            {/* Dynamically display thresholds based on SENSOR_DICTIONARY if device is a Sensor */}
+                            {isSensor ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {SENSOR_DICTIONARY[device.product.sku]?.map(cap => (
+                                    <div key={cap.key} className="space-y-3 p-3 bg-muted/30 rounded-lg">
+                                      <span className="text-xs font-bold flex items-center gap-1" style={{ color: cap.color }}>
+                                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cap.color }} /> Alertas de {cap.label} ({cap.unit})
+                                      </span>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                          <label className="text-[10px] font-semibold text-muted-foreground uppercase">Mínimo</label>
+                                          <Input
+                                            type="number"
+                                            step="0.1"
+                                            placeholder={`Min (ex: ${cap.min})`}
+                                            className="h-8 text-xs rounded-lg shadow-sm bg-slate-50 dark:bg-slate-900/50"
+                                            {...form.register(`settings.devices.${device.id}.${cap.key}Min`)}
+                                          />
+                                        </div>
+                                        <div className="space-y-1">
+                                          <label className="text-[10px] font-semibold text-muted-foreground uppercase">Máximo</label>
+                                          <Input
+                                            type="number"
+                                            step="0.1"
+                                            placeholder={`Max (ex: ${cap.max})`}
+                                            className="h-8 text-xs rounded-lg shadow-sm bg-slate-50 dark:bg-slate-900/50"
+                                            {...form.register(`settings.devices.${device.id}.${cap.key}Max`)}
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg text-xs text-muted-foreground">
+                                <span>Este dispositivo (Gateway/Base) não possui limites de medição de sensores diretos.</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                <Separator className="dark:border-slate-800" />
+
+                {/* Review Section */}
+                <div className="space-y-4">
+                  <div className="mb-4">
+                      <FormLabel className="text-lg font-semibold text-slate-900 dark:text-slate-100">Resumo de Alertas Ativos</FormLabel>
+                      <FormDescription>
+                          Confira rapidamente os limites que estarão ativos nesta experiência.
+                      </FormDescription>
+                  </div>
+                  <div className="space-y-2">
+                    {selectedDevices.length === 0 ? (
+                        <p className="text-xs text-muted-foreground italic">Nenhum equipamento alocado.</p>
+                    ) : (
+                        selectedDevices.map((device) => {
+                            const devSettings = form.watch(`settings.devices.${device.id}`) as DeviceSetting | undefined;
+                            const capabilities = SENSOR_DICTIONARY[device.product.sku] || [];
+                            
+                            const hasAnyAlert = capabilities.some(cap => 
+                                devSettings?.[`${cap.key}Min`] || devSettings?.[`${cap.key}Max`]
+                            );
+
+                            return (
+                                <div key={device.id} className="border rounded-lg p-3 bg-slate-50 dark:bg-slate-900/50 text-xs space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                    <span className="font-bold">{device.product.name}</span>
+                                    <span className="text-[10px] text-muted-foreground font-mono">S/N: {device.serialNumber}</span>
+                                    </div>
+                                    <Badge variant="outline" className="text-[9px] bg-muted py-0.5">
+                                    {device.product.type}
+                                    </Badge>
+                                </div>
+
+                                {/* Custom threshold displays if configured */}
+                                {hasAnyAlert ? (
+                                    <div className="flex flex-wrap gap-2 pt-1">
+                                    {capabilities.map(cap => {
+                                        const minVal = devSettings?.[`${cap.key}Min`];
+                                        const maxVal = devSettings?.[`${cap.key}Max`];
+                                        if (!minVal && !maxVal) return null;
+                                        return (
+                                            <Badge key={cap.key} variant="secondary" className="text-[9px] gap-1" style={{ backgroundColor: `${cap.color}15`, color: cap.color, borderColor: `${cap.color}30` }}>
+                                            {cap.label}: {minVal || "N/A"} - {maxVal || "N/A"}
+                                            </Badge>
+                                        );
+                                    })}
+                                    </div>
+                                ) : (
+                                    <span className="text-[10px] text-muted-foreground italic block">Sem alertas personalizados ativos para esta experiência.</span>
+                                )}
+                                </div>
+                            );
+                        })
+                    )}
+                  </div>
+                </div>
 
                 <Separator className="dark:border-slate-800" />
 

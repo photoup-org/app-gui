@@ -48,12 +48,10 @@ import { ProjectRole } from "@prisma/client";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
+import { SENSOR_DICTIONARY } from "@/lib/sensor-schemas";
 
 interface DeviceSetting {
-  phMin?: string;
-  phMax?: string;
-  tempMin?: string;
-  tempMax?: string;
+  [key: string]: string | undefined;
 }
 
 interface ProjectWizardValues {
@@ -186,14 +184,20 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
       // Clean settings dynamically: only save configuration for currently selected devices
       const activeSettings: Record<string, any> = {};
       data.deviceIds.forEach((id) => {
+        const device = selectedDevices.find(d => d.id === id);
+        if (!device) return;
+        const capabilities = SENSOR_DICTIONARY[device.product.sku] || [];
         const devSettings = data.settings?.devices?.[id];
+        
         if (devSettings) {
-          activeSettings[id] = {
-            phMin: devSettings.phMin ? parseFloat(devSettings.phMin) : null,
-            phMax: devSettings.phMax ? parseFloat(devSettings.phMax) : null,
-            tempMin: devSettings.tempMin ? parseFloat(devSettings.tempMin) : null,
-            tempMax: devSettings.tempMax ? parseFloat(devSettings.tempMax) : null,
-          };
+          const cleanedSettings: Record<string, number | null> = {};
+          capabilities.forEach(cap => {
+            const minVal = devSettings[`${cap.key}Min`];
+            const maxVal = devSettings[`${cap.key}Max`];
+            cleanedSettings[`${cap.key}Min`] = minVal ? parseFloat(minVal) : null;
+            cleanedSettings[`${cap.key}Max`] = maxVal ? parseFloat(maxVal) : null;
+          });
+          activeSettings[id] = cleanedSettings;
         }
       });
 
@@ -531,64 +535,38 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                               </Badge>
                             </div>
 
-                            {/* Dynamically display pH / Temperature thresholds if device is a Sensor */}
+                            {/* Dynamically display thresholds based on SENSOR_DICTIONARY if device is a Sensor */}
                             {isSensor ? (
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-3 p-3 bg-muted/30 rounded-lg">
-                                  <span className="text-xs font-bold text-primary flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary" /> Alertas de pH
-                                  </span>
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-semibold text-muted-foreground uppercase">Mínimo</label>
-                                      <Input
-                                        type="number"
-                                        step="0.1"
-                                        placeholder="Min (ex: 6.5)"
-                                        className="h-8 text-xs rounded-lg shadow-sm"
-                                        {...form.register(`settings.devices.${device.id}.phMin`)}
-                                      />
+                                {SENSOR_DICTIONARY[device.product.sku]?.map(cap => (
+                                    <div key={cap.key} className="space-y-3 p-3 bg-muted/30 rounded-lg">
+                                      <span className="text-xs font-bold flex items-center gap-1" style={{ color: cap.color }}>
+                                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cap.color }} /> Alertas de {cap.label} ({cap.unit})
+                                      </span>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                          <label className="text-[10px] font-semibold text-muted-foreground uppercase">Mínimo</label>
+                                          <Input
+                                            type="number"
+                                            step="0.1"
+                                            placeholder={`Min (ex: ${cap.min})`}
+                                            className="h-8 text-xs rounded-lg shadow-sm"
+                                            {...form.register(`settings.devices.${device.id}.${cap.key}Min`)}
+                                          />
+                                        </div>
+                                        <div className="space-y-1">
+                                          <label className="text-[10px] font-semibold text-muted-foreground uppercase">Máximo</label>
+                                          <Input
+                                            type="number"
+                                            step="0.1"
+                                            placeholder={`Max (ex: ${cap.max})`}
+                                            className="h-8 text-xs rounded-lg shadow-sm"
+                                            {...form.register(`settings.devices.${device.id}.${cap.key}Max`)}
+                                          />
+                                        </div>
+                                      </div>
                                     </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-semibold text-muted-foreground uppercase">Máximo</label>
-                                      <Input
-                                        type="number"
-                                        step="0.1"
-                                        placeholder="Max (ex: 8.5)"
-                                        className="h-8 text-xs rounded-lg shadow-sm"
-                                        {...form.register(`settings.devices.${device.id}.phMax`)}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="space-y-3 p-3 bg-muted/30 rounded-lg">
-                                  <span className="text-xs font-bold text-primary flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-primary" /> Alertas de Temp. (°C)
-                                  </span>
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-semibold text-muted-foreground uppercase">Mínima</label>
-                                      <Input
-                                        type="number"
-                                        step="0.5"
-                                        placeholder="Min (ex: 18.0)"
-                                        className="h-8 text-xs rounded-lg shadow-sm"
-                                        {...form.register(`settings.devices.${device.id}.tempMin`)}
-                                      />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <label className="text-[10px] font-semibold text-muted-foreground uppercase">Máxima</label>
-                                      <Input
-                                        type="number"
-                                        step="0.5"
-                                        placeholder="Max (ex: 28.0)"
-                                        className="h-8 text-xs rounded-lg shadow-sm"
-                                        {...form.register(`settings.devices.${device.id}.tempMax`)}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
+                                ))}
                               </div>
                             ) : (
                               <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg text-xs text-muted-foreground">
@@ -667,8 +645,11 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                         <div className="space-y-2">
                           {selectedDevices.map((device) => {
                             const devSettings = form.watch(`settings.devices.${device.id}`) as DeviceSetting | undefined;
-                            const hasPHAlert = devSettings?.phMin || devSettings?.phMax;
-                            const hasTempAlert = devSettings?.tempMin || devSettings?.tempMax;
+                            const capabilities = SENSOR_DICTIONARY[device.product.sku] || [];
+                            
+                            const hasAnyAlert = capabilities.some(cap => 
+                                devSettings?.[`${cap.key}Min`] || devSettings?.[`${cap.key}Max`]
+                            );
 
                             return (
                               <div key={device.id} className="border rounded-lg p-3 bg-background text-xs space-y-2">
@@ -683,18 +664,18 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                                 </div>
 
                                 {/* Custom threshold displays if configured */}
-                                {(hasPHAlert || hasTempAlert) ? (
+                                {hasAnyAlert ? (
                                   <div className="flex flex-wrap gap-2 pt-1">
-                                    {hasPHAlert && (
-                                      <Badge variant="secondary" className="text-[9px] gap-1 bg-amber-500/10 text-amber-600 border-amber-500/20">
-                                        pH: {devSettings?.phMin || "N/A"} - {devSettings?.phMax || "N/A"}
-                                      </Badge>
-                                    )}
-                                    {hasTempAlert && (
-                                      <Badge variant="secondary" className="text-[9px] gap-1 bg-sky-500/10 text-sky-600 border-sky-500/20">
-                                        Temp: {devSettings?.tempMin || "N/A"}°C - {devSettings?.tempMax || "N/A"}°C
-                                      </Badge>
-                                    )}
+                                    {capabilities.map(cap => {
+                                        const minVal = devSettings?.[`${cap.key}Min`];
+                                        const maxVal = devSettings?.[`${cap.key}Max`];
+                                        if (!minVal && !maxVal) return null;
+                                        return (
+                                          <Badge key={cap.key} variant="secondary" className="text-[9px] gap-1" style={{ backgroundColor: `${cap.color}15`, color: cap.color, borderColor: `${cap.color}30` }}>
+                                            {cap.label}: {minVal || "N/A"} - {maxVal || "N/A"}
+                                          </Badge>
+                                        );
+                                    })}
                                   </div>
                                 ) : (
                                   <span className="text-[10px] text-muted-foreground italic block">Sem alertas personalizados ativos.</span>
