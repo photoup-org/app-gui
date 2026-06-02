@@ -108,8 +108,8 @@ export const columns: ColumnDef<SystemLogWithUser>[] = [
         const msg = row.getValue("message") as string;
         const user = row.original.user;
         return (
-            <div className="flex flex-col max-w-[400px]">
-                <div className="flex items-start text-xs font-medium text-slate-900 dark:text-slate-100 wrap-break-word">
+            <div className="flex flex-col w-full">
+                <div className="flex items-start text-xs font-medium text-slate-900 dark:text-slate-100 break-words whitespace-normal">
                     <span className="mt-0.5">{getLevelIcon(level)}</span>
                     <span className="leading-snug">{msg}</span>
                 </div>
@@ -209,7 +209,7 @@ export default function IncidentesTable({ data }: IncidentesTableProps) {
                   className="border-b-slate-50 dark:border-b-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-3">
+                    <TableCell key={cell.id} className="px-6 py-3 whitespace-normal">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -225,25 +225,30 @@ export default function IncidentesTable({ data }: IncidentesTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30">
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 text-xs"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 text-xs"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Próxima
-        </Button>
+      <div className="flex items-center justify-between w-full py-4 px-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30">
+        <div className="text-xs text-slate-500 font-medium">
+          Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount() || 1}
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Anterior
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 text-xs"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Próxima
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -6,18 +6,34 @@ import { Button } from "@/components/ui/button";
 import { HardwareRegistrationDialog } from "@/components/haas/dashboard/HardwareRegistrationDialog";
 import { useProjectStore } from "@/hooks/useProjectStore";
 
+const ROUTE_TITLES: Record<string, string> = {
+    '/': 'Visão Geral',
+    '/dashboard': 'Visão Geral',
+    '/projects': 'Os Meus Projetos',
+    '/inventory': 'Inventário',
+    '/alerts': 'Alertas',
+    '/incidentes': 'Incidentes',
+    '/logs': 'Logs do Sistema',
+    '/reports': 'Relatórios',
+    '/settings': 'Definições',
+    '/settings/team': 'Definições de Equipa',
+};
+
 export function DashboardHeader() {
     const pathname = usePathname();
     const { openDialog } = useProjectStore();
 
     // Determine the title based on the pathname
-    let title = "Visão Geral";
-    if (pathname.includes("/projects")) {
-        title = "Os Meus Projetos";
-    } else if (pathname.includes("/settings/team")) {
-        title = "Definições de Equipa";
-    } else if (pathname.includes("/settings")) {
-        title = "Definições";
+    let title = ROUTE_TITLES[pathname];
+
+    if (!title) {
+        if (pathname.startsWith('/projects/')) {
+            title = 'Detalhes do Projeto';
+        } else if (pathname.startsWith('/settings/')) {
+            title = 'Definições';
+        } else {
+            title = 'Visão Geral';
+        }
     }
 
     return (

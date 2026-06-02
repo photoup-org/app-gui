@@ -22,12 +22,7 @@ export default async function InventoryPage() {
 
   return (
     <div className="flex-1 space-y-8 p-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Inventário</h1>
-        <p className="text-slate-500 mt-2">
-          Gerencie gateways e sensores da sua organização.
-        </p>
-      </div>
+
 
       <InventoryClient devices={devices} />
     </div>
