@@ -26,15 +26,18 @@ export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
 
   const busyList: DeviceWithProduct[] = [];
   const onlineList: DeviceWithProduct[] = [];
+  const maintenanceList: DeviceWithProduct[] = [];
   const offlineList: DeviceWithProduct[] = [];
 
   for (const device of activeDevices) {
     const mqttData = liveDevices[device.id];
-    const isPhysicallyOnline = mqttData?.status === 'online' || mqttData?.status === 'busy';
+    const isPhysicallyOnline = mqttData?.status === 'online' || mqttData?.status === 'busy' || mqttData?.status === 'maintenance';
 
     if (isPhysicallyOnline) {
       if (mqttData?.status === 'busy') {
         busyList.push(device);
+      } else if (mqttData?.status === 'maintenance') {
+        maintenanceList.push(device);
       } else {
         onlineList.push(device);
       }
@@ -59,22 +62,30 @@ export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
               <p className="text-sm text-slate-500 text-center py-4">Nenhum sensor ativo no momento.</p>
             ) : (
               <>
-                {/* Render Pending devices first with higher priority to show listening state */}
-                {pendingDevices.map((device) => {
+                {/* Render Online / Busy / Maintenance devices first */}
+                {onlineList.map((device) => {
                   const mqttStatus = liveDevices[device.id]?.status;
-                  return <PendingDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
+                  return <OnlineDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
                 })}
                 {busyList.map((device) => {
                   const mqttStatus = liveDevices[device.id]?.status;
                   return <OnlineDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
                 })}
-                {onlineList.map((device) => {
+                {maintenanceList.map((device) => {
                   const mqttStatus = liveDevices[device.id]?.status;
                   return <OnlineDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
                 })}
+                
+                {/* Offline devices */}
                 {offlineList.map((device) => {
                   const mqttStatus = liveDevices[device.id]?.status;
                   return <OnlineDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
+                })}
+
+                {/* Pending / Waiting connection devices last */}
+                {pendingDevices.map((device) => {
+                  const mqttStatus = liveDevices[device.id]?.status;
+                  return <PendingDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
                 })}
               </>
             )}
@@ -153,11 +164,11 @@ const OnlineDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProdu
           Em Utilização
         </span>
       )}
-      {/* {!isVisuallyActive && (
-        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full whitespace-nowrap">
-          Offline
+      {mqttStatus === 'maintenance' && (
+        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2 py-0.5 rounded-full whitespace-nowrap">
+          Manutenção
         </span>
-      )} */}
+      )}
       <SignalHigh className={`w-4 h-4 ${isVisuallyActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`} />
       <DeviceActionMenu disabled={!isVisuallyActive} deviceId={device.id} />
     </div>
