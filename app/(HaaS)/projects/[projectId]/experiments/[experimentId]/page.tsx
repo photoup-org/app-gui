@@ -191,6 +191,7 @@ export default async function ExperimentDetailsPage({
                             return device.schema.map(cap => (
                                 <DynamicSensorChart
                                     key={`${device.id}-${cap.key}`}
+                                    experimentId={experiment.id}
                                     deviceId={device.id}
                                     telemetryData={device.telemetry}
                                     metricKey={cap.key}

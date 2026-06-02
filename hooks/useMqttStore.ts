@@ -219,10 +219,11 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
           const newReadings: any[] = [];
           
           Object.keys(payload).forEach(key => {
-              if (key !== 'timestamp' && key !== 'device_id' && key !== 'deviceId') {
+              if (key !== 'timestamp' && key !== 'device_id' && key !== 'deviceId' && key !== 'experimentId') {
                   newReadings.push({
                       id: Math.random().toString(36).substring(7),
                       deviceId: deviceId,
+                      experimentId: payload.experimentId,
                       metricType: key,
                       value: Number(payload[key]),
                       timestamp: timestamp

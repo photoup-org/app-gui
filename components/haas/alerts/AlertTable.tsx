@@ -62,9 +62,9 @@ const AlertTable = ({ alerts }: AlertTableProps) => {
   }
 
   return (
-    <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+    <div className="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 max-h-[400px] overflow-y-auto">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 z-10 bg-white dark:bg-slate-950 shadow-[0_1px_0_0_#e2e8f0] dark:shadow-[0_1px_0_0_#1e293b]">
           <TableRow className="hover:bg-transparent">
             <TableHead className="w-[180px]">Data / Hora</TableHead>
             <TableHead className="w-[120px]">Gravidade</TableHead>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { format } from "date-fns";
@@ -21,9 +21,11 @@ export interface SensorReading {
     metricType: string;
     value: number;
     timestamp: Date | string;
+    experimentId?: string | null;
 }
 
 interface DynamicSensorChartProps {
+    experimentId: string;
     deviceId: string;
     telemetryData: SensorReading[];
     metricKey: string;
@@ -37,6 +39,7 @@ interface DynamicSensorChartProps {
 }
 
 export default function DynamicSensorChart({
+    experimentId,
     deviceId,
     telemetryData,
     metricKey,
@@ -70,15 +73,38 @@ export default function DynamicSensorChart({
     const storeChartSeries = storeChartSeriesRaw || [];
     const liveValues = liveValuesRaw || {};
 
-    const chartData = [...(telemetryData || []), ...storeChartSeries].slice(-1000);
+    const chartData = [...(telemetryData || []), ...storeChartSeries].filter(
+        reading => !reading.experimentId || reading.experimentId === experimentId
+    ).slice(-1000);
 
-    const metricData = chartData
-        .filter((reading) => reading.metricType === metricKey)
-        .map((reading) => ({
-            ...reading,
-            formattedTime: format(new Date(reading.timestamp), "HH:mm:ss"),
-            numericValue: Number(reading.value)
-        }));
+    const metricData = useMemo(() => {
+        const raw = chartData
+            .filter((reading) => reading.metricType === metricKey)
+            .map((reading) => {
+                const timeValue = new Date(reading.timestamp).getTime();
+                return {
+                    ...reading,
+                    formattedTime: format(timeValue, "HH:mm:ss"),
+                    numericValue: Number(reading.value),
+                    _timeValue: timeValue
+                };
+            });
+
+        // Deduplicate by exact timestamp to prevent flat lines
+        const timeMap = new Map();
+        raw.forEach(item => {
+            timeMap.set(item._timeValue, item);
+        });
+        
+        const deduplicated = Array.from(timeMap.values());
+        
+        // Sort chronologically. Required because if the local MQTT store has points 
+        // that fall chronologically outside the database fetch range, concatenation 
+        // causes them to be appended out of order.
+        deduplicated.sort((a, b) => a._timeValue - b._timeValue);
+        
+        return deduplicated;
+    }, [chartData, metricKey]);
 
     return (
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm animate-in fade-in duration-500 overflow-hidden group">
@@ -101,9 +127,9 @@ export default function DynamicSensorChart({
             </CardHeader>
             <CardContent>
                 <div className="h-[250px] w-full mt-4">
-                    {metricData.length === 0 ? (
-                        <div className="h-full w-full flex items-center justify-center text-xs text-slate-400 border border-dashed rounded-lg">
-                            Sem dados registados
+                    {metricData.length < 2 ? (
+                        <div className="h-full w-full flex items-center justify-center text-xs text-slate-400 border border-dashed rounded-lg bg-slate-50 dark:bg-slate-900/20">
+                            {metricData.length === 0 ? "Sem dados registados" : "A aguardar mais dados para desenhar o gráfico..."}
                         </div>
                     ) : (
                         <ResponsiveContainer width="100%" height="100%" minWidth={0}>
