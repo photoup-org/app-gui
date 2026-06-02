@@ -67,18 +67,22 @@ export function DeviceActionsMenu({ device }: { device: DeviceProp }) {
     });
   };
 
+  const blockMenu = React.useMemo(() => {
+    return isBusy || device.status === 'PENDING_CONNECTION';
+  }, [isBusy, device.status]);
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button disabled={blockMenu} variant="ghost" className="h-8 w-8 p-0">
             <span className="sr-only">Abrir menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Ações</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
+          <DropdownMenuItem disabled={blockMenu} onClick={() => setIsEditDialogOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
             Editar Nome
           </DropdownMenuItem>
@@ -86,7 +90,7 @@ export function DeviceActionsMenu({ device }: { device: DeviceProp }) {
 
           <DropdownMenuItem
             onClick={() => handleUpdateStatus('MAINTENANCE')}
-            disabled={isBusy || device.status === 'MAINTENANCE'}
+            disabled={blockMenu || device.status === 'MAINTENANCE'}
           >
             <Wrench className="mr-2 h-4 w-4" />
             Colocar em Manutenção
@@ -95,7 +99,7 @@ export function DeviceActionsMenu({ device }: { device: DeviceProp }) {
           {device.status === 'DISABLED' ? (
             <DropdownMenuItem
               onClick={() => handleUpdateStatus('ACTIVE')}
-              disabled={isBusy}
+              disabled={blockMenu}
             >
               <Power className="mr-2 h-4 w-4" />
               Ativar Sensor
@@ -103,7 +107,7 @@ export function DeviceActionsMenu({ device }: { device: DeviceProp }) {
           ) : (
             <DropdownMenuItem
               onClick={() => handleUpdateStatus('DISABLED')}
-              disabled={isBusy}
+              disabled={blockMenu}
             >
               <PowerOff className="mr-2 h-4 w-4" />
               Desligar Sensor
@@ -113,7 +117,7 @@ export function DeviceActionsMenu({ device }: { device: DeviceProp }) {
           {device.status === 'MAINTENANCE' && (
             <DropdownMenuItem
               onClick={() => handleUpdateStatus('ACTIVE')}
-              disabled={isBusy}
+              disabled={blockMenu}
             >
               <Power className="mr-2 h-4 w-4" />
               Colocar em Operação
