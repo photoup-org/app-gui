@@ -6,8 +6,15 @@ import { AlertCircle, TriangleAlert, Info, Maximize, ChevronDown } from "lucide-
 import { cn } from "@/lib/utils"
 
 import { useMqttStore } from "@/hooks/useMqttStore"
-import { SystemLogWithUser } from "@/app/(HaaS)/logs/actions"
+import { SystemLogWithUser, getRecentAlertsAction } from "@/app/(HaaS)/logs/actions"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import AlertDetailsDialog from "../AlertDetailsDialog"
 
 interface AlertSummaryProps {
     initialAlerts: {
@@ -19,10 +26,32 @@ interface AlertSummaryProps {
 const AlertSummary = ({ initialAlerts }: AlertSummaryProps) => {
     const liveAlerts = useMqttStore((state) => state.liveAlerts);
     
-    // Combine live and initial with strict deduplication
+    const [days, setDays] = React.useState(15);
+    const [fetchedAlerts, setFetchedAlerts] = React.useState<{alerts: SystemLogWithUser[], total: number} | null>(null);
+    const [isFetching, setIsFetching] = React.useState(false);
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
+    const handleDaysChange = async (newDays: number) => {
+        setDays(newDays);
+        if (newDays === 15 && !fetchedAlerts) return; // already using initialAlerts
+
+        setIsFetching(true);
+        try {
+            const data = await getRecentAlertsAction(newDays);
+            setFetchedAlerts(data);
+        } catch (error) {
+            console.error("Failed to fetch alerts:", error);
+        } finally {
+            setIsFetching(false);
+        }
+    };
+
+    const currentData = fetchedAlerts || initialAlerts;
+
+    // Combine live and current with strict deduplication
     const allAlerts = [
         ...liveAlerts,
-        ...initialAlerts.alerts.filter(
+        ...currentData.alerts.filter(
             (initial) => !liveAlerts.some((live) => live.id === initial.id)
         )
     ].slice(0, 50);
@@ -50,15 +79,29 @@ const AlertSummary = ({ initialAlerts }: AlertSummaryProps) => {
                         Alertas
                     </CardTitle>
                     <span className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">
-                        Últimos 15 dias
+                        Últimos {days} dias
                     </span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-bold border border-slate-100 dark:border-slate-800 rounded-lg px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors">
-                        <span>15 dias</span>
-                        <ChevronDown className="w-3 h-3" />
-                    </button>
-                    <button className="p-2 border border-slate-100 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-400 dark:text-slate-500 transition-colors" aria-label="Expandir">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-bold border border-slate-100 dark:border-slate-800 rounded-lg px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors">
+                                <span>{days} dias</span>
+                                <ChevronDown className="w-3 h-3" />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleDaysChange(5)}>5 dias</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDaysChange(10)}>10 dias</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDaysChange(15)}>15 dias</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDaysChange(30)}>30 dias</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <button 
+                        onClick={() => setIsDialogOpen(true)}
+                        className="p-2 border border-slate-100 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-400 dark:text-slate-500 transition-colors" 
+                        aria-label="Expandir"
+                    >
                         <Maximize className="w-3.5 h-3.5" />
                     </button>
                 </div>
@@ -122,6 +165,11 @@ const AlertSummary = ({ initialAlerts }: AlertSummaryProps) => {
                     )}
                 </div>
             </CardContent>
+            <AlertDetailsDialog 
+                isOpen={isDialogOpen} 
+                onOpenChange={setIsDialogOpen} 
+                days={days} 
+            />
         </Card>
     )
 }

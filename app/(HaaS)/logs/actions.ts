@@ -3,7 +3,7 @@
 import { getAppSession } from "@/lib/auth/session";
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import prisma from "@/lib/prisma";
-import { SystemLog, User } from "@prisma/client";
+import { SystemLog, User, Prisma } from "@prisma/client";
 
 export interface SystemLogWithUser extends SystemLog {
   user: User | null;
@@ -73,36 +73,35 @@ export async function getRecentLogsAction(
  * Fetches recent alerts (category = ALERT or level = ERROR/CRITICAL).
  */
 export async function getRecentAlertsAction(
-  limit: number = 10
+  days: number = 5
 ): Promise<{ alerts: SystemLogWithUser[]; total: number }> {
   try {
     const departmentId = await getDepartmentIdOrThrow();
 
+    const dateThreshold = new Date();
+    dateThreshold.setDate(dateThreshold.getDate() - days);
+
+    const whereClause: Prisma.SystemLogWhereInput = {
+      departmentId,
+      timestamp: { gte: dateThreshold },
+      OR: [
+        { category: "ALERT" },
+        { level: { in: ["ERROR", "CRITICAL"] } },
+      ],
+    };
+
     const [alerts, total] = await Promise.all([
       prisma.systemLog.findMany({
-        where: {
-          departmentId,
-          OR: [
-            { category: "ALERT" },
-            { level: { in: ["ERROR", "CRITICAL"] } },
-          ],
-        },
+        where: whereClause,
         include: {
           user: true,
         },
         orderBy: {
           timestamp: "desc",
         },
-        take: limit,
       }),
       prisma.systemLog.count({
-        where: {
-          departmentId,
-          OR: [
-            { category: "ALERT" },
-            { level: { in: ["ERROR", "CRITICAL"] } },
-          ],
-        },
+        where: whereClause,
       }),
     ]);
 
