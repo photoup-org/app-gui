@@ -134,6 +134,7 @@ model Device {
   experiments  Experiment[]
   calibrations CalibrationRecord[]
   alerts       Alert[]
+  logs         SystemLog[]
   projectId    String?
   project      Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
 }
@@ -368,6 +369,7 @@ model SystemLog {
   projectId     String?
   experimentId  String?
   deviceId      String?
+  device        Device?     @relation(fields: [deviceId], references: [id], onDelete: SetNull)
   userId        String?     // The Auth0 user who triggered the event, if applicable
   user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
 

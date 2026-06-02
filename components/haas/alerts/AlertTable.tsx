@@ -69,7 +69,7 @@ const AlertTable = ({ alerts }: AlertTableProps) => {
             <TableHead className="w-[180px]">Data / Hora</TableHead>
             <TableHead className="w-[120px]">Gravidade</TableHead>
             <TableHead>Mensagem</TableHead>
-            <TableHead className="w-[150px]">Equipamento (S/N)</TableHead>
+            <TableHead className="w-[200px]">Equipamento</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -89,10 +89,19 @@ const AlertTable = ({ alerts }: AlertTableProps) => {
               <TableCell className="text-slate-600 dark:text-slate-300">
                 {alert.message}
               </TableCell>
-              <TableCell className="text-slate-500 dark:text-slate-400 font-mono text-sm">
-                {alert.metadata && typeof alert.metadata === 'object' && 'deviceSn' in alert.metadata 
-                  ? (alert.metadata as any).deviceSn || "-" 
-                  : "-"}
+              <TableCell>
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-xs text-slate-900 dark:text-slate-100 leading-none mb-1">
+                    {alert.metadata && typeof alert.metadata === 'object' && 'deviceName' in alert.metadata && (alert.metadata as any).deviceName
+                      ? (alert.metadata as any).deviceName
+                      : (alert.device?.product?.name || "")}
+                  </span>
+                  <span className="font-mono text-[10px] text-slate-500 leading-none">
+                    {alert.metadata && typeof alert.metadata === 'object' && 'deviceSn' in alert.metadata && (alert.metadata as any).deviceSn
+                      ? (alert.metadata as any).deviceSn
+                      : (alert.device?.serialNumber || "-")}
+                  </span>
+                </div>
               </TableCell>
             </TableRow>
           ))}

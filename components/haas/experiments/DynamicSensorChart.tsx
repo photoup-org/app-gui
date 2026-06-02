@@ -88,7 +88,7 @@ export default function DynamicSensorChart({
                         {chartTitle} ({unit})
                     </CardTitle>
                     <span className="text-sm text-muted-foreground">
-                        Sensor: {deviceLabel}
+                        {deviceLabel}
                     </span>
                 </div>
                 {(experimentStatus === "RUNNING" || experimentStatus === "PAUSED") && <div className="text-2xl font-bold">

@@ -73,12 +73,16 @@ export function ExperimentTable({ experiments, projectId }: ExperimentTableProps
                 {exp.devices && exp.devices.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                         {exp.devices.map((device: any) => (
-                            <Badge key={device.id} variant="outline" className="flex items-center gap-1.5 py-1 px-2.5">
-                                <Cpu className="w-3.5 h-3.5 text-teal-500" />
-                                <span className="font-mono text-xs">{device.serialNumber || device.id.split('-')[0]}</span>
-                                {device.product?.name && (
-                                    <span className="text-xs text-slate-500">({device.product.name})</span>
-                                )}
+                            <Badge key={device.id} variant="outline" className="flex h-auto items-start gap-2 py-1.5 px-3">
+                                <Cpu className="w-4 h-4 text-teal-500 mt-0.5 shrink-0" />
+                                <div className="flex flex-col items-start text-left">
+                                    <span className="font-semibold text-xs text-slate-900 dark:text-slate-100 leading-none mb-1">
+                                        {device.product?.name || 'Sensor Desconhecido'}
+                                    </span>
+                                    <span className="font-mono text-[10px] text-slate-500 leading-none">
+                                        {device.serialNumber || device.id.split('-')[0]}
+                                    </span>
+                                </div>
                             </Badge>
                         ))}
                     </div>

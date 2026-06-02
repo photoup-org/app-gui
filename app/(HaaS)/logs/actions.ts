@@ -7,6 +7,7 @@ import { SystemLog, User, Prisma } from "@prisma/client";
 
 export interface SystemLogWithUser extends SystemLog {
   user: User | null;
+  device?: { serialNumber: string; product: { name: string } } | null;
 }
 
 /**
@@ -46,6 +47,7 @@ export async function getRecentLogsAction(
         },
         include: {
           user: true,
+          device: { select: { serialNumber: true, product: { select: { name: true } } } }
         },
         orderBy: {
           timestamp: "desc",
@@ -95,6 +97,7 @@ export async function getRecentAlertsAction(
         where: whereClause,
         include: {
           user: true,
+          device: { select: { serialNumber: true, product: { select: { name: true } } } }
         },
         orderBy: {
           timestamp: "desc",
@@ -108,6 +111,50 @@ export async function getRecentAlertsAction(
     return { alerts, total };
   } catch (error) {
     console.error("Error in getRecentAlertsAction:", error);
+    return { alerts: [], total: 0 };
+  }
+}
+
+/**
+ * Fetches alerts (category = ALERT or level = ERROR/CRITICAL) for a specific experiment.
+ */
+export async function getExperimentAlertsAction(
+  experimentId: string,
+  limit: number = 50
+): Promise<{ alerts: SystemLogWithUser[]; total: number }> {
+  try {
+    const departmentId = await getDepartmentIdOrThrow();
+
+    const whereClause: Prisma.SystemLogWhereInput = {
+      departmentId,
+      experimentId,
+      OR: [
+        { category: "ALERT" },
+        { category: "EXPERIMENT" },
+        { level: { in: ["ERROR", "CRITICAL"] } },
+      ],
+    };
+
+    const [alerts, total] = await Promise.all([
+      prisma.systemLog.findMany({
+        where: whereClause,
+        include: {
+          user: true,
+          device: { select: { serialNumber: true, product: { select: { name: true } } } }
+        },
+        orderBy: {
+          timestamp: "desc",
+        },
+        take: limit,
+      }),
+      prisma.systemLog.count({
+        where: whereClause,
+      }),
+    ]);
+
+    return { alerts, total };
+  } catch (error) {
+    console.error("Error in getExperimentAlertsAction:", error);
     return { alerts: [], total: 0 };
   }
 }
@@ -146,6 +193,7 @@ export async function getAllIncidentLogsAction(
         where: whereClause,
         include: {
           user: true,
+          device: { select: { serialNumber: true, product: { select: { name: true } } } }
         },
         orderBy: {
           timestamp: "desc",

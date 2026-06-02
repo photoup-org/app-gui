@@ -12,9 +12,9 @@ export async function createExperimentAction(projectId: string, data: CreateExpe
 
     const selectedDevices = await prisma.device.findMany({
       where: { id: { in: validatedData.deviceIds } },
-      select: { 
+      select: {
         status: true,
-        product: { select: { type: true, name: true } } 
+        product: { select: { type: true, name: true } }
       }
     });
 
@@ -35,13 +35,48 @@ export async function createExperimentAction(projectId: string, data: CreateExpe
         name: validatedData.name,
         startDate: validatedData.startDate,
         endDate: validatedData.endDate || undefined,
-        status: 'PLANNED', 
+        status: 'PLANNED',
         settings: validatedData.settings || undefined,
         devices: {
           connect: validatedData.deviceIds.map((id) => ({ id }))
         }
       }
     });
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { departmentId: true }
+    });
+
+    if (project?.departmentId) {
+      const log = await prisma.systemLog.create({
+        data: {
+          level: 'INFO',
+          category: 'EXPERIMENT',
+          action: 'EXPERIMENT_CREATED',
+          message: `Experiência ${experiment.name} criada.`,
+          departmentId: project.departmentId,
+          experimentId: experiment.id,
+          projectId
+        }
+      });
+
+      try {
+        await publishMQTTMessage(`ui/live/${project.departmentId}/logs`, {
+          id: log.id,
+          timestamp: log.timestamp.toISOString(),
+          level: log.level,
+          category: log.category,
+          action: log.action,
+          message: log.message,
+          departmentId: log.departmentId,
+          experimentId: log.experimentId,
+          projectId: log.projectId
+        });
+      } catch (e) {
+        console.error("Failed to publish experiment creation log to MQTT", e);
+      }
+    }
 
     revalidatePath(`/projects/${projectId}`);
     return { success: true, experimentId: experiment.id };
@@ -55,11 +90,12 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
   try {
     const experiment = await prisma.experiment.findUnique({
       where: { id: experimentId },
-      select: { 
-        status: true, 
-        lastRunAt: true, 
-        settings: true, 
-        devices: { select: { id: true, status: true, serialNumber: true } },
+      select: {
+        name: true,
+        status: true,
+        lastRunAt: true,
+        settings: true,
+        devices: { select: { id: true, status: true, serialNumber: true, product: { select: { name: true } } } },
         project: { select: { departmentId: true } }
       }
     });
@@ -117,13 +153,81 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
           acc[d.id] = d.id;
           return acc;
         }, {} as Record<string, string>);
-        
+
+        const deviceLabels = experiment.devices.reduce((acc, d) => {
+          acc[d.id] = `${d.product.name} (${d.serialNumber ? d.serialNumber.slice(-4) : 'N/A'})`;
+          return acc;
+        }, {} as Record<string, string>);
+
+        const deviceSns = experiment.devices.reduce((acc, d) => {
+          if (d.serialNumber) acc[d.id] = d.serialNumber;
+          return acc;
+        }, {} as Record<string, string>);
+
+        const deviceNames = experiment.devices.reduce((acc, d) => {
+          acc[d.id] = d.product?.name || '';
+          return acc;
+        }, {} as Record<string, string>);
+
         const departmentId = experiment.project?.departmentId;
-        
-        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap, departmentId, settings });
-        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap, departmentId, settings });
+
+        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap, deviceLabels, deviceSns, deviceNames, departmentId, settings });
+        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap, deviceLabels, deviceSns, deviceNames, departmentId, settings });
+
+        if (departmentId) {
+          const log = await prisma.systemLog.create({
+            data: {
+              level: 'INFO',
+              category: 'EXPERIMENT',
+              action: 'EXPERIMENT_STARTED',
+              message: `Experiência ${experiment.name} iniciada.`,
+              departmentId,
+              experimentId,
+              projectId
+            }
+          });
+
+          await publishMQTTMessage(`ui/live/${departmentId}/logs`, {
+            id: log.id,
+            timestamp: log.timestamp.toISOString(),
+            level: log.level,
+            category: log.category,
+            action: log.action,
+            message: log.message,
+            departmentId: log.departmentId,
+            experimentId: log.experimentId,
+            projectId: log.projectId
+          });
+        }
       } else if (newStatus === 'PAUSED' || newStatus === 'COMPLETED') {
         await publishMQTTMessage(`cmd/experiments/${experimentId}/flush`, {});
+
+        const departmentId = experiment.project?.departmentId;
+        if (departmentId) {
+          const log = await prisma.systemLog.create({
+            data: {
+              level: 'INFO',
+              category: 'EXPERIMENT',
+              action: newStatus === 'PAUSED' ? 'EXPERIMENT_PAUSED' : 'EXPERIMENT_COMPLETED',
+              message: `Experiência ${experiment.name} ${newStatus === 'PAUSED' ? 'pausada' : 'concluída'}.`,
+              departmentId,
+              experimentId,
+              projectId
+            }
+          });
+
+          await publishMQTTMessage(`ui/live/${departmentId}/logs`, {
+            id: log.id,
+            timestamp: log.timestamp.toISOString(),
+            level: log.level,
+            category: log.category,
+            action: log.action,
+            message: log.message,
+            departmentId: log.departmentId,
+            experimentId: log.experimentId,
+            projectId: log.projectId
+          });
+        }
       }
     } catch (mqttError) {
       console.error('Failed to publish MQTT lifecycle hook:', mqttError);
@@ -135,20 +239,20 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
     return { success: true };
   } catch (error) {
     console.error('Failed to update experiment lifecycle:', error);
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Falha ao atualizar o estado da experiência' 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Falha ao atualizar o estado da experiência'
     };
   }
 }
 
 export async function deleteExperimentAction(experimentId: string, projectId: string) {
   try {
-    const experiment = await prisma.experiment.findUnique({ 
-      where: { id: experimentId }, 
-      select: { status: true } 
+    const experiment = await prisma.experiment.findUnique({
+      where: { id: experimentId },
+      select: { status: true }
     });
-    
+
     if (experiment && ['RUNNING', 'PAUSED'].includes(experiment.status)) {
       return { success: false, error: "Não é possível apagar uma experiência ativa. Por favor, termine ou aborte a experiência primeiro." };
     }
@@ -192,8 +296,8 @@ export async function getExperimentTelemetryForExport(experimentId: string) {
     });
 
     // Formatting for client side
-    const settings = typeof experiment.settings === 'object' && experiment.settings !== null 
-      ? experiment.settings as Record<string, any> 
+    const settings = typeof experiment.settings === 'object' && experiment.settings !== null
+      ? experiment.settings as Record<string, any>
       : {};
 
     const exportData = {
@@ -213,8 +317,8 @@ export async function getExperimentTelemetryForExport(experimentId: string) {
       telemetry: readings
     };
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       data: exportData,
       experimentName: experiment.name
     };

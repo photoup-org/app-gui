@@ -11,6 +11,8 @@ import ExperimentTimer from '../ExperimentTimer';
 import { DeleteExperimentButton } from '@/components/haas/experiments/DeleteExperimentButton';
 import { ExportDataButton } from '@/components/haas/experiments/ExportDataButton';
 import { SENSOR_DICTIONARY } from '@/lib/sensor-schemas';
+import ExperimentAlerts from '@/components/haas/experiments/ExperimentAlerts';
+import { getExperimentAlertsAction } from '@/app/(HaaS)/logs/actions';
 
 export default async function ExperimentDetailsPage({
     params
@@ -40,6 +42,10 @@ export default async function ExperimentDetailsPage({
     if (!experiment) {
         notFound();
     }
+
+    // Fetch alerts for this experiment
+    const alertsData = await getExperimentAlertsAction(experimentId);
+    const experimentAlerts = alertsData.alerts;
 
     // Data Transformation
     const devicesWithTelemetry = experiment.devices.map((device) => {
@@ -201,6 +207,11 @@ export default async function ExperimentDetailsPage({
                     </div>
                 )}
             </div>
+
+            <Separator className="my-6" />
+
+            {/* Alerts Section */}
+            <ExperimentAlerts experimentId={experiment.id} initialAlerts={experimentAlerts} />
         </div>
     );
 }
