@@ -67,7 +67,7 @@ export function ExperimentTable({ experiments, projectId }: ExperimentTableProps
     ];
 
     const renderExpandedContent = (exp: any) => (
-        <div className="space-y-4">
+        <div className="space-y-7">
             <div>
                 <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Equipamentos Alocados</h4>
                 {exp.devices && exp.devices.length > 0 ? (
@@ -92,7 +92,7 @@ export function ExperimentTable({ experiments, projectId }: ExperimentTableProps
             </div>
             {exp.settings && (
                 <div>
-                    <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Configurações Avançadas</h4>
+                    <h4 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">Configurações</h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                             <span className="block text-xs text-slate-500">Frequência de Gravação</span>
