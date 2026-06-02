@@ -121,6 +121,7 @@ model HardwareProduct {
 
 model Device {
   id           String              @id @default(cuid())
+  name         String?
   serialNumber String              @unique
   status       DeviceStatus        @default(ACTIVE)
   productId    String
@@ -249,6 +250,7 @@ enum DeviceStatus {
   ACTIVE
   MAINTENANCE
   PENDING_CONNECTION
+  DISABLED
 }
 
 enum LabProfile {
