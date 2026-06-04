@@ -14,7 +14,15 @@ interface CalibrationWizardProps {
     deviceId: string;
     departmentId: string;
     deviceName: string;
-    config: { points: 1 | 2; intervalDays: number };
+    config: { 
+        points?: 1 | 2; 
+        intervalDays: number;
+        calibration?: {
+            minPoints: number;
+            maxPoints: number;
+            defaultReferences: number[];
+        };
+    };
     metricKey: string; // e.g., 'ph'
     metricLabel: string; // e.g., 'pH'
 }
@@ -54,9 +62,12 @@ export function CalibrationWizard({
         if (isOpen) {
             setStep(1);
             setPoints([]);
-            setCurrentReference("");
+            setCurrentReference(config.calibration ? config.calibration.defaultReferences[0].toFixed(2) : "");
         }
-    }, [isOpen]);
+    }, [isOpen, config]);
+
+    const maxPoints = config.calibration?.maxPoints ?? config.points ?? 2;
+    const minPoints = config.calibration?.minPoints ?? config.points ?? 2;
 
     const handleCapture = () => {
         const refValue = parseFloat(currentReference);
@@ -72,11 +83,15 @@ export function CalibrationWizard({
         const newPoints = [...points, { raw: liveRawValue, reference: refValue }];
         setPoints(newPoints);
 
-        if (newPoints.length >= config.points) {
+        if (newPoints.length >= maxPoints) {
             submitCalibration(newPoints);
         } else {
             setStep(step + 1);
-            setCurrentReference("");
+            if (config.calibration && step < config.calibration.defaultReferences.length) {
+                setCurrentReference(config.calibration.defaultReferences[step].toFixed(2));
+            } else {
+                setCurrentReference("");
+            }
         }
     };
 
@@ -105,7 +120,7 @@ export function CalibrationWizard({
                 <DialogHeader>
                     <DialogTitle>Calibrar {deviceName}</DialogTitle>
                     <DialogDescription>
-                        Calibração de {config.points} ponto(s) para {metricLabel}.
+                        Calibração de {minPoints}{maxPoints !== minPoints ? ` a ${maxPoints}` : ''} ponto(s) para {metricLabel}.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -123,7 +138,7 @@ export function CalibrationWizard({
 
                     <div className="space-y-4">
                         <h4 className="font-medium text-slate-800 dark:text-slate-200">
-                            Passo {step} de {config.points}
+                            Passo {step} de {maxPoints}
                         </h4>
                         <div className="space-y-2">
                             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -144,8 +159,22 @@ export function CalibrationWizard({
                     <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
                         Cancelar
                     </Button>
-                    <Button onClick={handleCapture} disabled={isSubmitting || currentReference === ""}>
-                        {isSubmitting ? "A Guardar..." : (step === config.points ? "Finalizar Calibração" : "Capturar Ponto e Continuar")}
+                    {points.length >= minPoints && points.length < maxPoints && (
+                        <Button 
+                            variant="default" 
+                            className="bg-green-600 hover:bg-green-700" 
+                            onClick={() => submitCalibration(points)} 
+                            disabled={isSubmitting}
+                        >
+                            Finalizar Calibração ({points.length} pontos)
+                        </Button>
+                    )}
+                    <Button 
+                        onClick={handleCapture} 
+                        disabled={isSubmitting || currentReference === ""}
+                        variant={points.length >= minPoints ? "outline" : "default"}
+                    >
+                        {isSubmitting ? "A Guardar..." : (step === maxPoints ? "Capturar e Finalizar" : (points.length >= minPoints ? "Adicionar 3º Ponto" : "Capturar Ponto e Continuar"))}
                     </Button>
                 </DialogFooter>
             </DialogContent>

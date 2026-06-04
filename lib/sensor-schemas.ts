@@ -36,6 +36,21 @@ export const SENSOR_DICTIONARY: Record<string, SchemaItem[]> = {
     ]
 };
 
-export const SENSOR_CALIBRATION_DICTIONARY: Record<string, { points: 1 | 2; intervalDays: number }> = {
-    'SENS-PREM-PH': { points: 2, intervalDays: 30 }
+export const SENSOR_CALIBRATION_DICTIONARY: Record<string, { 
+    points?: 1 | 2; 
+    intervalDays: number;
+    calibration?: {
+        minPoints: number;
+        maxPoints: number;
+        defaultReferences: number[];
+    };
+}> = {
+    'SENS-PREM-PH': { 
+        intervalDays: 30,
+        calibration: {
+            minPoints: 2,
+            maxPoints: 3,
+            defaultReferences: [7.0, 4.0, 10.0]
+        }
+    }
 };

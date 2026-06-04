@@ -187,30 +187,41 @@ export async function calibrateDeviceAction(
             return { success: false, error: "Device not found" };
         }
 
-        // 3. Calculate m and b
-        let m = 1;
-        let b = 0;
+        // 3. Calculate m, b, or segments
+        let newMetricConfig: any = {};
         
         if (points.length === 1) {
             // 1-point offset calibration
-            m = 1;
-            b = points[0].reference - points[0].raw;
+            newMetricConfig = { m: 1, b: points[0].reference - points[0].raw };
         } else if (points.length >= 2) {
-            // 2-point slope/offset calibration
-            const [p1, p2] = points;
-            const deltaRaw = p2.raw - p1.raw;
-            if (deltaRaw === 0) {
-                return { success: false, error: "Raw values cannot be identical for a 2-point calibration." };
+            // 2+ point piecewise slope/offset calibration
+            const sortedPoints = [...points].sort((a, b) => a.reference - b.reference);
+            const segments = [];
+            for (let i = 0; i < sortedPoints.length - 1; i++) {
+                const p1 = sortedPoints[i];
+                const p2 = sortedPoints[i + 1];
+                const deltaRaw = p2.raw - p1.raw;
+                if (deltaRaw === 0) {
+                    return { success: false, error: "Raw values cannot be identical for different reference points." };
+                }
+                const m = (p2.reference - p1.reference) / deltaRaw;
+                const b = p1.reference - (m * p1.raw);
+                
+                const isLastSegment = i === sortedPoints.length - 2;
+                segments.push({
+                    m,
+                    b,
+                    rawBoundary: isLastSegment ? null : p2.raw,
+                    operator: p1.raw > p2.raw ? '>' : '<'
+                });
             }
-            m = (p2.reference - p1.reference) / deltaRaw;
-            b = p1.reference - (m * p1.raw);
+            newMetricConfig = { segments };
         } else {
             return { success: false, error: "Invalid calibration points" };
         }
 
         // 4. Update the device's calibrationConfig
         const oldConfig = (device.calibrationConfig as Record<string, any>) || {};
-        const newMetricConfig = { m, b };
         const newConfig = {
             ...oldConfig,
             [metric]: newMetricConfig
@@ -250,7 +261,7 @@ export async function calibrateDeviceAction(
             calibrationConfig: newConfig
         });
 
-        return { success: true, m, b };
+        return { success: true, config: newMetricConfig };
     } catch (error: any) {
         console.error("Failed to calibrate device:", error);
         return { success: false, error: error.message || "Failed to apply calibration" };
