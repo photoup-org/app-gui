@@ -256,18 +256,7 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
         return; // Exit early
       }
 
-      // Handle raw values
-      if (parts.length === 7 && parts[4] === 'device' && parts[6] === 'raw') {
-        const deviceId = parts[5];
-        try {
-          const payload = JSON.parse(payloadString);
-          liveValuesBuffer[deviceId] = payload;
-          isBufferDirty = true;
-        } catch (err) {
-          console.error("Failed to parse raw telemetry:", err);
-        }
-        return;
-      }
+
 
       try {
         const payload = JSON.parse(payloadString);

@@ -29,24 +29,25 @@ export function CalibrationWizard({
     metricKey,
     metricLabel,
 }: CalibrationWizardProps) {
-    const { isConnected } = useMqttStore();
+    const { isConnected, subscribe } = useMqttStore();
     const [step, setStep] = useState(1);
     const [points, setPoints] = useState<{ raw: number; reference: number }[]>([]);
     const [currentReference, setCurrentReference] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [liveRawValue, setLiveRawValue] = useState<number | undefined>();
 
-    // Get live RAW data directly from MQTT state
-    // We expect the topic structure to be: `ui/live/department/{departmentId}/device/{deviceId}/raw`
-    // However, useMqttStore parses this into liveMetrics[deviceId]
-    // We should make sure we read from the 'raw' stream, but if useMqttStore merges them, 
-    // we just read liveMetrics[deviceId][metricKey]. 
-    // Note: If the backend has applied old calibration, we need to make sure the edge worker 
-    // also publishes a "raw" topic. Currently, our edge worker publishes to "/raw" AND "/sync".
-    // We'll assume useMqttStore distinguishes them or we just use the raw value.
-    // For this implementation, let's look at `liveValues[deviceId]?.[metricKey]` for simplicity.
-    // BUT the constraint: "explicitly shows the user the RAW, uncalibrated value".
-    // Let's assume useMqttStore exposes `liveValues` and handles raw updates there.
-    const liveRawValue = useMqttStore((state) => state.liveValues?.[deviceId]?.[metricKey]);
+    // Subscribe specifically to the new /raw topic for this device to see the true physical state
+    useEffect(() => {
+        if (isOpen && departmentId && deviceId) {
+            const topic = `ui/live/department/${departmentId}/device/${deviceId}/raw`;
+            const unsubscribe = subscribe(topic, (payload) => {
+                if (payload.metric === metricKey) {
+                    setLiveRawValue(payload.value);
+                }
+            });
+            return () => unsubscribe();
+        }
+    }, [isOpen, departmentId, deviceId, metricKey, subscribe]);
 
     // Reset state on open
     useEffect(() => {
