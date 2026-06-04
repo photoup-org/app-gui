@@ -125,7 +125,7 @@ export function DeviceActionsMenu({ device }: { device: DeviceProp }) {
                 Ver Detalhes
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={blockMenu} onClick={() => openDialog('CHART', device.id)} className="cursor-pointer">
+            <DropdownMenuItem disabled={blockMenu} onClick={() => openDialog('CHART', device.id, device.product.sku)} className="cursor-pointer">
               <LineChart className="mr-2 h-4 w-4" />
               Gráficos em Tempo Real
             </DropdownMenuItem>

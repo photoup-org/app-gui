@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { useDeviceDialogStore } from "@/hooks/useDeviceDialogStore";
 import { useMqttStore } from "@/hooks/useMqttStore";
+import { SENSOR_DICTIONARY, SchemaItem } from "@/lib/sensor-schemas";
 import {
   Dialog,
   DialogContent,
@@ -33,69 +34,97 @@ interface ChartDataPoint {
   temp: number;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, capabilities }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800/80 p-3 rounded-xl shadow-lg text-xs font-medium">
         <p className="text-slate-400 dark:text-slate-500 mb-1.5 font-semibold">{label}</p>
-        {payload.map((item: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 mt-1">
-            <span className="w-2.5 h-2.5 rounded-full border border-white/20" style={{ backgroundColor: item.stroke }} />
-            <span className="text-slate-600 dark:text-slate-400">{item.name}:</span>
-            <span className="text-slate-900 dark:text-slate-100 font-bold">
-              {item.value.toFixed(2)}
-              {item.name === "pH" ? "" : " °C"}
-            </span>
-          </div>
-        ))}
+        {payload.map((item: any, index: number) => {
+          const cap = capabilities.find((c: any) => c.key === item.dataKey);
+          return (
+            <div key={index} className="flex items-center gap-2 mt-1">
+              <span className="w-2.5 h-2.5 rounded-full border border-white/20" style={{ backgroundColor: item.stroke }} />
+              <span className="text-slate-600 dark:text-slate-400">{item.name}:</span>
+              <span className="text-slate-900 dark:text-slate-100 font-bold">
+                {item.value?.toFixed(2) ?? '-'}
+                {cap ? ` ${cap.unit}` : ''}
+              </span>
+            </div>
+          );
+        })}
       </div>
     );
   }
   return null;
 };
 
+const EMPTY_ARRAY: any[] = [];
+
 export function DeviceChartDialog() {
-  const { activeDialog, activeDeviceId, closeDialog } = useDeviceDialogStore();
+  const { activeDialog, activeDeviceId, activeDeviceSku, closeDialog } = useDeviceDialogStore();
   const isConnected = useMqttStore((state) => state.isConnected);
+  const departmentId = useMqttStore((state) => state.departmentId);
+  const rawChartSeries = useMqttStore((state) => state.chartSeries[activeDeviceId || '']) || EMPTY_ARRAY;
   const subscribe = useMqttStore((state) => state.subscribe);
-  const [data, setData] = useState<ChartDataPoint[]>([]);
 
   const isOpen = activeDialog === 'CHART' && activeDeviceId !== null;
+  const capabilities = activeDeviceSku ? SENSOR_DICTIONARY[activeDeviceSku] || [] : [];
 
   useEffect(() => {
-    if (!isOpen || !activeDeviceId) {
-      setData([]);
-      return;
-    }
+    if (!isOpen || !activeDeviceId || !departmentId) return;
 
-    const topic = `telemetry/${activeDeviceId}`;
-    console.log(`[Chart] Subscribing to MQTT topic: ${topic}`);
+    const topic = `ui/live/department/${departmentId}/device/${activeDeviceId}/sync`;
 
-    const unsubscribe = subscribe(topic, (payload: TelemetryPayload) => {
-      const newPoint: ChartDataPoint = {
-        timestamp: new Date().toLocaleTimeString('pt-PT', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        }),
-        ph: Number(payload.ph),
-        temp: Number(payload.temp),
-      };
-      setData((prev) => {
-        const next = [...prev, newPoint];
-        // Keep a rolling window of max 30 points
-        if (next.length > 30) {
-          next.shift();
-        }
-        return next;
-      });
-    });
+    // Actively subscribe to the topic. The callback can be empty since 
+    // the global on('message') handler in the store processes the data.
+    const unsubscribe = subscribe(topic, () => { });
 
     return () => {
-      console.log(`[Chart] Unsubscribing from MQTT topic: ${topic}`);
       unsubscribe();
     };
-  }, [isOpen, activeDeviceId, subscribe]);
+  }, [isOpen, activeDeviceId, departmentId, subscribe]);
+
+  // Process and group the flattened chartSeries back into combined data points
+  const data = useMemo(() => {
+    if (!isOpen || !activeDeviceId || rawChartSeries.length === 0) return [];
+
+    const grouped = rawChartSeries.reduce((acc: Record<string, any>, curr: any) => {
+      const ts = curr.timestamp;
+      if (!acc[ts]) {
+        acc[ts] = {
+          timestamp: new Date(ts).toLocaleTimeString('pt-PT', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }),
+        };
+      }
+      const metricKey = curr.metricType === 'temp' ? 'temperature' : curr.metricType;
+      acc[ts][metricKey] = curr.value;
+      return acc;
+    }, {});
+
+    // Keep a rolling window of max 30 points
+    return Object.values(grouped).slice(-30);
+  }, [rawChartSeries, isOpen, activeDeviceId]);
+
+  const uniqueDomains = Array.from(new Set(capabilities.map(c => `${c.min}-${c.max}`)));
+  const axesToRender = uniqueDomains.map((domainStr, index) => {
+    const cap = capabilities.find(c => `${c.min}-${c.max}` === domainStr)!;
+    return {
+      id: `axis-${index}`,
+      orientation: (index % 2 === 0 ? "left" : "right") as "left" | "right",
+      min: cap.min,
+      max: cap.max,
+      unit: cap.unit,
+      color: cap.color
+    };
+  });
+
+  const getAxisIdForCap = (cap: SchemaItem) => {
+    const domainIndex = uniqueDomains.indexOf(`${cap.min}-${cap.max}`);
+    return `axis-${domainIndex}`;
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeDialog()}>
@@ -133,7 +162,7 @@ export function DeviceChartDialog() {
                   <div>
                     <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">A aguardar telemetria...</h4>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      Ligado ao broker. Publique dados em <code className="bg-slate-200/50 dark:bg-slate-800/50 px-1 py-0.5 rounded text-rose-500 font-mono text-[10px]">telemetry/{activeDeviceId}</code> para iniciar.
+                      Ligado ao broker. Publique dados em <code className="bg-slate-200/50 dark:bg-slate-800/50 px-1 py-0.5 rounded text-rose-500 font-mono text-[10px]">ui/live/department/{departmentId || '{departmentId}'}/device/{activeDeviceId}/sync</code> para iniciar.
                     </p>
                   </div>
                 </>
@@ -159,24 +188,27 @@ export function DeviceChartDialog() {
                   axisLine={false}
                   tick={{ fill: '#94a3b8', fontSize: 10 }}
                 />
-                <YAxis
-                  yAxisId="left"
-                  domain={[0, 14]}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: '#06b6d4', fontSize: 10 }}
-                  label={{ value: 'pH', angle: -90, position: 'insideLeft', fill: '#06b6d4', fontSize: 11, fontWeight: 'bold', offset: 10 }}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  domain={[0, 100]}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fill: '#f97316', fontSize: 10 }}
-                  label={{ value: 'Temp (°C)', angle: 90, position: 'insideRight', fill: '#f97316', fontSize: 11, fontWeight: 'bold', offset: 10 }}
-                />
-                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '3 3' }} />
+                {axesToRender.map((axis) => (
+                  <YAxis
+                    key={axis.id}
+                    yAxisId={axis.id}
+                    orientation={axis.orientation}
+                    domain={[axis.min, axis.max]}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: axis.color, fontSize: 10 }}
+                    label={{
+                      value: axis.unit,
+                      angle: axis.orientation === "left" ? -90 : 90,
+                      position: axis.orientation === "left" ? 'insideLeft' : 'insideRight',
+                      fill: axis.color,
+                      fontSize: 11,
+                      fontWeight: 'bold',
+                      offset: 10
+                    }}
+                  />
+                ))}
+                <Tooltip content={<CustomTooltip capabilities={capabilities} />} cursor={{ stroke: '#cbd5e1', strokeWidth: 1, strokeDasharray: '3 3' }} />
                 <Legend
                   verticalAlign="top"
                   height={36}
@@ -184,28 +216,20 @@ export function DeviceChartDialog() {
                   iconSize={8}
                   wrapperStyle={{ fontSize: '11px', fontWeight: 500 }}
                 />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="ph"
-                  stroke="#06b6d4"
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                  name="pH"
-                  isAnimationActive={false}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="temp"
-                  stroke="#f97316"
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                  name="Temperatura"
-                  isAnimationActive={false}
-                />
+                {capabilities.map((cap) => (
+                  <Line
+                    key={cap.key}
+                    yAxisId={getAxisIdForCap(cap)}
+                    type="monotone"
+                    dataKey={cap.key}
+                    stroke={cap.color}
+                    strokeWidth={2.5}
+                    dot={false}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
+                    name={cap.label}
+                    isAnimationActive={false}
+                  />
+                ))}
               </LineChart>
             </ResponsiveContainer>
           )}

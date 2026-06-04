@@ -86,7 +86,7 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
       if (departmentId && departmentId !== get().departmentId) {
          set({ departmentId });
          // Subscribe to the new tenant's log topic and telemetry
-         client.subscribe(`ui/live/${departmentId}/logs`);
+         client.subscribe(`ui/live/department/${departmentId}/logs`);
          client.subscribe(`ui/live/department/${departmentId}/device/+/sync`);
       }
       return;
@@ -125,7 +125,7 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
       // Subscribe to tenant-scoped logs and telemetry if departmentId is available
       const currentDeptId = get().departmentId;
       if (currentDeptId) {
-        mqttClient.subscribe(`ui/live/${currentDeptId}/logs`, (err) => {
+        mqttClient.subscribe(`ui/live/department/${currentDeptId}/logs`, (err) => {
            if (err) console.error(`[MQTT] Failed to subscribe to logs:`, err);
         });
         mqttClient.subscribe(`ui/live/department/${currentDeptId}/device/+/sync`, (err) => {
@@ -183,7 +183,7 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
       const currentDeptId = get().departmentId;
 
       // Handle Tenant-Scoped Live Logs
-      if (currentDeptId && topic === `ui/live/${currentDeptId}/logs`) {
+      if (currentDeptId && topic === `ui/live/department/${currentDeptId}/logs`) {
         try {
           const payload = JSON.parse(payloadString);
           
