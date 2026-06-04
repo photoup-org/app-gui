@@ -132,7 +132,7 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
 
   const deviceIds = form.watch("deviceIds") || [];
   const selectedDevices = allDevices.filter((d) => deviceIds.includes(d.id));
-  
+
   // Also include devices that are already mapped from initialData in case they aren't in allDevices
   if (isEditMode && initialData?.devices) {
     initialData.devices.forEach((device: any) => {
@@ -188,7 +188,7 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
         if (!device) return;
         const capabilities = SENSOR_DICTIONARY[device.product.sku] || [];
         const devSettings = data.settings?.devices?.[id];
-        
+
         if (devSettings) {
           const cleanedSettings: Record<string, number | null> = {};
           capabilities.forEach(cap => {
@@ -327,7 +327,7 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                       <FormItem>
                         <FormLabel className="text-sm font-semibold">Nome do Projeto *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ex: Monitorização Estufa Norte" {...field} className="rounded-lg shadow-sm" />
+                          <Input placeholder="Ex: Monitorização Estufa Norte" {...field} className="rounded-lg " />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -343,7 +343,7 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                         <FormControl>
                           <Textarea
                             placeholder="Descreva o propósito e os objetivos deste projeto..."
-                            className="min-h-[100px] resize-none rounded-lg shadow-sm"
+                            className="min-h-[100px] resize-none rounded-lg "
                             {...field}
                           />
                         </FormControl>
@@ -364,11 +364,11 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                       placeholder="Pesquisar por nome ou email..."
                       value={memberSearch}
                       onChange={(e) => setMemberSearch(e.target.value)}
-                      className="rounded-lg shadow-sm"
+                      className="rounded-lg "
                     />
                   </div>
 
-                  <div className="border rounded-xl divide-y overflow-hidden max-h-[300px] overflow-y-auto shadow-sm">
+                  <div className="border rounded-xl divide-y overflow-hidden max-h-[300px] overflow-y-auto ">
                     {filteredMembers.length === 0 ? (
                       <p className="text-sm text-center text-muted-foreground py-6">Nenhum membro encontrado.</p>
                     ) : (
@@ -414,7 +414,7 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                                     form.setValue(`members.${memberIndex}.role`, val as ProjectRole);
                                   }}
                                 >
-                                  <SelectTrigger className="w-[120px] h-8 text-xs rounded-lg shadow-sm">
+                                  <SelectTrigger className="w-[120px] h-8 text-xs rounded-lg ">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -443,7 +443,7 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                       placeholder="Pesquisar por modelo ou nº de série..."
                       value={deviceSearch}
                       onChange={(e) => setDeviceSearch(e.target.value)}
-                      className="rounded-lg shadow-sm"
+                      className="rounded-lg "
                     />
                   </div>
 
@@ -524,7 +524,7 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                       {selectedDevices.map((device) => {
                         const isSensor = device.product.type.includes("SENSOR");
                         return (
-                          <div key={device.id} className="border rounded-xl p-4 space-y-4 shadow-sm bg-card transition-all">
+                          <div key={device.id} className="border rounded-xl p-4 space-y-4  bg-card transition-all">
                             <div className="flex items-center justify-between border-b pb-2">
                               <div className="flex flex-col">
                                 <span className="text-sm font-bold text-card-foreground">{device.product.name}</span>
@@ -539,33 +539,33 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                             {isSensor ? (
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {SENSOR_DICTIONARY[device.product.sku]?.map(cap => (
-                                    <div key={cap.key} className="space-y-3 p-3 bg-muted/30 rounded-lg">
-                                      <span className="text-xs font-bold flex items-center gap-1" style={{ color: cap.color }}>
-                                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cap.color }} /> Alertas de {cap.label} ({cap.unit})
-                                      </span>
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <div className="space-y-1">
-                                          <label className="text-[10px] font-semibold text-muted-foreground uppercase">Mínimo</label>
-                                          <Input
-                                            type="number"
-                                            step="0.1"
-                                            placeholder={`Min (ex: ${cap.min})`}
-                                            className="h-8 text-xs rounded-lg shadow-sm"
-                                            {...form.register(`settings.devices.${device.id}.${cap.key}Min`)}
-                                          />
-                                        </div>
-                                        <div className="space-y-1">
-                                          <label className="text-[10px] font-semibold text-muted-foreground uppercase">Máximo</label>
-                                          <Input
-                                            type="number"
-                                            step="0.1"
-                                            placeholder={`Max (ex: ${cap.max})`}
-                                            className="h-8 text-xs rounded-lg shadow-sm"
-                                            {...form.register(`settings.devices.${device.id}.${cap.key}Max`)}
-                                          />
-                                        </div>
+                                  <div key={cap.key} className="space-y-3 p-3 bg-muted/30 rounded-lg">
+                                    <span className="text-xs font-bold flex items-center gap-1" style={{ color: cap.color }}>
+                                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cap.color }} /> Alertas de {cap.label} ({cap.unit})
+                                    </span>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <div className="space-y-1">
+                                        <label className="text-[10px] font-semibold text-muted-foreground uppercase">Mínimo</label>
+                                        <Input
+                                          type="number"
+                                          step="0.1"
+                                          placeholder={`Min (ex: ${cap.min})`}
+                                          className="h-8 text-xs rounded-lg "
+                                          {...form.register(`settings.devices.${device.id}.${cap.key}Min`)}
+                                        />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <label className="text-[10px] font-semibold text-muted-foreground uppercase">Máximo</label>
+                                        <Input
+                                          type="number"
+                                          step="0.1"
+                                          placeholder={`Max (ex: ${cap.max})`}
+                                          className="h-8 text-xs rounded-lg "
+                                          {...form.register(`settings.devices.${device.id}.${cap.key}Max`)}
+                                        />
                                       </div>
                                     </div>
+                                  </div>
                                 ))}
                               </div>
                             ) : (
@@ -646,9 +646,9 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                           {selectedDevices.map((device) => {
                             const devSettings = form.watch(`settings.devices.${device.id}`) as DeviceSetting | undefined;
                             const capabilities = SENSOR_DICTIONARY[device.product.sku] || [];
-                            
-                            const hasAnyAlert = capabilities.some(cap => 
-                                devSettings?.[`${cap.key}Min`] || devSettings?.[`${cap.key}Max`]
+
+                            const hasAnyAlert = capabilities.some(cap =>
+                              devSettings?.[`${cap.key}Min`] || devSettings?.[`${cap.key}Max`]
                             );
 
                             return (
@@ -667,14 +667,14 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
                                 {hasAnyAlert ? (
                                   <div className="flex flex-wrap gap-2 pt-1">
                                     {capabilities.map(cap => {
-                                        const minVal = devSettings?.[`${cap.key}Min`];
-                                        const maxVal = devSettings?.[`${cap.key}Max`];
-                                        if (!minVal && !maxVal) return null;
-                                        return (
-                                          <Badge key={cap.key} variant="secondary" className="text-[9px] gap-1" style={{ backgroundColor: `${cap.color}15`, color: cap.color, borderColor: `${cap.color}30` }}>
-                                            {cap.label}: {minVal || "N/A"} - {maxVal || "N/A"}
-                                          </Badge>
-                                        );
+                                      const minVal = devSettings?.[`${cap.key}Min`];
+                                      const maxVal = devSettings?.[`${cap.key}Max`];
+                                      if (!minVal && !maxVal) return null;
+                                      return (
+                                        <Badge key={cap.key} variant="secondary" className="text-[9px] gap-1" style={{ backgroundColor: `${cap.color}15`, color: cap.color, borderColor: `${cap.color}30` }}>
+                                          {cap.label}: {minVal || "N/A"} - {maxVal || "N/A"}
+                                        </Badge>
+                                      );
                                     })}
                                   </div>
                                 ) : (

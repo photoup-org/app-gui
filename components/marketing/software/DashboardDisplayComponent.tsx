@@ -12,7 +12,7 @@ interface FeatureCardProps {
 
 const FeatureCard = ({ icon: Icon, text, className }: FeatureCardProps) => {
     return (
-        <div className={cn("flex items-center gap-4 p-5 bg-white/50  rounded-2xl shadow-sm border border-slate-100", className)}>
+        <div className={cn("flex items-center gap-4 p-5 bg-white/50  rounded-2xl  border border-slate-100", className)}>
             <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-teal-50 text-[#2DD4BF]">
                 <Icon className="w-6 h-6" strokeWidth={2.5} />
             </div>

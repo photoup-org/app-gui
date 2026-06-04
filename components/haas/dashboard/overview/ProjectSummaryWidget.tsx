@@ -122,7 +122,7 @@ const MemberList = ({ members }: { members: RecentProject["members"] }) => {
     {members.slice(0, 4).map((member, idx) => (
       <Avatar
         key={idx}
-        className="border-2 border-white ring-0 size-8 shadow-sm"
+        className="border-2 border-white ring-0 size-8 "
         data-slot="avatar"
       >
         {member.image && (
@@ -134,7 +134,7 @@ const MemberList = ({ members }: { members: RecentProject["members"] }) => {
       </Avatar>
     ))}
     {members.length > 4 && (
-      <AvatarGroupCount className="bg-slate-100 text-slate-600 text-[11px] font-bold size-8 border-2 border-white shadow-sm flex items-center justify-center rounded-full shrink-0">
+      <AvatarGroupCount className="bg-slate-100 text-slate-600 text-[11px] font-bold size-8 border-2 border-white  flex items-center justify-center rounded-full shrink-0">
         +{members.length - 4}
       </AvatarGroupCount>
     )}

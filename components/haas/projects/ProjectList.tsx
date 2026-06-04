@@ -36,7 +36,7 @@ export default function ProjectList({ projects }: ProjectListProps) {
                     <Input
                         type="search"
                         placeholder="Pesquisar projetos..."
-                        className="w-full pl-10 py-6 text-lg rounded-xl shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus-visible:ring-emerald-500"
+                        className="w-full pl-10 py-6 text-lg rounded-xl  border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus-visible:ring-emerald-500"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />

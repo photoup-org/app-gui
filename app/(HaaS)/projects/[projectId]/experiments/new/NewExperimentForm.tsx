@@ -356,7 +356,7 @@ export default function NewExperimentForm({ projectId, devices, projectSettings 
                             {selectedDevices.map((device) => {
                                 const isSensor = device.product.type?.includes("SENSOR");
                                 return (
-                                    <div key={device.id} className="border rounded-xl p-4 space-y-4 shadow-sm bg-card transition-all dark:bg-slate-900/20">
+                                    <div key={device.id} className="border rounded-xl p-4 space-y-4  bg-card transition-all dark:bg-slate-900/20">
                                         <div className="flex items-center justify-between border-b pb-2">
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-bold text-card-foreground">{device.product.name}</span>
@@ -382,7 +382,7 @@ export default function NewExperimentForm({ projectId, devices, projectSettings 
                                                                     type="number"
                                                                     step="0.1"
                                                                     placeholder={`Min (ex: ${cap.min})`}
-                                                                    className="h-8 text-xs rounded-lg shadow-sm bg-slate-50 dark:bg-slate-900/50"
+                                                                    className="h-8 text-xs rounded-lg  bg-slate-50 dark:bg-slate-900/50"
                                                                     {...form.register(`settings.devices.${device.id}.${cap.key}Min`)}
                                                                 />
                                                             </div>
@@ -392,7 +392,7 @@ export default function NewExperimentForm({ projectId, devices, projectSettings 
                                                                     type="number"
                                                                     step="0.1"
                                                                     placeholder={`Max (ex: ${cap.max})`}
-                                                                    className="h-8 text-xs rounded-lg shadow-sm bg-slate-50 dark:bg-slate-900/50"
+                                                                    className="h-8 text-xs rounded-lg  bg-slate-50 dark:bg-slate-900/50"
                                                                     {...form.register(`settings.devices.${device.id}.${cap.key}Max`)}
                                                                 />
                                                             </div>

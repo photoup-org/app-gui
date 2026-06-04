@@ -70,7 +70,7 @@ export default function SuccessSummary({
 
             {/* Email Callout */}
             {displayData.userEmail && (
-                <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center shadow-sm max-w-2xl mx-auto transition-colors hover:bg-primary/10">
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center  max-w-2xl mx-auto transition-colors hover:bg-primary/10">
                     <p className="text-base text-primary/90">
                         Um convite para aceder à plataforma foi enviado para <span className="font-bold text-primary">{displayData.userEmail}</span>.
                     </p>
@@ -84,7 +84,7 @@ export default function SuccessSummary({
                     <p className="text-xl font-mono font-semibold tracking-tight">{orderId}</p>
                 </div>
                 {documentUrl && (
-                    <Button asChild variant="default" className="shrink-0 gap-2 shadow-sm">
+                    <Button asChild variant="default" className="shrink-0 gap-2 ">
                         <a href={documentUrl} target="_blank" rel="noopener noreferrer">
                             <Download className="w-4 h-4" />
                             Descarregar Fatura
@@ -99,7 +99,7 @@ export default function SuccessSummary({
                 {/* Left Column: Shipping & Billing */}
                 <div className="lg:col-span-5 space-y-6">
                     {displayData.shippingAddress && (
-                        <div className="bg-card border rounded-xl p-6 shadow-sm">
+                        <div className="bg-card border rounded-xl p-6 ">
                             <div className="flex items-center gap-3 mb-5 text-foreground border-b pb-4">
                                 <div className="p-2 bg-muted rounded-md">
                                     <MapPin className="w-5 h-5 text-foreground" />
@@ -116,7 +116,7 @@ export default function SuccessSummary({
                     )}
 
                     {displayData.billingAddress && (
-                        <div className="bg-card border rounded-xl p-6 shadow-sm">
+                        <div className="bg-card border rounded-xl p-6 ">
                             <div className="flex items-center gap-3 mb-5 text-foreground border-b pb-4">
                                 <div className="p-2 bg-muted rounded-md">
                                     <CreditCard className="w-5 h-5 text-foreground" />
@@ -135,10 +135,10 @@ export default function SuccessSummary({
                 </div>
 
                 {/* Right Column: Order Summary */}
-                <div className="lg:col-span-7 bg-card border rounded-xl shadow-sm overflow-hidden flex flex-col h-full">
+                <div className="lg:col-span-7 bg-card border rounded-xl  overflow-hidden flex flex-col h-full">
                     <div className="p-6 border-b bg-muted/30">
                         <div className="flex items-center gap-3 text-foreground">
-                            <div className="p-2 bg-background rounded-md shadow-sm border">
+                            <div className="p-2 bg-background rounded-md  border">
                                 <Package className="w-5 h-5 text-foreground" />
                             </div>
                             <h2 className="font-semibold text-lg">Resumo da Encomenda</h2>
@@ -185,7 +185,7 @@ export default function SuccessSummary({
             </div>
 
             <div className="pt-10 pb-6 text-center">
-                <Button asChild variant="outline" size="lg" className="px-8 shadow-sm">
+                <Button asChild variant="outline" size="lg" className="px-8 ">
                     <Link href="/">Voltar à Página Inicial</Link>
                 </Button>
             </div>

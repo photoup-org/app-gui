@@ -77,17 +77,16 @@ export default async function ExperimentDetailsPage({
                             {experiment.name}
                         </h1>
                         <Badge
-                            className={`px-2.5 py-0.5 text-xs font-semibold ${
-                                experiment.status === 'RUNNING'
-                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                    : experiment.status === 'COMPLETED'
-                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
-                            }`}
+                            className={`px-2.5 py-0.5 text-xs font-semibold ${experiment.status === 'RUNNING'
+                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                : experiment.status === 'COMPLETED'
+                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
+                                }`}
                         >
                             {experiment.status}
                         </Badge>
-                        <ExperimentTimer 
+                        <ExperimentTimer
                             status={experiment.status}
                             accumulatedSeconds={experiment.accumulatedSeconds}
                             lastRunAt={experiment.lastRunAt}
@@ -110,49 +109,27 @@ export default async function ExperimentDetailsPage({
                         )}
                     </div>
                     <div className="flex items-center gap-3">
-                        <ExperimentControls 
-                            experimentId={experiment.id} 
-                            projectId={projectId} 
+                        <ExperimentControls
+                            experimentId={experiment.id}
+                            projectId={projectId}
                             currentStatus={experiment.status}
                             devices={experiment.devices.map(d => ({
                                 id: d.id,
                                 status: d.status,
                                 product: { name: d.product.name }
-                            }))} 
+                            }))}
                         />
                         <ExportDataButton experimentId={experiment.id} />
-                        <DeleteExperimentButton 
-                            experimentId={experiment.id} 
+                        <DeleteExperimentButton
+                            experimentId={experiment.id}
                             projectId={projectId}
-                            disabled={['RUNNING', 'PAUSED'].includes(experiment.status)} 
+                            disabled={['RUNNING', 'PAUSED'].includes(experiment.status)}
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Metadata & Settings (Optional) */}
-            {(experiment.project.description || experiment.settings) && (
-                <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                            <Settings className="w-4 h-4 text-slate-500" />
-                            Detalhes & Configurações
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-sm text-slate-600 dark:text-slate-400 flex flex-col gap-2">
-                        {experiment.project.description && (
-                            <p>{experiment.project.description}</p>
-                        )}
-                        {experiment.settings && typeof experiment.settings === 'object' && Object.keys(experiment.settings).length > 0 && (
-                            <pre className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-md text-xs overflow-x-auto">
-                                {JSON.stringify(experiment.settings, null, 2)}
-                            </pre>
-                        )}
-                    </CardContent>
-                </Card>
-            )}
 
-            <Separator className="my-6" />
 
             {/* Dashboard / Telemetry Section */}
             <div className="flex flex-col gap-6">
@@ -175,7 +152,7 @@ export default async function ExperimentDetailsPage({
                         {devicesWithTelemetry.map(device => {
                             if (!device.schema || device.schema.length === 0) {
                                 return (
-                                    <Card key={device.id} className="border-slate-200 dark:border-slate-800 shadow-sm col-span-full">
+                                    <Card key={device.id} className="border-slate-200 dark:border-slate-800  col-span-full">
                                         <CardHeader>
                                             <CardTitle className="text-lg">{`${device.product.name} (${device.serialNumber.slice(-4)})`}</CardTitle>
                                         </CardHeader>
@@ -208,6 +185,30 @@ export default async function ExperimentDetailsPage({
                     </div>
                 )}
             </div>
+            <Separator className="my-6" />
+
+
+            {/* Metadata & Settings (Optional) */}
+            {(experiment.project.description || experiment.settings) && (
+                <Card className="border-slate-200 dark:border-slate-800 ">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                            <Settings className="w-4 h-4 text-slate-500" />
+                            Detalhes & Configurações
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm text-slate-600 dark:text-slate-400 flex flex-col gap-2">
+                        {experiment.project.description && (
+                            <p>{experiment.project.description}</p>
+                        )}
+                        {experiment.settings && typeof experiment.settings === 'object' && Object.keys(experiment.settings).length > 0 && (
+                            <pre className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-md text-xs overflow-x-auto">
+                                {JSON.stringify(experiment.settings, null, 2)}
+                            </pre>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
             <Separator className="my-6" />
 

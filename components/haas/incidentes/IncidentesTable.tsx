@@ -48,13 +48,13 @@ const getLevelBadge = (level: string) => {
 };
 
 const getLevelIcon = (level: string) => {
-    switch (level) {
-        case "CRITICAL": return <AlertCircle className="w-4 h-4 text-red-500 mr-2" />;
-        case "ERROR":
-        case "WARN": return <TriangleAlert className="w-4 h-4 text-amber-500 mr-2" />;
-        case "INFO":
-        default: return <Info className="w-4 h-4 text-indigo-500 mr-2" />;
-    }
+  switch (level) {
+    case "CRITICAL": return <AlertCircle className="w-4 h-4 text-red-500 mr-2" />;
+    case "ERROR":
+    case "WARN": return <TriangleAlert className="w-4 h-4 text-amber-500 mr-2" />;
+    case "INFO":
+    default: return <Info className="w-4 h-4 text-indigo-500 mr-2" />;
+  }
 }
 
 export const columns: ColumnDef<SystemLogWithUser>[] = [
@@ -104,22 +104,22 @@ export const columns: ColumnDef<SystemLogWithUser>[] = [
     accessorKey: "message",
     header: "Descrição",
     cell: ({ row }) => {
-        const level = row.getValue("level") as string;
-        const msg = row.getValue("message") as string;
-        const user = row.original.user;
-        return (
-            <div className="flex flex-col w-full">
-                <div className="flex items-start text-xs font-medium text-slate-900 dark:text-slate-100 break-words whitespace-normal">
-                    <span className="mt-0.5">{getLevelIcon(level)}</span>
-                    <span className="leading-snug">{msg}</span>
-                </div>
-                {user && (
-                    <span className="text-[10px] text-slate-500 mt-1 ml-6">
-                        Despoletado por: {user.name || user.email}
-                    </span>
-                )}
-            </div>
-        )
+      const level = row.getValue("level") as string;
+      const msg = row.getValue("message") as string;
+      const user = row.original.user;
+      return (
+        <div className="flex flex-col w-full">
+          <div className="flex items-start text-xs font-medium text-slate-900 dark:text-slate-100 break-words whitespace-normal">
+            <span className="mt-0.5">{getLevelIcon(level)}</span>
+            <span className="leading-snug">{msg}</span>
+          </div>
+          {user && (
+            <span className="text-[10px] text-slate-500 mt-1 ml-6">
+              Despoletado por: {user.name || user.email}
+            </span>
+          )}
+        </div>
+      )
     },
   },
 ];
@@ -146,9 +146,9 @@ export default function IncidentesTable({ data }: IncidentesTableProps) {
       columnFilters,
     },
     initialState: {
-        pagination: {
-            pageSize: 15,
-        }
+      pagination: {
+        pageSize: 15,
+      }
     }
   });
 
@@ -156,28 +156,28 @@ export default function IncidentesTable({ data }: IncidentesTableProps) {
     <div className="flex flex-col w-full">
       <div className="flex items-center justify-between py-4 px-6 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
-            <Search className="w-4 h-4 text-slate-400" />
-            <Input
+          <Search className="w-4 h-4 text-slate-400" />
+          <Input
             placeholder="Filtrar por categoria..."
             value={(table.getColumn("category")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
-                table.getColumn("category")?.setFilterValue(event.target.value)
+              table.getColumn("category")?.setFilterValue(event.target.value)
             }
             className="max-w-xs h-8 text-xs bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800"
-            />
+          />
         </div>
         <div className="flex items-center gap-2">
-           <select 
-             className="h-8 text-xs rounded-md border border-slate-200 bg-white px-3 py-1 shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950"
-             value={(table.getColumn("level")?.getFilterValue() as string) ?? ""}
-             onChange={(e) => table.getColumn("level")?.setFilterValue(e.target.value)}
-           >
-              <option value="">Todos os níveis</option>
-              <option value="CRITICAL">Critical</option>
-              <option value="ERROR">Error</option>
-              <option value="WARN">Warn</option>
-              <option value="INFO">Info</option>
-           </select>
+          <select
+            className="h-8 text-xs rounded-md border border-slate-200 bg-white px-3 py-1  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950"
+            value={(table.getColumn("level")?.getFilterValue() as string) ?? ""}
+            onChange={(e) => table.getColumn("level")?.setFilterValue(e.target.value)}
+          >
+            <option value="">Todos os níveis</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="ERROR">Error</option>
+            <option value="WARN">Warn</option>
+            <option value="INFO">Info</option>
+          </select>
         </div>
       </div>
       <div className="w-full">
@@ -191,9 +191,9 @@ export default function IncidentesTable({ data }: IncidentesTableProps) {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}

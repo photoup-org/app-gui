@@ -10,7 +10,7 @@ export default async function NewExperimentPage({
     params: Promise<{ projectId: string }>
 }) {
     const resolvedParams = await params;
-    
+
     const project = await prisma.project.findUnique({
         where: { id: resolvedParams.projectId },
         include: {
@@ -73,7 +73,7 @@ export default async function NewExperimentPage({
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-6 ">
                 <NewExperimentForm projectId={project.id} devices={serializedDevices} projectSettings={project.settings} />
             </div>
         </div>

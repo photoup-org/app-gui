@@ -89,7 +89,7 @@ export default function InteractiveLabMap() {
                                         />
                                         <span
                                             className={cn(
-                                                "relative inline-flex rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white shadow-sm ring-2 ring-transparent transition-all group-hover:scale-125 group-active:scale-95",
+                                                "relative inline-flex rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white  ring-2 ring-transparent transition-all group-hover:scale-125 group-active:scale-95",
                                                 spot.color === 'destructive' ? "bg-red-500" : "bg-teal-500"
                                             )}
                                         />

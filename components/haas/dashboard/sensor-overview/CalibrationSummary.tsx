@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import {
     Table,
@@ -22,6 +22,20 @@ import { getDeviceUI } from "@/lib/hardware-map"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface MappedCalibrationDevice {
     id: string;
@@ -30,14 +44,9 @@ interface MappedCalibrationDevice {
     productName: string;
     productSku: string;
     productSubtitle: string;
-    recentCalibration: {
-        id: string;
-        deviceId: string;
-        calibratedAt: string | Date;
-        validUntil: string | Date;
-        performedBy: string;
-        notes?: string | null;
-    } | null;
+    lastCalibrated: string | Date | null;
+    calibrationDueDate: string | Date | null;
+    operator: string;
 }
 
 interface CalibrationSummaryProps {
@@ -58,11 +67,24 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
     const currentPage = data.metadata?.page || 1
     const totalPages = data.metadata?.totalPages || 1
     const devices = data.data || []
+    
+    const currentFilter = searchParams.get('calibrationFilter') || 'ALL'
 
     const handlePageChange = (newPage: number) => {
         if (newPage < 1 || newPage > totalPages) return
         const params = new URLSearchParams(searchParams.toString())
         params.set('calibrationPage', newPage.toString())
+        router.push(`?${params.toString()}`, { scroll: false })
+    }
+
+    const handleFilterChange = (value: string) => {
+        const params = new URLSearchParams(searchParams.toString())
+        if (value === 'ALL') {
+            params.delete('calibrationFilter')
+        } else {
+            params.set('calibrationFilter', value)
+        }
+        params.set('calibrationPage', '1') // reset page
         router.push(`?${params.toString()}`, { scroll: false })
     }
 
@@ -75,135 +97,218 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
         return `${day}/${month}/${year}`
     }
 
+    const renderTableRows = (isExpanded: boolean = false) => {
+        if (devices.length === 0) {
+            return (
+                <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={isExpanded ? 5 : 4} className="h-28 text-center text-xs text-slate-400 pl-0 pr-0">
+                        Nenhum sensor registado para calibração.
+                    </TableCell>
+                </TableRow>
+            )
+        }
+
+        return devices.map((device) => {
+            const { icon: Icon, textColor } = getDeviceUI(device.productName)
+            return (
+                <TableRow key={device.id} className="hover:bg-transparent border-slate-100 dark:border-slate-800">
+                    <TableCell className={`py-2.5 pl-0 text-xs font-semibold text-slate-500 dark:text-slate-400 ${isExpanded ? '' : 'w-1/4'}`}>
+                        ...{device.serialNumber.slice(-12)}
+                    </TableCell>
+                    <TableCell className={`py-2.5 ${isExpanded ? '' : 'w-1/4'}`}>
+                        <div className="flex items-center gap-1.5">
+                            <Icon className={`w-3.5 h-3.5 ${textColor}`} />
+                            <span className={`text-xs font-bold ${textColor}`}>
+                                {device.productName}
+                            </span>
+                        </div>
+                    </TableCell>
+                    <TableCell className={`py-2.5 text-xs text-slate-500 dark:text-slate-400 ${isExpanded ? '' : 'w-[30%]'}`}>
+                        {device.lastCalibrated ? (
+                            <span>
+                                {formatDate(device.lastCalibrated)}
+                            </span>
+                        ) : (
+                            <span className="text-slate-400 dark:text-slate-500">Pendente</span>
+                        )}
+                    </TableCell>
+                    <TableCell className={`py-2.5 text-xs pr-0 ${isExpanded ? '' : 'w-[20%]'}`}>
+                        {device.calibrationDueDate ? (
+                            <span className={new Date(device.calibrationDueDate) < new Date() ? "text-destructive font-semibold" : "text-slate-500 dark:text-slate-400"}>
+                                {formatDate(device.calibrationDueDate)}
+                            </span>
+                        ) : (
+                            <span className="text-slate-400 dark:text-slate-500">-</span>
+                        )}
+                    </TableCell>
+                    {isExpanded && (
+                        <TableCell className="py-2.5 text-xs text-slate-500 dark:text-slate-400 pr-0">
+                            {device.operator}
+                        </TableCell>
+                    )}
+                </TableRow>
+            )
+        })
+    }
+
+    const FilterMenu = () => (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="Filtrar">
+                    <Filter className="w-4.5 h-4.5" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuRadioGroup value={currentFilter} onValueChange={handleFilterChange}>
+                    <DropdownMenuRadioItem value="ALL">Todas</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="VALID">Válidas</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="OVERDUE">Expiradas</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="PENDING">Pendentes</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+
     return (
-        <Card className="flex flex-col h-full w-full min-w-0 border border-slate-100 dark:border-slate-800 mb-0 shadow-sm">
-            <CardHeader className="flex flex-row items-start justify-between pb-3 px-6 space-y-0 shrink-0">
-                <CardTitle className="font-bold text-slate-900 dark:text-white">
-                    Calibração
-                </CardTitle>
-                <div className="flex items-center gap-1 text-slate-400">
-                    <Button variant="ghost" size="icon" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="Filtrar">
-                        <Filter className="w-4.5 h-4.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="Abrir calibrações">
-                        <ExternalLink className="w-4.5 h-4.5" />
-                    </Button>
+        <Dialog>
+            <Card className="flex flex-col h-full w-full min-w-0 border border-slate-100 dark:border-slate-800 mb-0 ">
+                <CardHeader className="flex flex-row items-start justify-between pb-3 px-6 space-y-0 shrink-0">
+                    <CardTitle className="font-bold text-slate-900 dark:text-white">
+                        Calibração
+                    </CardTitle>
+                    <div className="flex items-center gap-1 text-slate-400">
+                        <FilterMenu />
+                        <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors" aria-label="Abrir calibrações">
+                                <ExternalLink className="w-4.5 h-4.5" />
+                            </Button>
+                        </DialogTrigger>
+                    </div>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-hidden px-6 pb-2 min-h-0">
+                    <ScrollArea className="h-full w-full pr-2">
+                        <Table className="w-full">
+                            <TableHeader>
+                                <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-0 w-1/4">Sensor ID</TableHead>
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-1/4">Tipo de Sensor</TableHead>
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-[30%]">Última Calibração</TableHead>
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pr-0 w-[20%]">Validade</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {renderTableRows(false)}
+                            </TableBody>
+                        </Table>
+                    </ScrollArea>
+                </CardContent>
+
+                {/* Footer and Pagination Panel */}
+                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3 pb-5 px-6 shrink-0 mt-auto">
+                    {/* Placeholder on the left to balance the layout */}
+                    <div className="w-24 shrink-0" />
+
+                    {/* Pagination in the center */}
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => handlePageChange(1)}
+                            disabled={currentPage === 1}
+                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                            aria-label="Primeira página"
+                        >
+                            <ChevronsLeft className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                            aria-label="Página anterior"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-bold px-2.5 tabular-nums">
+                            {currentPage} de {totalPages}
+                        </span>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                            aria-label="Próxima página"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(totalPages)}
+                            disabled={currentPage === totalPages}
+                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                            aria-label="Última página"
+                        >
+                            <ChevronsRight className="w-4 h-4" />
+                        </button>
+                    </div>
                 </div>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-hidden px-6 pb-2 min-h-0">
-                <ScrollArea className="h-full w-full pr-2">
-                    <Table className="w-full">
+            </Card>
+
+            <DialogContent className="sm:max-w-4xl md:max-w-5xl max-h-[85vh] flex flex-col">
+                <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <DialogTitle className="text-xl font-bold">Histórico de Calibração</DialogTitle>
+                    <div className="pr-6">
+                        <FilterMenu />
+                    </div>
+                </DialogHeader>
+                <div className="flex-1 overflow-auto py-4">
+                    <Table>
                         <TableHeader>
-                            <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
-                                <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-0 w-1/4">Sensor ID</TableHead>
-                                <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-1/4">Tipo de Sensor</TableHead>
-                                <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-[30%]">Última Calibração</TableHead>
-                                <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pr-0 w-[20%]">Validade</TableHead>
+                            <TableRow>
+                                <TableHead className="font-bold text-slate-500 whitespace-nowrap">Sensor ID</TableHead>
+                                <TableHead className="font-bold text-slate-500 whitespace-nowrap">Tipo de Sensor</TableHead>
+                                <TableHead className="font-bold text-slate-500 whitespace-nowrap">Última Calibração</TableHead>
+                                <TableHead className="font-bold text-slate-500 whitespace-nowrap">Validade</TableHead>
+                                <TableHead className="font-bold text-slate-500 whitespace-nowrap">Operador</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {devices.length === 0 ? (
-                                <TableRow className="hover:bg-transparent">
-                                    <TableCell colSpan={4} className="h-28 text-center text-xs text-slate-400 pl-0 pr-0">
-                                        Nenhum sensor registado para calibração.
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                devices.map((device) => {
-                                    const { icon: Icon, textColor } = getDeviceUI(device.productName)
-                                    return (
-                                        <TableRow key={device.id} className="hover:bg-transparent border-slate-100 dark:border-slate-800">
-                                            <TableCell className="py-2.5 pl-0 text-xs font-semibold text-slate-500 dark:text-slate-400 w-1/4">
-                                                ...{device.serialNumber.slice(-12)}
-                                            </TableCell>
-                                            <TableCell className="py-2.5 w-1/4">
-                                                <div className="flex items-center gap-1.5">
-                                                    <Icon className={`w-3.5 h-3.5 ${textColor}`} />
-                                                    <span className={`text-xs font-bold ${textColor}`}>
-                                                        {device.productName}
-                                                    </span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="py-2.5 text-xs text-slate-500 dark:text-slate-400 w-[30%]">
-                                                {device.recentCalibration ? (
-                                                    <span>
-                                                        {formatDate(device.recentCalibration.calibratedAt)} por {device.recentCalibration.performedBy}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-slate-400 dark:text-slate-500">-</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="py-2.5 text-xs text-slate-500 dark:text-slate-400 pr-0 w-[20%]">
-                                                {device.recentCalibration ? (
-                                                    <span>
-                                                        {formatDate(device.recentCalibration.validUntil)}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-slate-400 dark:text-slate-500">-</span>
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    )
-                                })
-                            )}
+                            {renderTableRows(true)}
                         </TableBody>
                     </Table>
-                </ScrollArea>
-            </CardContent>
-
-            {/* Footer and Pagination Panel */}
-            <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3 pb-5 px-6 shrink-0 mt-auto">
-                {/* Placeholder on the left to balance the layout */}
-                <div className="w-24 shrink-0" />
-
-                {/* Pagination in the center */}
-                <div className="flex items-center gap-1">
-                    <button
-                        onClick={() => handlePageChange(1)}
-                        disabled={currentPage === 1}
-                        className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                        aria-label="Primeira página"
-                    >
-                        <ChevronsLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                        aria-label="Página anterior"
-                    >
-                        <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-bold px-2.5 tabular-nums">
-                        {currentPage} de {totalPages}
-                    </span>
-                    <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                        aria-label="Próxima página"
-                    >
-                        <ChevronRight className="w-4 h-4" />
-                    </button>
-                    <button
-                        onClick={() => handlePageChange(totalPages)}
-                        disabled={currentPage === totalPages}
-                        className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                        aria-label="Última página"
-                    >
-                        <ChevronsRight className="w-4 h-4" />
-                    </button>
                 </div>
-
-                {/* Action Button on the right */}
-                <Button
-                    variant="ghost"
-                    className='text-primary'
-                >
-                    Calibrar Sensor
-                </Button>
-            </div>
-        </Card>
+                <div className="flex items-center justify-center pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={() => handlePageChange(1)}
+                            disabled={currentPage === 1}
+                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        >
+                            <ChevronsLeft className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-bold px-2.5 tabular-nums">
+                            {currentPage} de {totalPages}
+                        </span>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={() => handlePageChange(totalPages)}
+                            disabled={currentPage === totalPages}
+                            className="p-1 disabled:opacity-30 disabled:cursor-not-allowed text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        >
+                            <ChevronsRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }
 

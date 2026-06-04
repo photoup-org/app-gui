@@ -25,7 +25,7 @@ export function NetworkTestWidget({ isReady }: NetworkTestWidgetProps) {
           disabled={!isReady}
           className={cn(
             isReady
-              ? "bg-teal-500 hover:bg-teal-600 text-white shadow-sm"
+              ? "bg-teal-500 hover:bg-teal-600 text-white "
               : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
           )}
         >

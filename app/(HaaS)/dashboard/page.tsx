@@ -7,7 +7,14 @@ import { SystemAdminRow } from "@/components/haas/dashboard/system-admin/SystemA
 import { RunningExperimentsWidget } from "@/components/haas/dashboard/RunningExperimentsWidget";
 
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const calibrationPage = Number(searchParams?.calibrationPage) || 1;
+  const calibrationFilter = typeof searchParams?.calibrationFilter === 'string' ? searchParams.calibrationFilter : undefined;
+
   return (
     <div className="flex flex-col items-start w-full gap-8">
       <Suspense fallback={<div className="w-full h-32 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-lg" />}>
@@ -20,7 +27,7 @@ export default async function DashboardPage() {
         <DashboardOverviewRow />
       </Suspense>
       <Suspense fallback={<OverviewSkeleton />}>
-        <SensorOverviewRow />
+        <SensorOverviewRow calibrationPage={calibrationPage} calibrationFilter={calibrationFilter} />
       </Suspense>
       <Suspense fallback={<OverviewSkeleton />}>
         <SystemAdminRow />

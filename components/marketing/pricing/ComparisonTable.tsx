@@ -67,7 +67,7 @@ export function ComparisonTable({ plans }: ComparisonTableProps) {
     });
 
     return (
-        <div className="bg-card rounded-3xl shadow-sm border border-border overflow-hidden">
+        <div className="bg-card rounded-3xl  border border-border overflow-hidden">
             <div className="p-8 pb-6 border-b border-border">
                 <h2 className="text-2xl font-bold text-foreground">Compare os nossos planos</h2>
             </div>

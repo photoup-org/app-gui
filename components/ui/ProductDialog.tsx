@@ -53,7 +53,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
 
                     {/* Image Bottom Text */}
                     <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
-                        <p className="text-gray-300 text-sm sm:text-base font-medium drop-shadow-sm mb-1">
+                        <p className="text-gray-300 text-sm sm:text-base font-medium drop- mb-1">
                             {formatProductType(product.type)}
                         </p>
                         <DialogTitle className="text-white text-3xl sm:text-4xl font-bold leading-tight drop-shadow-md">

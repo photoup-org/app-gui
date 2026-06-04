@@ -13,7 +13,7 @@ export default function HeroSection() {
                 {/* Mobile View: Stacked Layout (< lg) */}
                 <div className="flex flex-col gap-6 lg:hidden w-full">
                     {/* Main Image */}
-                    <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden shadow-sm shrink-0">
+                    <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden  shrink-0">
                         <ImageWithSkeleton
                             src={landingIndustryImg}
                             alt="Main IoT Dashboard"
@@ -23,7 +23,7 @@ export default function HeroSection() {
                         />
                     </div>
                     {/* Text Card */}
-                    <div className="w-full bg-shadow-bg rounded-3xl p-8 shadow-sm text-foreground shrink-0">
+                    <div className="w-full bg-shadow-bg rounded-3xl p-8  text-foreground shrink-0">
                         <h3 className="text-2xl font-bold mb-3 text-foreground">Real-time Insights</h3>
                         <p className="text-muted-foreground leading-relaxed">
                             Monitor millions of devices globally with unmatched precision and speed.
@@ -31,7 +31,7 @@ export default function HeroSection() {
                         </p>
                     </div>
                     {/* Secondary Image */}
-                    <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-sm shrink-0">
+                    <div className="relative w-full aspect-video rounded-3xl overflow-hidden  shrink-0">
                         <ImageWithSkeleton
                             src={landingLabImg}
                             alt="Data visualization"

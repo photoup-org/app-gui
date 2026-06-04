@@ -151,7 +151,7 @@ export function HardwareRegistrationDialog({
                                     size="icon"
                                     variant="secondary"
                                     onClick={() => setIsScanning(false)}
-                                    className="absolute top-3 right-3 bg-white/90 backdrop-blur shadow-sm hover:bg-white rounded-full z-20 h-8 w-8"
+                                    className="absolute top-3 right-3 bg-white/90 backdrop-blur  hover:bg-white rounded-full z-20 h-8 w-8"
                                 >
                                     <X size={16} className="text-slate-600" />
                                 </Button>

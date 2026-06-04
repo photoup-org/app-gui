@@ -9,9 +9,10 @@ import { getUserWorkspaceContext } from "@/lib/services/workspace"
 
 interface SensorOverviewRowProps {
     calibrationPage?: number;
+    calibrationFilter?: string;
 }
 
-const SensorOverviewRow = async ({ calibrationPage = 1 }: SensorOverviewRowProps) => {
+const SensorOverviewRow = async ({ calibrationPage = 1, calibrationFilter }: SensorOverviewRowProps) => {
     const session = await getAppSession();
     if (!session?.user) return null;
 
@@ -22,7 +23,7 @@ const SensorOverviewRow = async ({ calibrationPage = 1 }: SensorOverviewRowProps
 
     const [inventoryData, calibrationData, alertsData] = await Promise.all([
         getInventoryStatus(departmentId),
-        getCalibrationList(departmentId, calibrationPage, 5), // exactly 5 items per visual design
+        getCalibrationList(departmentId, calibrationPage, 5, calibrationFilter), // exactly 5 items per visual design
         getRecentAlertsAction(24), 
     ]);
 

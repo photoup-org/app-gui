@@ -58,7 +58,7 @@ export default function LoginForm() {
             <div>
                 <Button
                     type="submit"
-                    className="w-full flex justify-center py-2 px-4 shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                    className="w-full flex justify-center py-2 px-4  text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                     disabled={loading}
                 >
                     {loading ? "Searching..." : "Continue"}

@@ -84,7 +84,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Metadata Card */}
-                <Card className="col-span-1 border-slate-200 dark:border-slate-800 shadow-sm">
+                <Card className="col-span-1 border-slate-200 dark:border-slate-800 ">
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
                             <Server className="h-5 w-5 text-indigo-500" />
@@ -123,7 +123,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                 <div className="col-span-1 md:col-span-2 flex flex-col gap-6">
 
                     {/* Allocated Sensors Card */}
-                    <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+                    <Card className="border-slate-200 dark:border-slate-800 ">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-lg flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -175,7 +175,7 @@ export default async function ProjectDetailsPage({ params }: { params: Promise<{
                     </Card>
 
                     {/* Experiments Card */}
-                    <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+                    <Card className="border-slate-200 dark:border-slate-800 ">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-lg flex items-center justify-between">
                                 <div className="flex items-center gap-2">

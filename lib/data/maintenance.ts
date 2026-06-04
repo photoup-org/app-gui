@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { DeviceStatus, AlertSeverity, CalibrationRecord } from "@prisma/client";
 import { DeviceWithProduct } from "@/lib/data/overview";
 
+import { SENSOR_CALIBRATION_DICTIONARY } from "@/lib/sensor-schemas";
+
 export interface MappedCalibrationDevice {
   id: string;
   serialNumber: string;
@@ -9,7 +11,9 @@ export interface MappedCalibrationDevice {
   productName: string;
   productSku: string;
   productSubtitle: string;
-  recentCalibration: CalibrationRecord | null;
+  lastCalibrated: Date | null;
+  calibrationDueDate: Date | null;
+  operator: string;
 }
 
 export interface CalibrationListResponse {
@@ -65,62 +69,75 @@ export async function getInventoryStatus(departmentId: string): Promise<DeviceWi
 }
 
 /**
- * Returns a paginated list of non-gateway sensors along with their most recent calibration.
+ * Returns a paginated list of non-gateway sensors that require calibration.
  */
 export async function getCalibrationList(
   departmentId: string,
   page: number = 1,
-  take: number = 3
+  take: number = 3,
+  statusFilter?: string
 ): Promise<CalibrationListResponse> {
   const skip = (page - 1) * take;
 
   try {
-    const [total, devices] = await Promise.all([
-      prisma.device.count({
-        where: {
-          departmentId,
-          product: {
-            type: {
-              not: "GATEWAY",
-            },
+    // 1. Fetch ALL sensors (not gateways) for the department
+    const allSensors = await prisma.device.findMany({
+      where: {
+        departmentId,
+        product: {
+          type: {
+            not: "GATEWAY",
           },
         },
-      }),
-      prisma.device.findMany({
-        where: {
-          departmentId,
-          product: {
-            type: {
-              not: "GATEWAY",
-            },
-          },
-        },
-        include: {
-          product: true,
-          calibrations: {
-            orderBy: {
-              calibratedAt: "desc",
-            },
-            take: 1,
-          },
-        },
-        skip,
-        take,
-        orderBy: {
-          createdAt: "desc",
-        },
-      }),
-    ]);
+      },
+      include: {
+        product: true,
+        calibrations: {
+          orderBy: { calibratedAt: 'desc' },
+          take: 1,
+          include: { user: true }
+        }
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-    const mappedDevices: MappedCalibrationDevice[] = devices.map((device) => ({
-      id: device.id,
-      serialNumber: device.serialNumber,
-      status: device.status,
-      productName: device.product.name,
-      productSku: device.product.sku,
-      productSubtitle: device.product.subtitle,
-      recentCalibration: device.calibrations[0] || null,
-    }));
+    // 2. Filter in memory to only include devices that support calibration
+    let calibratableSensors = allSensors.filter(
+      (device) => !!SENSOR_CALIBRATION_DICTIONARY[device.product.sku]
+    );
+
+    // 3. Apply status filter
+    const now = new Date();
+    if (statusFilter === 'VALID') {
+      calibratableSensors = calibratableSensors.filter(d => d.calibrationDueDate && d.calibrationDueDate > now);
+    } else if (statusFilter === 'OVERDUE') {
+      calibratableSensors = calibratableSensors.filter(d => d.calibrationDueDate && d.calibrationDueDate < now);
+    } else if (statusFilter === 'PENDING') {
+      calibratableSensors = calibratableSensors.filter(d => !d.lastCalibrated);
+    }
+
+    // 4. Manually paginate the filtered results
+    const total = calibratableSensors.length;
+    const paginatedSensors = calibratableSensors.slice(skip, skip + take);
+
+    const mappedDevices: MappedCalibrationDevice[] = paginatedSensors.map((device) => {
+      const recentCalibration = device.calibrations[0];
+      const operator = recentCalibration?.user?.name || recentCalibration?.performedBy || "N/A";
+
+      return {
+        id: device.id,
+        serialNumber: device.serialNumber,
+        status: device.status,
+        productName: device.product.name,
+        productSku: device.product.sku,
+        productSubtitle: device.product.subtitle,
+        lastCalibrated: device.lastCalibrated,
+        calibrationDueDate: device.calibrationDueDate,
+        operator
+      };
+    });
 
     const totalPages = Math.ceil(total / take) || 1;
 

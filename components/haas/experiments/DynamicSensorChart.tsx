@@ -95,19 +95,19 @@ export default function DynamicSensorChart({
         raw.forEach(item => {
             timeMap.set(item._timeValue, item);
         });
-        
+
         const deduplicated = Array.from(timeMap.values());
-        
+
         // Sort chronologically. Required because if the local MQTT store has points 
         // that fall chronologically outside the database fetch range, concatenation 
         // causes them to be appended out of order.
         deduplicated.sort((a, b) => a._timeValue - b._timeValue);
-        
+
         return deduplicated;
     }, [chartData, metricKey]);
 
     return (
-        <Card className="border-slate-200 dark:border-slate-800 shadow-sm animate-in fade-in duration-500 overflow-hidden group">
+        <Card className="border-slate-200 dark:border-slate-800  animate-in fade-in duration-500 overflow-hidden group">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
                 <div className="flex flex-col">
                     <CardTitle className="text-sm font-medium text-slate-700 dark:text-slate-300">

@@ -34,13 +34,13 @@ export function PricingCards({ plans }: PricingCardsProps) {
                         className={`relative rounded-3xl bg-card p-8 flex flex-col transition-transform
             ${plan.isPopular
                                 ? "border-2 border-teal-500 shadow-xl md:scale-105 z-10"
-                                : "border border-border shadow-sm"
+                                : "border border-border "
                             }
           `}
                     >
                         {plan.isPopular && (
                             <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                                <span className="bg-teal-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+                                <span className="bg-teal-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest ">
                                     Mais Popular
                                 </span>
                             </div>
@@ -67,7 +67,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
                             asChild
                             className={`w-full mb-8 font-semibold rounded-xl text-base transition-colors ${plan.isPopular
                                 ? "bg-teal-500 hover:bg-teal-600 text-white py-6 shadow-md"
-                                : "bg-teal-500 hover:bg-teal-600 text-white py-5 shadow-sm"
+                                : "bg-teal-500 hover:bg-teal-600 text-white py-5 "
                                 }`}
                         >
                             <Link href={`/checkout/hardware?product_id=${plan.stripeProductId}`}>

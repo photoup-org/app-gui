@@ -19,13 +19,13 @@ function formatDuration(totalSeconds: number): string {
     const seconds = totalSeconds % 60;
 
     const pad = (num: number) => num.toString().padStart(2, "0");
-    
+
     let formatted = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-    
+
     if (days > 0) {
         formatted = `${days} dia${days > 1 ? 's' : ''}, ${formatted}`;
     }
-    
+
     return formatted;
 }
 
@@ -53,7 +53,7 @@ export default function ExperimentTimer({ status, accumulatedSeconds, lastRunAt,
     }, [status, accumulatedSeconds, lastRunAt]);
 
     return (
-        <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-mono text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 shadow-sm">
+        <Badge variant="outline" className="flex items-center gap-1.5 px-3 py-1 font-mono text-sm bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 ">
             <Timer className="w-4 h-4 text-slate-500" />
             {formatDuration(displaySeconds)}
         </Badge>

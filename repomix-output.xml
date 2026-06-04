@@ -2475,15 +2475,15 @@ export function ProjectsDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Stats Cards */}
-                <div className="p-6 bg-white border rounded-xl shadow-sm space-y-2">
+                <div className="p-6 bg-white border rounded-xl  space-y-2">
                     <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Active Sensors</p>
                     <p className="text-3xl font-bold text-gray-900">--</p>
                 </div>
-                <div className="p-6 bg-white border rounded-xl shadow-sm space-y-2">
+                <div className="p-6 bg-white border rounded-xl  space-y-2">
                     <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Ongoing Projects</p>
                     <p className="text-3xl font-bold text-gray-900">--</p>
                 </div>
-                <div className="p-6 bg-white border rounded-xl shadow-sm space-y-2">
+                <div className="p-6 bg-white border rounded-xl  space-y-2">
                     <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">System Status</p>
                     <div className="flex items-center space-x-2">
                         <span className="h-3 w-3 rounded-full bg-green-500"></span>
@@ -3436,7 +3436,7 @@ export function PricingCartBanner() {
     if (!isMounted || sensorCount === 0 || isDismissed) return null;
 
     return (
-        <div className=" backdrop-blur-lg sticky top-16 z-40 w-full animate-in slide-in-from-top-2 fade-in duration-300 bg-[#2DD4BF33] text-teal-950 border-y border-teal-300/50 shadow-sm py-2 px-4 flex justify-center items-center">
+        <div className=" backdrop-blur-lg sticky top-16 z-40 w-full animate-in slide-in-from-top-2 fade-in duration-300 bg-[#2DD4BF33] text-teal-950 border-y border-teal-300/50  py-2 px-4 flex justify-center items-center">
             <div className="flex items-center gap-3 text-sm font-bold text-primary">
                 <ShoppingCart className="w-4 h-4 shrink-0" />
                 <span className='text-xs'>
@@ -4709,7 +4709,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-1.5 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-1 has-data-[icon=inline-start]:pl-1 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active: group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
         "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
         "after:absolute after:bg-foreground after:opacity-0 after:transition-opacity group-data-horizontal/tabs:after:inset-x-0 group-data-horizontal/tabs:after:bottom-[-5px] group-data-horizontal/tabs:after:h-0.5 group-data-vertical/tabs:after:inset-y-0 group-data-vertical/tabs:after:-right-1 group-data-vertical/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
@@ -6079,7 +6079,7 @@ export default async function TeamSettingsPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden ">
         <div className="p-6 border-b border-slate-200 dark:border-slate-800">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             Convites Pendentes
@@ -6295,7 +6295,7 @@ export default function LoginForm() {
             <div>
                 <Button
                     type="submit"
-                    className="w-full flex justify-center py-2 px-4 shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                    className="w-full flex justify-center py-2 px-4  text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                     disabled={loading}
                 >
                     {loading ? "Searching..." : "Continue"}
@@ -6816,7 +6816,7 @@ export function HardwareRegistrationDialog({ children }: HardwareRegistrationDia
                                     size="icon"
                                     variant="secondary"
                                     onClick={() => setIsScanning(false)}
-                                    className="absolute top-3 right-3 bg-white/90 backdrop-blur shadow-sm hover:bg-white rounded-full z-20 h-8 w-8"
+                                    className="absolute top-3 right-3 bg-white/90 backdrop-blur  hover:bg-white rounded-full z-20 h-8 w-8"
                                 >
                                     <X size={16} className="text-slate-600" />
                                 </Button>
@@ -7576,7 +7576,7 @@ interface FeatureCardProps {
 
 const FeatureCard = ({ icon: Icon, text, className }: FeatureCardProps) => {
     return (
-        <div className={cn("flex items-center gap-4 p-5 bg-white/50  rounded-2xl shadow-sm border border-slate-100", className)}>
+        <div className={cn("flex items-center gap-4 p-5 bg-white/50  rounded-2xl  border border-slate-100", className)}>
             <div className="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-teal-50 text-[#2DD4BF]">
                 <Icon className="w-6 h-6" strokeWidth={2.5} />
             </div>
@@ -8960,7 +8960,7 @@ export function ComparisonTable({ plans }: ComparisonTableProps) {
     });
 
     return (
-        <div className="bg-card rounded-3xl shadow-sm border border-border overflow-hidden">
+        <div className="bg-card rounded-3xl  border border-border overflow-hidden">
             <div className="p-8 pb-6 border-b border-border">
                 <h2 className="text-2xl font-bold text-foreground">Compare os nossos planos</h2>
             </div>
@@ -9077,13 +9077,13 @@ export function PricingCards({ plans }: PricingCardsProps) {
                         className={`relative rounded-3xl bg-card p-8 flex flex-col transition-transform
             ${plan.isPopular
                                 ? "border-2 border-teal-500 shadow-xl md:scale-105 z-10"
-                                : "border border-border shadow-sm"
+                                : "border border-border "
                             }
           `}
                     >
                         {plan.isPopular && (
                             <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                                <span className="bg-teal-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-sm">
+                                <span className="bg-teal-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest ">
                                     Mais Popular
                                 </span>
                             </div>
@@ -9110,7 +9110,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
                             asChild
                             className={`w-full mb-8 font-semibold rounded-xl text-base transition-colors ${plan.isPopular
                                 ? "bg-teal-500 hover:bg-teal-600 text-white py-6 shadow-md"
-                                : "bg-teal-500 hover:bg-teal-600 text-white py-5 shadow-sm"
+                                : "bg-teal-500 hover:bg-teal-600 text-white py-5 "
                                 }`}
                         >
                             <Link href={`/checkout/hardware?product_id=${plan.stripeProductId}`}>
@@ -9213,7 +9213,7 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'ALL'
-                                    ? "bg-background text-foreground shadow-sm"
+                                    ? "bg-background text-foreground "
                                     : "text-muted-foreground hover:text-foreground"
                             )}
                         >
@@ -9224,7 +9224,7 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'SENSOR_BASE'
-                                    ? "bg-background text-foreground shadow-sm"
+                                    ? "bg-background text-foreground "
                                     : "text-muted-foreground hover:text-foreground"
                             )}
                         >
@@ -9235,7 +9235,7 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'SENSOR_PREMIUM'
-                                    ? "bg-background text-foreground shadow-sm"
+                                    ? "bg-background text-foreground "
                                     : "text-muted-foreground hover:text-foreground"
                             )}
                         >
@@ -10439,7 +10439,7 @@ export default function SuccessSummary({
 
             {/* Email Callout */}
             {displayData.userEmail && (
-                <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center shadow-sm max-w-2xl mx-auto transition-colors hover:bg-primary/10">
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 text-center  max-w-2xl mx-auto transition-colors hover:bg-primary/10">
                     <p className="text-base text-primary/90">
                         Um convite para aceder à plataforma foi enviado para <span className="font-bold text-primary">{displayData.userEmail}</span>.
                     </p>
@@ -10453,7 +10453,7 @@ export default function SuccessSummary({
                     <p className="text-xl font-mono font-semibold tracking-tight">{orderId}</p>
                 </div>
                 {documentUrl && (
-                    <Button asChild variant="default" className="shrink-0 gap-2 shadow-sm">
+                    <Button asChild variant="default" className="shrink-0 gap-2 ">
                         <a href={documentUrl} target="_blank" rel="noopener noreferrer">
                             <Download className="w-4 h-4" />
                             Descarregar Fatura
@@ -10468,7 +10468,7 @@ export default function SuccessSummary({
                 {/* Left Column: Shipping & Billing */}
                 <div className="lg:col-span-5 space-y-6">
                     {displayData.shippingAddress && (
-                        <div className="bg-card border rounded-xl p-6 shadow-sm">
+                        <div className="bg-card border rounded-xl p-6 ">
                             <div className="flex items-center gap-3 mb-5 text-foreground border-b pb-4">
                                 <div className="p-2 bg-muted rounded-md">
                                     <MapPin className="w-5 h-5 text-foreground" />
@@ -10485,7 +10485,7 @@ export default function SuccessSummary({
                     )}
 
                     {displayData.billingAddress && (
-                        <div className="bg-card border rounded-xl p-6 shadow-sm">
+                        <div className="bg-card border rounded-xl p-6 ">
                             <div className="flex items-center gap-3 mb-5 text-foreground border-b pb-4">
                                 <div className="p-2 bg-muted rounded-md">
                                     <CreditCard className="w-5 h-5 text-foreground" />
@@ -10504,10 +10504,10 @@ export default function SuccessSummary({
                 </div>
 
                 {/* Right Column: Order Summary */}
-                <div className="lg:col-span-7 bg-card border rounded-xl shadow-sm overflow-hidden flex flex-col h-full">
+                <div className="lg:col-span-7 bg-card border rounded-xl  overflow-hidden flex flex-col h-full">
                     <div className="p-6 border-b bg-muted/30">
                         <div className="flex items-center gap-3 text-foreground">
-                            <div className="p-2 bg-background rounded-md shadow-sm border">
+                            <div className="p-2 bg-background rounded-md  border">
                                 <Package className="w-5 h-5 text-foreground" />
                             </div>
                             <h2 className="font-semibold text-lg">Resumo da Encomenda</h2>
@@ -10554,7 +10554,7 @@ export default function SuccessSummary({
             </div>
 
             <div className="pt-10 pb-6 text-center">
-                <Button asChild variant="outline" size="lg" className="px-8 shadow-sm">
+                <Button asChild variant="outline" size="lg" className="px-8 ">
                     <Link href="/">Voltar à Página Inicial</Link>
                 </Button>
             </div>
@@ -11363,7 +11363,7 @@ export default function InteractiveLabMap() {
                                         />
                                         <span
                                             className={cn(
-                                                "relative inline-flex rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white shadow-sm ring-2 ring-transparent transition-all group-hover:scale-125 group-active:scale-95",
+                                                "relative inline-flex rounded-full h-3 w-3 md:h-4 md:w-4 border-2 border-white  ring-2 ring-transparent transition-all group-hover:scale-125 group-active:scale-95",
                                                 spot.color === 'destructive' ? "bg-red-500" : "bg-teal-500"
                                             )}
                                         />
@@ -11477,7 +11477,7 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, isOpen, onClose 
 
                     {/* Image Bottom Text */}
                     <div className="absolute bottom-6 left-6 right-6 pointer-events-none">
-                        <p className="text-gray-300 text-sm sm:text-base font-medium drop-shadow-sm mb-1">
+                        <p className="text-gray-300 text-sm sm:text-base font-medium drop- mb-1">
                             {formatProductType(product.type)}
                         </p>
                         <DialogTitle className="text-white text-3xl sm:text-4xl font-bold leading-tight drop-shadow-md">
@@ -13232,7 +13232,7 @@ export default function HeroSection() {
                 {/* Mobile View: Stacked Layout (< lg) */}
                 <div className="flex flex-col gap-6 lg:hidden w-full">
                     {/* Main Image */}
-                    <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden shadow-sm shrink-0">
+                    <div className="relative w-full aspect-4/3 rounded-3xl overflow-hidden  shrink-0">
                         <ImageWithSkeleton
                             src={landingIndustryImg}
                             alt="Main IoT Dashboard"
@@ -13242,7 +13242,7 @@ export default function HeroSection() {
                         />
                     </div>
                     {/* Text Card */}
-                    <div className="w-full bg-shadow-bg rounded-3xl p-8 shadow-sm text-foreground shrink-0">
+                    <div className="w-full bg-shadow-bg rounded-3xl p-8  text-foreground shrink-0">
                         <h3 className="text-2xl font-bold mb-3 text-foreground">Real-time Insights</h3>
                         <p className="text-muted-foreground leading-relaxed">
                             Monitor millions of devices globally with unmatched precision and speed.
@@ -13250,7 +13250,7 @@ export default function HeroSection() {
                         </p>
                     </div>
                     {/* Secondary Image */}
-                    <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-sm shrink-0">
+                    <div className="relative w-full aspect-video rounded-3xl overflow-hidden  shrink-0">
                         <ImageWithSkeleton
                             src={landingLabImg}
                             alt="Data visualization"
@@ -15057,7 +15057,7 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({
             {/* Content Context - Top */}
             <div className="absolute top-6 left-6 right-6 z-20 pointer-events-none flex justify-between items-start">
                 <div className="flex flex-col gap-1">
-                    <p className="text-gray-300 text-sm font-medium drop-shadow-sm">
+                    <p className="text-gray-300 text-sm font-medium drop-">
                         {formatProductType(product.type)}
                     </p>
                     <h3 className="text-white text-xl md:text-2xl font-bold leading-tight max-w-[85%] drop-shadow-md">

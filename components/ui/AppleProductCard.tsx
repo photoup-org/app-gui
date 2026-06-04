@@ -80,7 +80,7 @@ const AppleProductCard: React.FC<AppleProductCardProps> = ({
             {/* Content Context - Top */}
             <div className="absolute top-6 left-6 right-6 z-20 pointer-events-none flex justify-between items-start">
                 <div className="flex flex-col gap-1">
-                    <p className="text-gray-300 text-sm font-medium drop-shadow-sm">
+                    <p className="text-gray-300 text-sm font-medium drop-">
                         {formatProductType(product.type)}
                     </p>
                     <h3 className="text-white text-xl md:text-2xl font-bold leading-tight max-w-[85%] drop-shadow-md">

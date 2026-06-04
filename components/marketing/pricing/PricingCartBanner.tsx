@@ -25,7 +25,7 @@ export function PricingCartBanner() {
     if (!isMounted || sensorCount === 0 || isDismissed) return null;
 
     return (
-        <div className=" backdrop-blur-lg sticky top-16 z-40 w-full animate-in slide-in-from-top-2 fade-in duration-300 bg-[#2DD4BF33] text-teal-950 border-y border-teal-300/50 shadow-sm py-2 px-4 flex justify-center items-center">
+        <div className=" backdrop-blur-lg sticky top-16 z-40 w-full animate-in slide-in-from-top-2 fade-in duration-300 bg-[#2DD4BF33] text-teal-950 border-y border-teal-300/50  py-2 px-4 flex justify-center items-center">
             <div className="flex items-center gap-3 text-sm font-bold text-primary">
                 <ShoppingCart className="w-4 h-4 shrink-0" />
                 <span className='text-xs'>

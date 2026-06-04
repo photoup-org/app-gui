@@ -75,7 +75,7 @@ export default function ProjectActions({ projectId, project, children }: Project
             <span className="sr-only">Abrir menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48 border-slate-200 dark:border-slate-800 shadow-sm">
+        <DropdownMenuContent align="end" className="w-48 border-slate-200 dark:border-slate-800 ">
           {children}
           <DropdownMenuItem asChild>
             <Link href={`/projects/${projectId}/experiments/new`} className="cursor-pointer flex items-center font-medium">

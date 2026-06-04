@@ -59,7 +59,7 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'ALL'
-                                    ? "bg-background text-foreground shadow-sm"
+                                    ? "bg-background text-foreground "
                                     : "text-muted-foreground hover:text-foreground"
                             )}
                         >
@@ -70,7 +70,7 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'SENSOR_BASE'
-                                    ? "bg-background text-foreground shadow-sm"
+                                    ? "bg-background text-foreground "
                                     : "text-muted-foreground hover:text-foreground"
                             )}
                         >
@@ -81,7 +81,7 @@ const FilterableProductGrid: React.FC<FilterableProductGridProps> = ({ initialPr
                             className={cn(
                                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                 filterType === 'SENSOR_PREMIUM'
-                                    ? "bg-background text-foreground shadow-sm"
+                                    ? "bg-background text-foreground "
                                     : "text-muted-foreground hover:text-foreground"
                             )}
                         >
