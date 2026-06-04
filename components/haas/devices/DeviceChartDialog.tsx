@@ -61,11 +61,12 @@ const CustomTooltip = ({ active, payload, label, capabilities }: any) => {
 const EMPTY_ARRAY: any[] = [];
 
 export function DeviceChartDialog() {
-  const { activeDialog, activeDeviceId, activeDeviceSku, closeDialog } = useDeviceDialogStore();
+  const { activeDialog, activeDeviceId, activeDeviceSku, activeDeviceName, closeDialog } = useDeviceDialogStore();
   const isConnected = useMqttStore((state) => state.isConnected);
   const departmentId = useMqttStore((state) => state.departmentId);
   const rawChartSeries = useMqttStore((state) => state.chartSeries[activeDeviceId || '']) || EMPTY_ARRAY;
   const subscribe = useMqttStore((state) => state.subscribe);
+  const clearDeviceTelemetry = useMqttStore((state) => state.clearDeviceTelemetry);
 
   const isOpen = activeDialog === 'CHART' && activeDeviceId !== null;
   const capabilities = activeDeviceSku ? SENSOR_DICTIONARY[activeDeviceSku] || [] : [];
@@ -81,8 +82,9 @@ export function DeviceChartDialog() {
 
     return () => {
       unsubscribe();
+      clearDeviceTelemetry(activeDeviceId);
     };
-  }, [isOpen, activeDeviceId, departmentId, subscribe]);
+  }, [isOpen, activeDeviceId, departmentId, subscribe, clearDeviceTelemetry]);
 
   // Process and group the flattened chartSeries back into combined data points
   const data = useMemo(() => {
@@ -107,6 +109,8 @@ export function DeviceChartDialog() {
     // Keep a rolling window of max 30 points
     return Object.values(grouped).slice(-30);
   }, [rawChartSeries, isOpen, activeDeviceId]);
+
+  const latestReading = data.length > 0 ? data[data.length - 1] : null;
 
   const uniqueDomains = Array.from(new Set(capabilities.map(c => `${c.min}-${c.max}`)));
   const axesToRender = uniqueDomains.map((domainStr, index) => {
@@ -134,8 +138,9 @@ export function DeviceChartDialog() {
             <DialogTitle className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
               Gráficos em Tempo Real
             </DialogTitle>
-            <DialogDescription className="text-slate-500 dark:text-slate-400 text-xs">
-              Visualização de telemetria live para o ID: <span className="font-semibold text-slate-800 dark:text-slate-200">{activeDeviceId}</span>
+            <DialogDescription className="text-slate-500 dark:text-slate-400 text-xs flex flex-col">
+              <span>Visualização de telemetria live para <span className="font-semibold text-slate-800 dark:text-slate-200">{activeDeviceName || "Dispositivo"}</span></span>
+              <span className="text-[10px] text-slate-400/80 mt-0.5">ID: {activeDeviceId}</span>
             </DialogDescription>
           </div>
           <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold transition-all">
@@ -152,6 +157,24 @@ export function DeviceChartDialog() {
             )}
           </div>
         </DialogHeader>
+
+        {latestReading && (
+          <div className="flex items-center gap-6 px-1 pt-3 -mb-1">
+            {capabilities.map((cap) => {
+              const value = latestReading[cap.key === 'temp' ? 'temperature' : cap.key];
+              if (value === undefined) return null;
+              return (
+                <div key={cap.key} className="flex items-baseline gap-1.5">
+                  <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{cap.label}:</span>
+                  <span className="text-2xl font-black tabular-nums" style={{ color: cap.color }}>
+                    {Number(value).toFixed(2)}
+                    <span className="text-sm font-bold ml-1">{cap.unit}</span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="relative h-[350px] w-full mt-4 flex items-center justify-center bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 overflow-hidden shadow-inner p-4">
           {data.length === 0 ? (

@@ -1,12 +1,21 @@
 "use client";
 
+import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Filter, ExternalLink, MoreVertical, Terminal } from "lucide-react";
+import { Filter, ExternalLink, MoreVertical, Terminal, Maximize, ChevronDown } from "lucide-react";
 import { useMqttStore } from "@/hooks/useMqttStore";
-import { SystemLogWithUser } from "@/app/(HaaS)/logs/actions";
+import { getRecentLogsAction, SystemLogWithUser } from "@/app/(HaaS)/logs/actions";
+import { LogFilterMenu, LogLevel } from "./LogFilterMenu";
+import LogsDialog from "./LogsDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SystemLogsWidgetProps {
   data: {
@@ -16,15 +25,38 @@ interface SystemLogsWidgetProps {
 }
 
 export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
+  const [hours, setHours] = useState(24);
+  const [fetchedLogs, setFetchedLogs] = useState<{logs: SystemLogWithUser[], total: number} | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedLevels, setSelectedLevels] = useState<LogLevel[]>(["INFO", "WARN", "ERROR", "CRITICAL"]);
+
+  const handleHoursChange = async (newHours: number) => {
+    setHours(newHours);
+    if (newHours === 24 && !fetchedLogs) return;
+
+    setIsFetching(true);
+    try {
+      const result = await getRecentLogsAction(newHours);
+      setFetchedLogs(result);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const currentData = fetchedLogs || data;
+
   const liveLogs = useMqttStore((state) => state.liveLogs);
   
   // Combine historical and live logs with strict deduplication
   const allLogs = [
       ...liveLogs,
-      ...data.logs.filter(
+      ...currentData.logs.filter(
           (historical) => !liveLogs.some((live) => live.id === historical.id)
       )
-  ].slice(0, 50);
+  ].filter(log => selectedLevels.includes(log.level as LogLevel)).slice(0, 50);
 
   // Helper to format Date: DD/MM/YYYY - HH:mm
   const formatLogDate = (dateVal: Date | string) => {
@@ -42,23 +74,37 @@ export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
     <Card className="flex flex-col h-full w-full mb-0">
       <div>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-base font-bold text-slate-900 dark:text-slate-100">
-            Logs ({data.total})
-          </CardTitle>
-          <div className="flex items-center gap-1">
+          <div className="flex flex-col">
+            <CardTitle className="text-base font-bold text-slate-900 dark:text-slate-100">
+              Logs ({currentData.total})
+            </CardTitle>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+              Últimas {hours} {hours === 1 ? 'hora' : 'horas'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <LogFilterMenu selectedLevels={selectedLevels} onLevelsChange={setSelectedLevels} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-bold border border-slate-100 dark:border-slate-800 rounded-lg px-2 py-1 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors">
+                  <span>{hours}h</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleHoursChange(1)}>1 hora</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleHoursChange(6)}>6 horas</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleHoursChange(12)}>12 horas</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleHoursChange(24)}>24 horas</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => setIsDialogOpen(true)}
               className="h-8 w-8 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
             >
-              <Filter className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            >
-              <ExternalLink className="h-4 w-4" />
+              <Maximize className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
@@ -136,6 +182,11 @@ export function SystemLogsWidget({ data }: SystemLogsWidgetProps) {
           A ouvir logs
         </div>
       </CardFooter>
+      <LogsDialog 
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        hours={hours}
+      />
     </Card>
   );
 }

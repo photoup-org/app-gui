@@ -23,7 +23,7 @@ const SensorOverviewRow = async ({ calibrationPage = 1 }: SensorOverviewRowProps
     const [inventoryData, calibrationData, alertsData] = await Promise.all([
         getInventoryStatus(departmentId),
         getCalibrationList(departmentId, calibrationPage, 5), // exactly 5 items per visual design
-        getRecentAlertsAction(15), 
+        getRecentAlertsAction(24), 
     ]);
 
     return (

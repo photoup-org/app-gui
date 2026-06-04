@@ -6,7 +6,8 @@ interface DeviceDialogStore {
   activeDialog: DialogType;
   activeDeviceId: string | null;
   activeDeviceSku: string | null;
-  openDialog: (type: DialogType, deviceId: string, sku?: string) => void;
+  activeDeviceName: string | null;
+  openDialog: (type: DialogType, deviceId: string, sku?: string, deviceName?: string) => void;
   closeDialog: () => void;
 }
 
@@ -14,6 +15,7 @@ export const useDeviceDialogStore = create<DeviceDialogStore>((set) => ({
   activeDialog: null,
   activeDeviceId: null,
   activeDeviceSku: null,
-  openDialog: (type, deviceId, sku) => set({ activeDialog: type, activeDeviceId: deviceId, activeDeviceSku: sku || null }),
-  closeDialog: () => set({ activeDialog: null, activeDeviceId: null, activeDeviceSku: null }),
+  activeDeviceName: null,
+  openDialog: (type, deviceId, sku, deviceName) => set({ activeDialog: type, activeDeviceId: deviceId, activeDeviceSku: sku || null, activeDeviceName: deviceName || null }),
+  closeDialog: () => set({ activeDialog: null, activeDeviceId: null, activeDeviceSku: null, activeDeviceName: null }),
 }));

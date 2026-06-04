@@ -32,15 +32,20 @@ async function getDepartmentIdOrThrow(): Promise<string> {
  * Fetches recent system logs, excluding alerts.
  */
 export async function getRecentLogsAction(
+  hours: number = 24,
   limit: number = 50
 ): Promise<{ logs: SystemLogWithUser[]; total: number }> {
   try {
     const departmentId = await getDepartmentIdOrThrow();
 
+    const dateThreshold = new Date();
+    dateThreshold.setHours(dateThreshold.getHours() - hours);
+
     const [logs, total] = await Promise.all([
       prisma.systemLog.findMany({
         where: {
           departmentId,
+          timestamp: { gte: dateThreshold },
           category: {
             not: "ALERT",
           },
@@ -57,6 +62,7 @@ export async function getRecentLogsAction(
       prisma.systemLog.count({
         where: {
           departmentId,
+          timestamp: { gte: dateThreshold },
           category: {
             not: "ALERT",
           },
@@ -75,13 +81,13 @@ export async function getRecentLogsAction(
  * Fetches recent alerts (category = ALERT or level = ERROR/CRITICAL).
  */
 export async function getRecentAlertsAction(
-  days: number = 5
+  hours: number = 24
 ): Promise<{ alerts: SystemLogWithUser[]; total: number }> {
   try {
     const departmentId = await getDepartmentIdOrThrow();
 
     const dateThreshold = new Date();
-    dateThreshold.setDate(dateThreshold.getDate() - days);
+    dateThreshold.setHours(dateThreshold.getHours() - hours);
 
     const whereClause: Prisma.SystemLogWhereInput = {
       departmentId,

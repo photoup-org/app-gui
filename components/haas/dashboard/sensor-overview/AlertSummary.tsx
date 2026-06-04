@@ -26,18 +26,18 @@ interface AlertSummaryProps {
 const AlertSummary = ({ initialAlerts }: AlertSummaryProps) => {
     const liveAlerts = useMqttStore((state) => state.liveAlerts);
     
-    const [days, setDays] = React.useState(15);
+    const [hours, setHours] = React.useState(24);
     const [fetchedAlerts, setFetchedAlerts] = React.useState<{alerts: SystemLogWithUser[], total: number} | null>(null);
     const [isFetching, setIsFetching] = React.useState(false);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
-    const handleDaysChange = async (newDays: number) => {
-        setDays(newDays);
-        if (newDays === 15 && !fetchedAlerts) return; // already using initialAlerts
+    const handleHoursChange = async (newHours: number) => {
+        setHours(newHours);
+        if (newHours === 24 && !fetchedAlerts) return; // already using initialAlerts
 
         setIsFetching(true);
         try {
-            const data = await getRecentAlertsAction(newDays);
+            const data = await getRecentAlertsAction(newHours);
             setFetchedAlerts(data);
         } catch (error) {
             console.error("Failed to fetch alerts:", error);
@@ -79,22 +79,22 @@ const AlertSummary = ({ initialAlerts }: AlertSummaryProps) => {
                         Alertas
                     </CardTitle>
                     <span className="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">
-                        Últimos {days} dias
+                        Últimas {hours} {hours === 1 ? 'hora' : 'horas'}
                     </span>
                 </div>
                 <div className="flex items-center gap-2">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <button className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 font-bold border border-slate-100 dark:border-slate-800 rounded-lg px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors">
-                                <span>{days} dias</span>
+                                <span>{hours} {hours === 1 ? 'hora' : 'horas'}</span>
                                 <ChevronDown className="w-3 h-3" />
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleDaysChange(5)}>5 dias</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDaysChange(10)}>10 dias</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDaysChange(15)}>15 dias</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDaysChange(30)}>30 dias</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleHoursChange(1)}>1 hora</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleHoursChange(6)}>6 horas</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleHoursChange(12)}>12 horas</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleHoursChange(24)}>24 horas</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                     <button 
@@ -168,7 +168,7 @@ const AlertSummary = ({ initialAlerts }: AlertSummaryProps) => {
             <AlertDetailsDialog 
                 isOpen={isDialogOpen} 
                 onOpenChange={setIsDialogOpen} 
-                days={days} 
+                hours={hours} 
             />
         </Card>
     )

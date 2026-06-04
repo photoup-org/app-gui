@@ -18,7 +18,7 @@ export async function SystemAdminRow() {
 
   const [isNetworkReady, logsData, teamData] = await Promise.all([
     checkNetworkReadiness(departmentId),
-    getRecentLogsAction(5),
+    getRecentLogsAction(24),
     getTeamSummary(departmentId),
   ]);
 

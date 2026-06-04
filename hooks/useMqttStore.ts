@@ -27,6 +27,7 @@ interface MqttActions {
   disconnect: () => void;
   subscribe: (topic: string, callback: (payload: any) => void) => () => void;
   publish: (topic: string, payload: any) => void;
+  clearDeviceTelemetry: (deviceId: string) => void;
 }
 
 let liveValuesBuffer: Record<string, any> = {};
@@ -356,6 +357,15 @@ export const useMqttStore = create<MqttState & MqttActions>((set, get) => {
       if (err) {
         console.error(`[MQTT] Publication failed on topic ${topic}:`, err);
       }
+    });
+  },
+
+  clearDeviceTelemetry: (deviceId: string) => {
+    delete chartSeriesBuffer[deviceId];
+    set((state) => {
+      const newChartSeries = { ...state.chartSeries };
+      delete newChartSeries[deviceId];
+      return { chartSeries: newChartSeries };
     });
   },
 };
