@@ -67,7 +67,7 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
     const currentPage = data.metadata?.page || 1
     const totalPages = data.metadata?.totalPages || 1
     const devices = data.data || []
-    
+
     const currentFilter = searchParams.get('calibrationFilter') || 'ALL'
 
     const handlePageChange = (newPage: number) => {
@@ -112,10 +112,10 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
             const { icon: Icon, textColor } = getDeviceUI(device.productName)
             return (
                 <TableRow key={device.id} className="hover:bg-transparent border-slate-100 dark:border-slate-800">
-                    <TableCell className={`py-2.5 pl-0 text-xs font-semibold text-slate-500 dark:text-slate-400 ${isExpanded ? '' : 'w-1/4'}`}>
+                    <TableCell className={`py-2.5 pl-0 text-xs font-semibold text-slate-500 dark:text-slate-400 ${isExpanded ? '' : 'w-[20%]'}`}>
                         ...{device.serialNumber.slice(-12)}
                     </TableCell>
-                    <TableCell className={`py-2.5 ${isExpanded ? '' : 'w-1/4'}`}>
+                    <TableCell className={`py-2.5 ${isExpanded ? '' : 'w-[25%]'}`}>
                         <div className="flex items-center gap-1.5">
                             <Icon className={`w-3.5 h-3.5 ${textColor}`} />
                             <span className={`text-xs font-bold ${textColor}`}>
@@ -123,7 +123,7 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
                             </span>
                         </div>
                     </TableCell>
-                    <TableCell className={`py-2.5 text-xs text-slate-500 dark:text-slate-400 ${isExpanded ? '' : 'w-[30%]'}`}>
+                    <TableCell className={`py-2.5 text-xs text-slate-500 dark:text-slate-400 ${isExpanded ? '' : 'w-[25%]'}`}>
                         {device.lastCalibrated ? (
                             <span>
                                 {formatDate(device.lastCalibrated)}
@@ -132,7 +132,7 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
                             <span className="text-slate-400 dark:text-slate-500">Pendente</span>
                         )}
                     </TableCell>
-                    <TableCell className={`py-2.5 text-xs pr-0 ${isExpanded ? '' : 'w-[20%]'}`}>
+                    <TableCell className={`py-2.5 text-xs pr-0 ${isExpanded ? '' : 'w-[15%]'}`}>
                         {device.calibrationDueDate ? (
                             <span className={new Date(device.calibrationDueDate) < new Date() ? "text-destructive font-semibold" : "text-slate-500 dark:text-slate-400"}>
                                 {formatDate(device.calibrationDueDate)}
@@ -141,11 +141,9 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
                             <span className="text-slate-400 dark:text-slate-500">-</span>
                         )}
                     </TableCell>
-                    {isExpanded && (
-                        <TableCell className="py-2.5 text-xs text-slate-500 dark:text-slate-400 pr-0">
-                            {device.operator}
-                        </TableCell>
-                    )}
+                    <TableCell className={`py-2.5 text-xs text-slate-500 dark:text-slate-400 pr-0 ${isExpanded ? '' : 'w-[15%]'}`}>
+                        {device.operator}
+                    </TableCell>
                 </TableRow>
             )
         })
@@ -190,10 +188,11 @@ const CalibrationSummary = ({ data }: CalibrationSummaryProps) => {
                         <Table className="w-full">
                             <TableHeader>
                                 <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
-                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-0 w-1/4">Sensor ID</TableHead>
-                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-1/4">Tipo de Sensor</TableHead>
-                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-[30%]">Última Calibração</TableHead>
-                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pr-0 w-[20%]">Validade</TableHead>
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pl-0 w-[20%]">Sensor ID</TableHead>
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-[25%]">Tipo de Sensor</TableHead>
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-[25%]">Última Calibração</TableHead>
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pr-0 w-[15%]">Validade</TableHead>
+                                    <TableHead className="h-9 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pr-0 w-[15%]">Operador</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

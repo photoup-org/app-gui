@@ -108,11 +108,6 @@ export async function getProjectSummary(departmentId: string): Promise<ProjectSu
           experiments: {
             select: {
               id: true,
-              _count: {
-                select: {
-                  alerts: true,
-                },
-              },
             },
           },
           _count: {
@@ -124,7 +119,7 @@ export async function getProjectSummary(departmentId: string): Promise<ProjectSu
       }),
     ]);
 
-    const mappedProjects: RecentProject[] = recentProjects.map((project) => {
+    const mappedProjects: RecentProject[] = await Promise.all(recentProjects.map(async (project) => {
       const formattedDate = project.createdAt.toLocaleDateString("pt-PT", {
         day: "2-digit",
         month: "2-digit",
@@ -142,10 +137,17 @@ export async function getProjectSummary(departmentId: string): Promise<ProjectSu
       }));
 
       const experimentsCount = project._count.experiments;
-      const alertsCount = project.experiments.reduce(
-        (sum, exp) => sum + exp._count.alerts,
-        0
-      );
+      
+      const experimentIds = project.experiments.map(e => e.id);
+      const alertsCount = experimentIds.length > 0 
+        ? await prisma.systemLog.count({
+            where: {
+              category: 'ALERT',
+              experimentId: { in: experimentIds }
+            }
+          })
+        : 0;
+        
       const sensorsCount = project.devices.length;
 
       return {
@@ -164,7 +166,7 @@ export async function getProjectSummary(departmentId: string): Promise<ProjectSu
           sensors: sensorsCount,
         },
       };
-    });
+    }));
 
     return {
       totalProjects,

@@ -67,3 +67,49 @@ export async function getProjectEquipmentAction(projectId: string) {
         return { success: false, error: "Failed to fetch project equipment" };
     }
 }
+
+export async function getProjectAlertsAction(projectId: string) {
+    try {
+        const session = await getAppSession();
+        if (!session?.user) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const experiments = await prisma.experiment.findMany({
+            where: { projectId },
+            select: { id: true, name: true }
+        });
+        
+        const experimentIds = experiments.map(e => e.id);
+        const experimentMap = new Map(experiments.map(e => [e.id, e.name]));
+
+        const logs = await prisma.systemLog.findMany({
+            where: {
+                category: 'ALERT',
+                experimentId: {
+                    in: experimentIds
+                }
+            },
+            orderBy: {
+                timestamp: 'desc'
+            }
+        });
+
+        const mappedAlerts = logs.map(log => ({
+            id: log.id,
+            severity: log.level,
+            title: log.action,
+            message: log.message,
+            createdAt: log.timestamp,
+            experiment: log.experimentId ? {
+                id: log.experimentId,
+                name: experimentMap.get(log.experimentId) || "Desconhecida"
+            } : null
+        }));
+
+        return { success: true, data: mappedAlerts };
+    } catch (error) {
+        console.error("Failed to fetch project alerts:", error);
+        return { success: false, error: "Failed to fetch project alerts" };
+    }
+}

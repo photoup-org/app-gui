@@ -8,10 +8,11 @@ import { RunningExperimentsWidget } from "@/components/haas/dashboard/RunningExp
 
 
 interface DashboardPageProps {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+export default async function DashboardPage(props: DashboardPageProps) {
+  const searchParams = await props.searchParams;
   const calibrationPage = Number(searchParams?.calibrationPage) || 1;
   const calibrationFilter = typeof searchParams?.calibrationFilter === 'string' ? searchParams.calibrationFilter : undefined;
 

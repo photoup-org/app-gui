@@ -12,6 +12,8 @@ import { ProjectExperimentsView } from "@/components/haas/dashboard/ProjectExper
 import { ProjectEquipmentView } from "@/components/haas/dashboard/ProjectEquipmentView";
 
 
+import { ProjectAlertsView } from "@/components/haas/dashboard/ProjectAlertsView";
+
 export function ProjectDetailsDialogs() {
   const { activeDetailView, activeProjectId, closeDetailView } = useProjectStore();
 
@@ -27,7 +29,7 @@ export function ProjectDetailsDialogs() {
     description = "Lista de todas as experiências associadas a este projeto.";
   } else if (activeDetailView === 'ALERTS') {
     title = "Histórico de Alertas";
-    description = "Registo de alertas gerados pelos equipamentos deste projeto.";
+    description = "Registo de alertas gerados pelas experiências deste projeto.";
   } else if (activeDetailView === 'DEVICES') {
     title = "Equipamentos Alocados";
     description = "Sensores e gateways atualmente em uso neste projeto.";
@@ -47,9 +49,7 @@ export function ProjectDetailsDialogs() {
             <ProjectExperimentsView projectId={activeProjectId} />
           )}
           {activeDetailView === 'ALERTS' && (
-            <div className="p-8 text-center text-muted-foreground border border-dashed rounded-lg">
-              [Tabela de Alertas]
-            </div>
+            <ProjectAlertsView projectId={activeProjectId} />
           )}
           {activeDetailView === 'DEVICES' && (
             <ProjectEquipmentView projectId={activeProjectId} />
