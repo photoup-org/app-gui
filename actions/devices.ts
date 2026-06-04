@@ -3,6 +3,7 @@
 import { getAppSession } from "@/lib/auth/session";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { publishMQTTMessage } from "@/lib/mqtt";
 
 /**
  * Server Action to register a hardware device to a user's department.
@@ -63,13 +64,21 @@ export async function registerDeviceAction(serialNumber: string) {
 }
 
 export async function identifyDeviceAction(deviceId: string) {
-  // Shell for MQTT/WebSocket command to blink a physical LED
-  console.log(`Blinking LED for device: ${deviceId}`);
-  return { success: true };
+  try {
+    await publishMQTTMessage(`cmd/devices/${deviceId}/identify`, { timestamp: new Date().toISOString() });
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to publish identify command:", error);
+    return { success: false, error: "Falha ao enviar comando de identificação" };
+  }
 }
 
 export async function rebootDeviceAction(deviceId: string) {
-  // Shell for MQTT/WebSocket command to soft-reboot the microcontroller
-  console.log(`Rebooting device: ${deviceId}`);
-  return { success: true };
+  try {
+    await publishMQTTMessage(`cmd/devices/${deviceId}/reboot`, { timestamp: new Date().toISOString() });
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to publish reboot command:", error);
+    return { success: false, error: "Falha ao emitir sinal de reinicialização" };
+  }
 }

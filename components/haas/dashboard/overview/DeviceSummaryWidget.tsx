@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getDeviceUI } from "@/lib/hardware-map";
 import { DeviceWithProduct, SensorSummary } from "@/lib/data/overview";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { DeviceActionMenu } from "../../devices/DeviceActionMenu";
+import { DeviceActionsMenu } from "../../equipment/DeviceActionsMenu";
 import { useMqttStore } from "@/hooks/useMqttStore";
 
 export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
@@ -129,7 +129,7 @@ const PendingDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProd
             </>
           )}
         </span>
-        <DeviceActionMenu deviceId={device.id} />
+        <DeviceActionsMenu device={device as any} />
       </div>
     </div>
   );
@@ -170,7 +170,7 @@ const OnlineDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProdu
         </span>
       )}
       <SignalHigh className={`w-4 h-4 ${isVisuallyActive ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`} />
-      <DeviceActionMenu disabled={!isVisuallyActive} deviceId={device.id} />
+      <DeviceActionsMenu device={device as any} />
     </div>
   </div>
 }

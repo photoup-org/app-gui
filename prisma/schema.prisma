@@ -85,6 +85,7 @@ model User {
 
   createdProjects    Project[]       @relation("ProjectCreator")
   projectMemberships ProjectMember[]
+  calibrations       CalibrationRecord[]
 }
 
 model Address {
@@ -138,6 +139,11 @@ model Device {
   logs         SystemLog[]
   projectId    String?
   project      Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  // Calibration Fields
+  calibrationConfig Json?
+  lastCalibrated    DateTime?
+  calibrationDueDate DateTime?
 }
 
 model Order {
@@ -183,14 +189,20 @@ model SensorReading {
 }
 
 model CalibrationRecord {
-  id           String   @id @default(cuid())
-  deviceId     String
-  calibratedAt DateTime @default(now())
-  validUntil   DateTime
-  performedBy  String // e.g., "Fábrica", "Operador X"
-  notes        String?
+  id             String   @id @default(cuid())
+  deviceId       String
+  userId         String?
+  timestamp      DateTime @default(now())
+  calibratedAt   DateTime @default(now())
+  validUntil     DateTime?
+  performedBy    String // e.g., "Fábrica", "Operador X"
+  notes          String?
+  pointsApplied  Json?
+  oldConfig      Json?
+  newConfig      Json?
 
   device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([deviceId, calibratedAt(sort: Desc)])
 }

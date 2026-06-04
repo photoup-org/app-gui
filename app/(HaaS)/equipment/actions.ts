@@ -47,7 +47,8 @@ export async function getDevicesByStatusAction(status: string) {
                     select: {
                         id: true,
                         name: true,
-                        type: true
+                        type: true,
+                        sku: true
                     }
                 },
                 experiments: {
@@ -137,7 +138,8 @@ export async function getInventoryEquipmentAction() {
                     select: {
                         id: true,
                         name: true,
-                        type: true
+                        type: true,
+                        sku: true
                     }
                 },
                 experiments: {
@@ -154,5 +156,103 @@ export async function getInventoryEquipmentAction() {
     } catch (error: any) {
         console.error("Failed to fetch inventory equipment:", error);
         return { success: false, error: error.message || "Failed to fetch inventory equipment" };
+    }
+}
+
+export async function calibrateDeviceAction(
+    deviceId: string,
+    metric: string,
+    points: { raw: number; reference: number }[]
+) {
+    try {
+        const session = await getAppSession();
+        if (!session?.user?.sub) {
+            return { success: false, error: "Unauthorized" };
+        }
+        const departmentId = await getDepartmentIdOrThrow();
+
+        // 1. Fetch the user's internal DB ID (using Auth0 sub)
+        const user = await prisma.user.findUnique({
+            where: { auth0UserId: session.user.sub }
+        });
+        const userId = user?.id;
+
+        // 2. Fetch the device
+        const device = await prisma.device.findUnique({
+            where: { id: deviceId, departmentId },
+            include: { product: true }
+        });
+
+        if (!device) {
+            return { success: false, error: "Device not found" };
+        }
+
+        // 3. Calculate m and b
+        let m = 1;
+        let b = 0;
+        
+        if (points.length === 1) {
+            // 1-point offset calibration
+            m = 1;
+            b = points[0].reference - points[0].raw;
+        } else if (points.length >= 2) {
+            // 2-point slope/offset calibration
+            const [p1, p2] = points;
+            const deltaRaw = p2.raw - p1.raw;
+            if (deltaRaw === 0) {
+                return { success: false, error: "Raw values cannot be identical for a 2-point calibration." };
+            }
+            m = (p2.reference - p1.reference) / deltaRaw;
+            b = p1.reference - (m * p1.raw);
+        } else {
+            return { success: false, error: "Invalid calibration points" };
+        }
+
+        // 4. Update the device's calibrationConfig
+        const oldConfig = (device.calibrationConfig as Record<string, any>) || {};
+        const newMetricConfig = { m, b };
+        const newConfig = {
+            ...oldConfig,
+            [metric]: newMetricConfig
+        };
+
+        const now = new Date();
+        const validUntil = new Date();
+        validUntil.setDate(now.getDate() + 30); // Default to 30 days, could be read from dictionary
+
+        await prisma.device.update({
+            where: { id: deviceId },
+            data: {
+                calibrationConfig: newConfig,
+                lastCalibrated: now,
+                calibrationDueDate: validUntil
+            }
+        });
+
+        // 5. Create Calibration Record
+        await prisma.calibrationRecord.create({
+            data: {
+                deviceId,
+                userId,
+                timestamp: now,
+                calibratedAt: now,
+                validUntil,
+                performedBy: session.user.name || session.user.email || "Unknown User",
+                pointsApplied: points as any,
+                oldConfig: oldConfig[metric] || null,
+                newConfig: newMetricConfig
+            }
+        });
+
+        // 6. Push config to edge worker via MQTT
+        const { publishMQTTMessage } = await import('@/lib/mqtt');
+        await publishMQTTMessage(`cmd/devices/${deviceId}/config`, {
+            calibrationConfig: newConfig
+        });
+
+        return { success: true, m, b };
+    } catch (error: any) {
+        console.error("Failed to calibrate device:", error);
+        return { success: false, error: error.message || "Failed to apply calibration" };
     }
 }

@@ -95,7 +95,7 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
         status: true,
         lastRunAt: true,
         settings: true,
-        devices: { select: { id: true, status: true, serialNumber: true, product: { select: { name: true } } } },
+        devices: { select: { id: true, status: true, serialNumber: true, calibrationConfig: true, product: { select: { name: true } } } },
         project: { select: { departmentId: true } }
       }
     });
@@ -169,10 +169,15 @@ export async function updateExperimentLifecycle(projectId: string, experimentId:
           return acc;
         }, {} as Record<string, string>);
 
+        const deviceConfigs = experiment.devices.reduce((acc, d) => {
+          if (d.calibrationConfig) acc[d.id] = d.calibrationConfig;
+          return acc;
+        }, {} as Record<string, any>);
+
         const departmentId = experiment.project?.departmentId;
 
-        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap, deviceLabels, deviceSns, deviceNames, departmentId, settings });
-        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap, deviceLabels, deviceSns, deviceNames, departmentId, settings });
+        console.log("MQTT Payload:", { storageFrequency, aggregationStrategy, anchorTime, deviceMap, deviceLabels, deviceSns, deviceNames, deviceConfigs, departmentId, settings });
+        await publishMQTTMessage(`cmd/experiments/${experimentId}/start`, { storageFrequency, aggregationStrategy, anchorTime, deviceMap, deviceLabels, deviceSns, deviceNames, deviceConfigs, departmentId, settings });
 
         if (departmentId) {
           const log = await prisma.systemLog.create({

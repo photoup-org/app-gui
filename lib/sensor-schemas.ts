@@ -35,3 +35,7 @@ export const SENSOR_DICTIONARY: Record<string, SchemaItem[]> = {
         { key: 'vibration_z', label: 'Vibração (Eixo Z)', unit: 'mm/s', min: 0, max: 50, color: '#0ea5e9' }
     ]
 };
+
+export const SENSOR_CALIBRATION_DICTIONARY: Record<string, { points: 1 | 2; intervalDays: number }> = {
+    'SENS-PREM-PH': { points: 2, intervalDays: 30 }
+};
