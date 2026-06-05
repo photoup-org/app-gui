@@ -283,8 +283,9 @@ export function ProjectWizard({ initialData, onSuccess }: { initialData?: any; o
               <div key={idx} className="flex flex-col items-center gap-1.5 flex-1 relative">
                 {idx > 0 && (
                   <div
-                    className={`absolute left-[-50%] top-4 h-[2px] w-full -z-10 ${idx <= currentStep ? "bg-primary" : "bg-muted"
+                    className={`absolute top-4 h-[2px] -z-10 ${idx <= currentStep ? "bg-primary" : "bg-muted"
                       }`}
+                    style={{ left: "calc(-50% + 20px)", right: "calc(50% + 20px)" }}
                   />
                 )}
                 <div
