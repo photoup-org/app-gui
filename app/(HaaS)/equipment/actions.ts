@@ -267,3 +267,35 @@ export async function calibrateDeviceAction(
         return { success: false, error: error.message || "Failed to apply calibration" };
     }
 }
+
+export async function getDeviceDetailsAction(deviceId: string) {
+    try {
+        if (!deviceId) return { success: false, error: "Device ID is required" };
+
+        const departmentId = await getDepartmentIdOrThrow();
+
+        const device = await prisma.device.findFirst({
+            where: { id: deviceId, departmentId },
+            include: {
+                product: true,
+                calibrations: {
+                    include: { user: true },
+                    orderBy: { calibratedAt: 'desc' }
+                },
+                alerts: {
+                    include: { experiment: true },
+                    orderBy: { createdAt: 'desc' }
+                }
+            }
+        });
+
+        if (!device) {
+            return { success: false, error: "Device not found" };
+        }
+
+        return { success: true, data: device };
+    } catch (error: any) {
+        console.error("Failed to fetch device details:", error);
+        return { success: false, error: error.message || "Failed to fetch device details" };
+    }
+}
