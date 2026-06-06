@@ -77,7 +77,6 @@ const InventorySummary = ({ devices }: InventorySummaryProps) => {
         }
     }, [openDialog]);
 
-    console.log(chartData)
 
     return (
         <Card className="flex flex-col h-full border border-slate-100 dark:border-slate-800 w-80 shrink-0 mb-0">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import * as React from "react";
 import {
   ColumnDef,
@@ -152,6 +153,22 @@ export default function IncidentesTable({ data }: IncidentesTableProps) {
     }
   });
 
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentHours = searchParams.get("hours") || "";
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    const params = new URLSearchParams(searchParams.toString());
+    if (val) {
+      params.set("hours", val);
+    } else {
+      params.delete("hours");
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex items-center justify-between py-4 px-6 border-b border-slate-100 dark:border-slate-800">
@@ -168,7 +185,19 @@ export default function IncidentesTable({ data }: IncidentesTableProps) {
         </div>
         <div className="flex items-center gap-2">
           <select
-            className="h-8 text-xs rounded-md border border-slate-200 bg-white px-3 py-1  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950"
+            className="h-8 text-xs rounded-md border border-slate-200 bg-white px-3 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950"
+            value={currentHours}
+            onChange={handleTimeChange}
+          >
+            <option value="">Todo o histórico</option>
+            <option value="1">Última Hora</option>
+            <option value="12">Últimas 12h</option>
+            <option value="24">Últimas 24h</option>
+            <option value="48">Últimas 48h</option>
+          </select>
+
+          <select
+            className="h-8 text-xs rounded-md border border-slate-200 bg-white px-3 py-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500 dark:border-slate-800 dark:bg-slate-950"
             value={(table.getColumn("level")?.getFilterValue() as string) ?? ""}
             onChange={(e) => table.getColumn("level")?.setFilterValue(e.target.value)}
           >

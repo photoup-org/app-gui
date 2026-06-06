@@ -174,6 +174,7 @@ export async function getAllIncidentLogsAction(
     level?: string;
     limit?: number;
     offset?: number;
+    hours?: number;
   }
 ): Promise<{ logs: SystemLogWithUser[]; total: number }> {
   try {
@@ -189,6 +190,12 @@ export async function getAllIncidentLogsAction(
 
     if (filters?.level) {
       whereClause.level = filters.level;
+    }
+
+    if (filters?.hours) {
+      const dateThreshold = new Date();
+      dateThreshold.setHours(dateThreshold.getHours() - filters.hours);
+      whereClause.timestamp = { gte: dateThreshold };
     }
 
     const limit = filters?.limit || 50;
