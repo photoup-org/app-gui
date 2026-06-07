@@ -110,7 +110,7 @@ export const columns: ColumnDef<SystemLogWithUser>[] = [
       const user = row.original.user;
       return (
         <div className="flex flex-col w-full">
-          <div className="flex items-start text-xs font-medium text-slate-900 dark:text-slate-100 break-words whitespace-normal">
+          <div className="flex items-start text-xs font-medium text-slate-900 dark:text-slate-100 wrap-break-word whitespace-normal">
             <span className="mt-0.5">{getLevelIcon(level)}</span>
             <span className="leading-snug">{msg}</span>
           </div>
