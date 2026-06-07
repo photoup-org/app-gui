@@ -81,7 +81,7 @@ export default function AssistantDrawer() {
       setGeminiHistory(data.history || []);
     } catch (error) {
       console.error(error);
-      setMessages((prev) => [...prev, { role: 'model', text: 'Sorry, I encountered an error. Please try again.' }]);
+      setMessages((prev) => [...prev, { role: 'model', text: 'Desculpe, encontrei um erro. Por favor, tente novamente.' }]);
     } finally {
       setLoading(false);
     }
@@ -99,7 +99,7 @@ export default function AssistantDrawer() {
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="group">
           <MessageSquare className="w-5 h-5 text-gray-500 group-hover:text-blue-600 transition-colors" />
-          <span className="sr-only">Ask AI</span>
+          <span className="sr-only">Pergunte à IA</span>
         </Button>
       </SheetTrigger>
 
@@ -123,7 +123,7 @@ export default function AssistantDrawer() {
             </div>
             <div className="text-left">
               <SheetTitle className="font-semibold text-gray-900 dark:text-gray-100 leading-tight">
-                HaaS Assistant
+                Assistente IA
               </SheetTitle>
               <p className="text-xs text-gray-500 dark:text-gray-400">Gemini 2.5 Pro</p>
             </div>
@@ -138,9 +138,9 @@ export default function AssistantDrawer() {
               <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
                 <Bot className="w-8 h-8 text-blue-500 opacity-75" />
               </div>
-              <p className="font-medium text-gray-700 dark:text-gray-300 mb-1">How can I help you today?</p>
+              <p className="font-medium text-gray-700 dark:text-gray-300 mb-1">Como posso ajudá-lo hoje?</p>
               <p className="text-sm opacity-80 max-w-[250px]">
-                I can check your fleet health, current billing tier, or sensor limits.
+                Posso verificar a saúde da sua frota, o plano de faturação atual ou os limites de sensores.
               </p>
             </div>
           )}
@@ -223,7 +223,7 @@ export default function AssistantDrawer() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={loading}
-              placeholder="Ask about your fleet or billing..."
+              placeholder="Pergunte sobre a sua frota ou faturação..."
               className="w-full pr-12 pl-5 py-3.5 bg-gray-100 dark:bg-gray-900 border border-transparent rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 text-sm transition-all group-hover:border-gray-300 dark:group-hover:border-gray-700"
             />
             <button
@@ -236,7 +236,7 @@ export default function AssistantDrawer() {
           </form>
           <div className="text-center mt-3">
             <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-semibold">
-              Gemini AI • Confidential HaaS Data
+              Gemini AI • Dados Confidenciais
             </span>
           </div>
         </div>
