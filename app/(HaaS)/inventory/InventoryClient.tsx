@@ -58,7 +58,7 @@ export function InventoryClient({ devices }: InventoryClientProps) {
           case 'DISABLED':
             return <Badge variant="outline" className="text-slate-500 border-slate-200 bg-slate-50">Desligado</Badge>;
           case 'PENDING_CONNECTION':
-            return <Badge variant="outline" className="text-purple-600 border-purple-200 bg-purple-50">Pendente</Badge>;
+            return <Badge variant="outline" className="text-wait-connection border-wait-connection bg-wait-connection/5">Pendente</Badge>;
           default:
             return <Badge variant="outline">{item.status}</Badge>;
         }

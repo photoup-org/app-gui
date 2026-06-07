@@ -70,7 +70,7 @@
   /* Custom Classes */
   --shadow-bg: oklch(0.983 0.038 107.8);
   --border: oklch(0.928 0.006 264.531);
-  --wait-connection: oklch(73.916% 0.18727 311.638);
+  --wait-connection: oklch(0.3478 0.0456 268.75);
  /* Defualt Shadcn Colors */
   --background: oklch(1 0 0);
   --foreground: oklch(0.13 0.028 261.692);
