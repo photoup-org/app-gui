@@ -55,7 +55,7 @@ const InventorySummary = ({ devices }: InventorySummaryProps) => {
         { name: "Em Utilização", value: busy, color: "#3b82f6" }, // bg-blue-500 / #3b82f6
         { name: "Online", value: active, color: "#10b981" }, // bg-emerald-500 / #10b981
         { name: "Em Manutenção", value: maintenance, color: "#ef4444" }, // bg-red-500 / #ef4444
-        { name: "A Aguardar Ligação", value: pending, color: "#a855f7" }, // bg-purple-500 / #a855f7
+        { name: "A Aguardar Ligação", value: pending, color: "var(--wait-connection)" },
         { name: "Offline", value: offline, color: "#e2e8f0" } // bg-slate-200 / #e2e8f0
     ].filter(item => item.value > 0);
 
@@ -141,7 +141,7 @@ const InventorySummary = ({ devices }: InventorySummaryProps) => {
                         <span>Online</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-wait-connection animate-pulse" />
                         <span>A Aguardar Ligação</span>
                     </div>
                     <div className="flex items-center gap-1.5">

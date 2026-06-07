@@ -3,18 +3,18 @@
 import { Device, HardwareProduct } from "@prisma/client";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
 
-type DeviceWithProduct = Device & { 
+type DeviceWithProduct = Device & {
   product: Pick<HardwareProduct, "id" | "name" | "type">;
   experiments?: { id: string }[];
 };
 
 const STATUS_UI_MAP: Record<string, { label: string, colorClass: string }> = {
-  'IN_USE': { label: 'Em Utilização', colorClass: 'bg-blue-500 text-white' }, 
-  'ACTIVE': { label: 'Disponível', colorClass: 'bg-teal-500 text-white' }, 
+  'IN_USE': { label: 'Em Utilização', colorClass: 'bg-blue-500 text-white' },
+  'ACTIVE': { label: 'Disponível', colorClass: 'bg-teal-500 text-white' },
   'OFFLINE': { label: 'Offline', colorClass: 'bg-gray-400 text-white' },
   'MAINTENANCE': { label: 'Em Manutenção', colorClass: 'bg-red-500 text-white' },
   'UNCLAIMED': { label: 'Não Alocado', colorClass: 'bg-gray-200 text-gray-800' },
-  'PENDING_CONNECTION': { label: 'Pendente', colorClass: 'border border-purple-500 text-purple-500' }
+  'PENDING_CONNECTION': { label: 'Pendente', colorClass: 'border border-wait-connection text-wait-connection' }
 };
 
 interface EquipmentTableProps {
@@ -47,9 +47,9 @@ export function EquipmentTable({ devices }: EquipmentTableProps) {
       cell: (device) => {
         const isBusy = device.experiments && device.experiments.length > 0;
         const effectiveStatus = isBusy ? "IN_USE" : device.status;
-        const uiConfig = STATUS_UI_MAP[effectiveStatus] || { 
-          label: effectiveStatus, 
-          colorClass: 'bg-gray-200 text-black' 
+        const uiConfig = STATUS_UI_MAP[effectiveStatus] || {
+          label: effectiveStatus,
+          colorClass: 'bg-gray-200 text-black'
         };
 
         return (

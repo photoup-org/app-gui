@@ -128,7 +128,6 @@ export default function AssistantDrawer() {
               <p className="text-xs text-gray-500 dark:text-gray-400">Gemini 2.5 Pro</p>
             </div>
           </div>
-          {/* Note: Shadcn adds its own Close button automatically inside SheetContent */}
         </SheetHeader>
 
         {/* Chat Area */}

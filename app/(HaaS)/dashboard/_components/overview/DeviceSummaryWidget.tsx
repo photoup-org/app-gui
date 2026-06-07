@@ -75,7 +75,7 @@ export function DeviceSummaryWidget({ data }: { data: SensorSummary }) {
                   const mqttStatus = liveDevices[device.id]?.status;
                   return <OnlineDeviceComponent key={device.id} device={device} mqttStatus={mqttStatus} />
                 })}
-                
+
                 {/* Offline devices */}
                 {offlineList.map((device) => {
                   const mqttStatus = liveDevices[device.id]?.status;
@@ -124,8 +124,8 @@ const PendingDeviceComponent = ({ device, mqttStatus }: { device: DeviceWithProd
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           ) : (
             <>
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-wait-connection opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-wait-connection"></span>
             </>
           )}
         </span>
