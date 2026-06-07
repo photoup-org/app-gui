@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { InventoryStatusView } from "@/components/haas/dashboard/InventoryStatusView";
+import { InventoryStatusView } from "@/app/(HaaS)/dashboard/_components/InventoryStatusView";
 
 export function InventoryListDialog() {
   const { activeCategory, closeDialog } = useInventoryDialogStore();

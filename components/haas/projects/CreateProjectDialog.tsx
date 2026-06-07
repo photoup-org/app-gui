@@ -2,7 +2,7 @@
 
 import { useProjectStore } from "@/hooks/useProjectStore";
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
-import { ProjectWizard } from "./ProjectWizard";
+import { ProjectWizard } from "@/app/(HaaS)/projects/_components/ProjectWizard";
 
 interface CreateProjectDialogProps {
   project?: any;

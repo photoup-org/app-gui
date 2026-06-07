@@ -5,13 +5,13 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Beaker, CalendarDays, ArrowLeft, Info, Settings } from 'lucide-react';
 import Link from 'next/link';
-import DynamicSensorChart from '@/components/haas/experiments/DynamicSensorChart';
+import DynamicSensorChart from "@/app/(HaaS)/projects/[projectId]/experiments/_components/DynamicSensorChart";
 import ExperimentControls from '../ExperimentControls';
 import ExperimentTimer from '../ExperimentTimer';
 import { DeleteExperimentButton } from '@/components/haas/experiments/DeleteExperimentButton';
-import { ExportDataButton } from '@/components/haas/experiments/ExportDataButton';
+import { ExportDataButton } from "@/app/(HaaS)/projects/[projectId]/experiments/_components/ExportDataButton";
 import { SENSOR_DICTIONARY } from '@/lib/sensor-schemas';
-import ExperimentAlerts from '@/components/haas/experiments/ExperimentAlerts';
+import ExperimentAlerts from "@/app/(HaaS)/projects/[projectId]/experiments/_components/ExperimentAlerts";
 import { getExperimentAlertsAction } from '@/app/(HaaS)/logs/actions';
 
 export default async function ExperimentDetailsPage({

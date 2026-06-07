@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getDeviceDetailsAction } from "@/app/(HaaS)/equipment/actions";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalibrationHistoryTab } from "@/components/haas/equipment/audit/CalibrationHistoryTab";
+import { CalibrationHistoryTab } from "@/app/(HaaS)/inventory/_components/audit/CalibrationHistoryTab";
 import { DeviceLiveTelemetry } from "./DeviceLiveTelemetry";
 import { DeviceAlertsTable } from "./DeviceAlertsTable";
 import { ArrowLeft, Cpu, Activity, Settings2 } from "lucide-react";

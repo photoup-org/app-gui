@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { PendingHardwareSection, PendingHardwareSkeleton } from "@/components/haas/dashboard/hardware-claim/PendingHardwareSection";
-import { DashboardOverviewRow } from "@/components/haas/dashboard/overview/DashboardOverviewRow";
-import OverviewSkeleton from "@/components/haas/dashboard/overview/OverviewSkeleton";
-import SensorOverviewRow from "@/components/haas/dashboard/sensor-overview/SensorOverviewRow";
-import { SystemAdminRow } from "@/components/haas/dashboard/system-admin/SystemAdminRow";
-import { RunningExperimentsWidget } from "@/components/haas/dashboard/RunningExperimentsWidget";
+import { PendingHardwareSection, PendingHardwareSkeleton } from "@/app/(HaaS)/dashboard/_components/hardware-claim/PendingHardwareSection";
+import { DashboardOverviewRow } from "@/app/(HaaS)/dashboard/_components/overview/DashboardOverviewRow";
+import OverviewSkeleton from "@/app/(HaaS)/dashboard/_components/overview/OverviewSkeleton";
+import SensorOverviewRow from "@/app/(HaaS)/dashboard/_components/sensor-overview/SensorOverviewRow";
+import { SystemAdminRow } from "@/app/(HaaS)/dashboard/_components/system-admin/SystemAdminRow";
+import { RunningExperimentsWidget } from "@/app/(HaaS)/dashboard/_components/RunningExperimentsWidget";
 
 
 interface DashboardPageProps {

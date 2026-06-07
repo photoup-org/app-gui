@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getAllIncidentLogsAction } from "../logs/actions";
-import IncidentesTable from "@/components/haas/incidentes/IncidentesTable";
+import IncidentesTable from "@/app/(HaaS)/alerts/_components/IncidentesTable";
 
 export default async function IncidentesPage({
   searchParams,

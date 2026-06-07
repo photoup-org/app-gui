@@ -2,7 +2,7 @@ import React from 'react';
 import { getAppSession } from "@/lib/auth/session";
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import prisma from "@/lib/prisma";
-import ProjectList from "@/components/haas/projects/ProjectList";
+import ProjectList from "@/app/(HaaS)/projects/_components/ProjectList";
 import { redirect } from "next/navigation";
 
 export default async function ProjectsPage() {

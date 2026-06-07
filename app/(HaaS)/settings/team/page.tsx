@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CopyInviteLinkButton } from "@/components/haas/settings/CopyInviteLinkButton";
+import { CopyInviteLinkButton } from "@/app/(HaaS)/settings/_components/CopyInviteLinkButton";
 import { Badge } from "@/components/ui/badge";
 
 export default async function TeamSettingsPage() {

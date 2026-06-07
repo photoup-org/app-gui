@@ -1,8 +1,8 @@
 import { OrderIlustration } from "../../resources/ilustrations";
-import { TrackingWidget } from "./TrackingWidget";
+import { TrackingWidget } from "@/app/(HaaS)/dashboard/_components/TrackingWidget";
 import { Suspense } from "react";
-import { TrackingWidgetSkeleton } from "./TrackingWidgetSkeleton";
-import { TeamWidget } from "./TeamWidget";
+import { TrackingWidgetSkeleton } from "@/app/(HaaS)/dashboard/_components/TrackingWidgetSkeleton";
+import { TeamWidget } from "@/app/(HaaS)/dashboard/_components/TeamWidget";
 
 interface HardwarePendingScreenProps {
     latestOrder: any; // Order with items and products

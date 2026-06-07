@@ -9,7 +9,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { HardwareRegistrationDialog } from "./HardwareRegistrationDialog";
+import { HardwareRegistrationDialog } from "@/components/haas/dashboard/HardwareRegistrationDialog";
 
 interface TrackingWidgetProps {
     trackingNumber: string | null;

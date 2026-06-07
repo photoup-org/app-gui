@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { HardwareProgress } from "@/lib/data/hardware";
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDeviceUI } from "@/lib/hardware-map";
-import { HardwareRegistrationDialog } from "../HardwareRegistrationDialog";
+import { HardwareRegistrationDialog } from "@/components/haas/dashboard/HardwareRegistrationDialog";
 
 export interface IDeviceTypeCardProps {
     title: string;

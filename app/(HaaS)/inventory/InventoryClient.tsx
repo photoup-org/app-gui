@@ -2,7 +2,7 @@
 
 import React from "react";
 import { DataTable, ColumnDef } from "@/components/ui/data-table";
-import { DeviceActionsMenu, DeviceProp } from "@/components/haas/equipment/DeviceActionsMenu";
+import { DeviceActionsMenu, DeviceProp } from "@/app/(HaaS)/inventory/_components/DeviceActionsMenu";
 import { Badge } from "@/components/ui/badge";
 import { ServerCrash, Activity } from "lucide-react";
 

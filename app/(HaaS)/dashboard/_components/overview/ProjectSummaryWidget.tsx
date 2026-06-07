@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { cn, getInitials } from "@/lib/utils";
 import { useDeleteStore } from "@/hooks/useDeleteStore";
 import { deleteProjectAction } from "@/actions/projects";
-import { ProjectDetailsDialogs } from "@/components/haas/projects/ProjectDetailsDialogs";
+import { ProjectDetailsDialogs } from "@/app/(HaaS)/projects/_components/ProjectDetailsDialogs";
 import { useRouter } from "next/navigation";
 import ProjectActions from "@/app/(HaaS)/projects/[projectId]/ProjectActions";
 import Link from "next/link";

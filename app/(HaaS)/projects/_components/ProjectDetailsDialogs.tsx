@@ -8,11 +8,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { ProjectExperimentsView } from "@/components/haas/dashboard/ProjectExperimentsView";
-import { ProjectEquipmentView } from "@/components/haas/dashboard/ProjectEquipmentView";
+import { ProjectExperimentsView } from "@/app/(HaaS)/dashboard/_components/ProjectExperimentsView";
+import { ProjectEquipmentView } from "@/app/(HaaS)/dashboard/_components/ProjectEquipmentView";
 
 
-import { ProjectAlertsView } from "@/components/haas/dashboard/ProjectAlertsView";
+import { ProjectAlertsView } from "@/app/(HaaS)/dashboard/_components/ProjectAlertsView";
 
 export function ProjectDetailsDialogs() {
   const { activeDetailView, activeProjectId, closeDetailView } = useProjectStore();
