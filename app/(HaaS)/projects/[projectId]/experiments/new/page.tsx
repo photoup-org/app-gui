@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/core/prisma';
 import NewExperimentForm from './NewExperimentForm';
 import { ArrowLeft, Beaker } from 'lucide-react';
 import Link from 'next/link';

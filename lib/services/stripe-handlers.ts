@@ -1,9 +1,9 @@
 import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe';
-import * as departmentService from '@/lib/repositories/department';
+import { stripe } from '@/lib/core/stripe';
+import * as departmentService from '@/lib/domain/repositories/department';
 import { setupAuth0AndInvite } from './auth0-handlers';
 import { executeTenantProvisioningTx } from '../checkout/handlers';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/core/prisma';
 
 
 export async function handleInvoicePaid(rawInvoice: Stripe.Invoice) {

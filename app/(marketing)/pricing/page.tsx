@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 import { PlanFeatureMatrix } from "@/types/pricing";
 import { PricingCards } from "@/components/marketing/pricing/PricingCards";
 import { ComparisonTable } from "@/components/marketing/pricing/ComparisonTable";

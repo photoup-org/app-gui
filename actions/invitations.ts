@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getAppSession } from "@/lib/auth/session";
-import { createOrgInvitation } from "@/lib/auth/auth0-management";
+import { getAppSession } from '@/lib/core/auth/session';
+import { createOrgInvitation } from '@/lib/core/auth/auth0-management';
 
 type InviteUserResponse = 
   | { success: true; invitationUrl: string }

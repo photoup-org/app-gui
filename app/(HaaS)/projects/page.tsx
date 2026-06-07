@@ -1,7 +1,7 @@
 import React from 'react';
-import { getAppSession } from "@/lib/auth/session";
+import { getAppSession } from '@/lib/core/auth/session';
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 import ProjectList from "@/app/(HaaS)/projects/_components/ProjectList";
 import { redirect } from "next/navigation";
 

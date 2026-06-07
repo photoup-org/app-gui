@@ -1,10 +1,10 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/core/prisma';
 import { revalidatePath } from 'next/cache';
 import { createExperimentSchema, CreateExperimentFormValues } from './validations';
 import { ExperimentStatus } from '@prisma/client';
-import { publishMQTTMessage } from '@/lib/mqtt';
+import { publishMQTTMessage } from '@/lib/core/mqtt';
 
 export async function createExperimentAction(projectId: string, data: CreateExperimentFormValues) {
   try {

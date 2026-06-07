@@ -29,7 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateDeviceNameAction, updateDeviceStatusAction } from "@/app/(HaaS)/equipment/actions";
-import { SENSOR_CALIBRATION_DICTIONARY } from "@/lib/sensor-schemas";
+import { SENSOR_CALIBRATION_DICTIONARY } from '@/lib/domain/hardware/sensor-schemas';
 import { CalibrationWizard } from "./CalibrationWizard";
 
 export interface DeviceProp {

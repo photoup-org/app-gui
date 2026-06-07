@@ -1,8 +1,8 @@
 "use server";
 
-import { getAppSession } from "@/lib/auth/session";
+import { getAppSession } from '@/lib/core/auth/session';
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 import { SystemLog, User, Prisma } from "@prisma/client";
 
 export interface SystemLogWithUser extends SystemLog {

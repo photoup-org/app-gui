@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getAppSession } from '@/lib/auth/session';
+import { getAppSession } from '@/lib/core/auth/session';
 
 // Mock the session module
 vi.mock('@/lib/session', () => ({

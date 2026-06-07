@@ -3,7 +3,7 @@
 import { useMemo, useEffect } from "react";
 import { useDeviceDialogStore } from "@/hooks/useDeviceDialogStore";
 import { useMqttStore } from "@/hooks/useMqttStore";
-import { SENSOR_DICTIONARY, SchemaItem } from "@/lib/sensor-schemas";
+import { SENSOR_DICTIONARY, SchemaItem } from '@/lib/domain/hardware/sensor-schemas';
 import {
   Dialog,
   DialogContent,

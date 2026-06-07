@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 
 export async function getLoginUrlByEmail(formData: FormData) {
     const email = formData.get("email")?.toString().trim();

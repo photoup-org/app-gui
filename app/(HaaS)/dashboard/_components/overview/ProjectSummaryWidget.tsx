@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { FolderOpen, Info, Maximize2, MoreVerticalIcon, SquarePlus } from "lucide-react";
-import { ProjectSummary, RecentProject } from "@/lib/data/overview";
+import { ProjectSummary, RecentProject } from '@/lib/domain/overview';
 import { Button } from "@/components/ui/button";
 import { useProjectStore, ProjectDetailView } from "@/hooks/useProjectStore";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage } from "@/components/ui/avatar";

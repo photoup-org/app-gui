@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
-import { deleteAllOrganizations, deleteAllUsers } from '../lib/auth/auth0-management';
-import { stripe } from '../lib/stripe';
+import { deleteAllOrganizations, deleteAllUsers } from '../lib/core/auth/auth0-management';
+import { stripe } from '../lib/core/stripe';
 
 dotenv.config({ path: '.env.local' }); // Ensure it loads your local dev env
 

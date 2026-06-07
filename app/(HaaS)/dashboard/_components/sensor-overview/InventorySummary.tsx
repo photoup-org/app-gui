@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
 import { useInventoryDialogStore, InventoryCategory } from "@/hooks/useInventoryDialogStore";
 import { InventoryListDialog } from "../InventoryListDialog";
-import { DeviceWithProduct } from "@/lib/data/overview";
+import { DeviceWithProduct } from '@/lib/domain/overview';
 import { useMqttStore } from "@/hooks/useMqttStore";
 
 interface InventorySummaryProps {

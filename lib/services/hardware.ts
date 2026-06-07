@@ -1,5 +1,5 @@
-import prisma from '@/lib/prisma';
-import { stripe } from '@/lib/stripe';
+import prisma from '@/lib/core/prisma';
+import { stripe } from '@/lib/core/stripe';
 import { getStripeProducts } from '@/lib/api/stripe';
 import { HardwareOption } from '@/types/hardware';
 

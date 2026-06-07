@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HardwareProgress } from '@/lib/data/hardware'
+import { HardwareProgress } from '@/lib/domain/hardware'
 import ChartComponent from './ChartComponent';
 
 

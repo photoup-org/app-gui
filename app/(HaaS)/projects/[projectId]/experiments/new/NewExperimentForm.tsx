@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useMqttStore } from "@/hooks/useMqttStore";
-import { SENSOR_DICTIONARY } from "@/lib/sensor-schemas";
+import { SENSOR_DICTIONARY } from '@/lib/domain/hardware/sensor-schemas';
 import { Cpu } from "lucide-react";
 
 interface DeviceSetting {

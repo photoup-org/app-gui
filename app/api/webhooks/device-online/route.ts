@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 import { DeviceStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 

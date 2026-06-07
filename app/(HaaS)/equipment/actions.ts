@@ -1,8 +1,8 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 import { DeviceStatus } from "@prisma/client";
-import { getAppSession } from "@/lib/auth/session";
+import { getAppSession } from '@/lib/core/auth/session';
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 
 async function getDepartmentIdOrThrow(): Promise<string> {
@@ -256,7 +256,7 @@ export async function calibrateDeviceAction(
         });
 
         // 6. Push config to edge worker via MQTT
-        const { publishMQTTMessage } = await import('@/lib/mqtt');
+        const { publishMQTTMessage } = await import('@/lib/core/mqtt');
         await publishMQTTMessage(`cmd/devices/${deviceId}/config`, {
             calibrationConfig: newConfig
         });

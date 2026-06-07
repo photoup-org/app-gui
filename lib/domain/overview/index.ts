@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 import { Device, HardwareProduct, DeviceStatus, ProjectStatus } from "@prisma/client";
 
 export type DeviceWithProduct = Device & { 

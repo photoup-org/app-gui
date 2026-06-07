@@ -1,10 +1,10 @@
-import { getAppSession } from "@/lib/auth/session";
+import { getAppSession } from '@/lib/core/auth/session';
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import { AppProvider, AppState } from "@/contexts/AppContext";
 import { redirect } from "next/navigation";
 import { WelcomeScreen } from "@/components/haas/dashboard/WelcomeScreen";
 import { HardwarePendingScreen } from "@/components/haas/dashboard/HardwarePendingScreen";
-import { hasRequiredRole } from "@/lib/auth/permissions";
+import { hasRequiredRole } from '@/lib/core/auth/permissions';
 import { Role } from "@prisma/client";
 import AppTemplate from "@/components/haas/AppTemplate";
 import { Suspense } from "react";
@@ -15,7 +15,7 @@ import { MqttConnectionManager } from "@/components/haas/providers/MqttConnectio
 import { AlertNotifier } from "@/components/haas/providers/AlertNotifier";
 
 import { getPlanUsageStats } from "@/lib/services/billing";
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 
 export default async function Layout({
   children,

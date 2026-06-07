@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Wifi } from "lucide-react";
-import { GatewaySummary } from "@/lib/data/overview";
+import { GatewaySummary } from '@/lib/domain/overview';
 import {
   Carousel,
   CarouselContent,

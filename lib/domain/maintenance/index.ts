@@ -1,8 +1,8 @@
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 import { DeviceStatus, AlertSeverity, CalibrationRecord } from "@prisma/client";
-import { DeviceWithProduct } from "@/lib/data/overview";
+import { DeviceWithProduct } from '@/lib/domain/overview';
 
-import { SENSOR_CALIBRATION_DICTIONARY } from "@/lib/sensor-schemas";
+import { SENSOR_CALIBRATION_DICTIONARY } from '@/lib/domain/hardware/sensor-schemas';
 
 export interface MappedCalibrationDevice {
   id: string;

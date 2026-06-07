@@ -1,9 +1,9 @@
 "use server";
 
-import { getAppSession } from "@/lib/auth/session";
-import prisma from "@/lib/prisma";
+import { getAppSession } from '@/lib/core/auth/session';
+import prisma from '@/lib/core/prisma';
 import { revalidatePath } from "next/cache";
-import { publishMQTTMessage } from "@/lib/mqtt";
+import { publishMQTTMessage } from '@/lib/core/mqtt';
 
 /**
  * Server Action to register a hardware device to a user's department.

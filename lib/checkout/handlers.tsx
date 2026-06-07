@@ -1,5 +1,5 @@
-import prisma from '@/lib/prisma';
-import * as repo from '@/lib/repositories/provisioning';
+import prisma from '@/lib/core/prisma';
+import * as repo from '@/lib/domain/repositories/provisioning';
 
 export async function executeTenantProvisioningTx(params: {
     nif: string;

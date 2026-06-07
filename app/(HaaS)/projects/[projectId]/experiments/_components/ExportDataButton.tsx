@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { getExperimentTelemetryForExport } from "@/app/(HaaS)/projects/[projectId]/experiments/actions";
-import { downloadExcel } from "@/lib/export-utils";
+import { downloadExcel } from '@/lib/domain/reporting/export-utils';
 import { toast } from "sonner";
 
 interface ExportDataButtonProps {

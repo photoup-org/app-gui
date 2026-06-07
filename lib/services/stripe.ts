@@ -1,4 +1,4 @@
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/core/stripe';
 
 export async function getStripeLineItemsConfig(
     lineItems: { price: string; quantity?: number }[],

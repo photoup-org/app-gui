@@ -1,7 +1,7 @@
 "use client"
 
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { HardwareProgress } from "@/lib/data/hardware";
+import { HardwareProgress } from '@/lib/domain/hardware';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from "recharts"
 
 interface ChartComponentProps {

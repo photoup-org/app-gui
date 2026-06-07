@@ -1,9 +1,9 @@
 'use server';
 
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/core/stripe';
 import { isValidNIF } from '@/lib/utils';
 import Stripe from 'stripe';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/core/prisma';
 import { CheckoutFormData } from '@/types/checkout';
 import { getStripeLineItemsConfig } from '@/lib/services/stripe';
 

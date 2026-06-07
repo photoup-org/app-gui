@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Role } from "@prisma/client";
-import { hasRequiredPlan } from "@/lib/auth/permissions";
+import { hasRequiredPlan } from '@/lib/core/auth/permissions';
 import { Button } from "@/components/ui/button"; // Assuming we have shadcn UI button, else standard button
 import Link from "next/link";
 import { Lock } from "lucide-react";

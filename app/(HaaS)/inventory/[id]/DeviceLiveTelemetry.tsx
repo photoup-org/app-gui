@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useMqttStore } from "@/hooks/useMqttStore";
 import { Wifi, WifiOff, Loader2 } from "lucide-react";
-import { SENSOR_DICTIONARY, SchemaItem } from "@/lib/sensor-schemas";
+import { SENSOR_DICTIONARY, SchemaItem } from '@/lib/domain/hardware/sensor-schemas';
 import {
   LineChart,
   Line,

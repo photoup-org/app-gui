@@ -2,7 +2,7 @@ import { ArrowRight, Download, QrCode, SquareArrowOutUpRight } from "lucide-reac
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { HardwareProgress } from "@/lib/data/hardware";
+import { HardwareProgress } from '@/lib/domain/hardware';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDeviceUI } from "@/lib/hardware-map";
 import { HardwareRegistrationDialog } from "@/components/haas/dashboard/HardwareRegistrationDialog";

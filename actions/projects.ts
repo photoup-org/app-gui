@@ -1,7 +1,7 @@
 "use server";
 
-import { getAppSession } from "@/lib/auth/session";
-import prisma from "@/lib/prisma";
+import { getAppSession } from '@/lib/core/auth/session';
+import prisma from '@/lib/core/prisma';
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ProjectRole } from "@prisma/client";

@@ -1,9 +1,9 @@
 'use server';
 
-import { stripe } from "@/lib/stripe";
+import { stripe } from '@/lib/core/stripe';
 import { z } from "zod";
 import Stripe from "stripe";
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 
 // 1. Unified Zod Schema
 const searchParamsSchema = z.object({

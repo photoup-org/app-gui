@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/core/prisma';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -10,7 +10,7 @@ import ExperimentControls from '../ExperimentControls';
 import ExperimentTimer from '../ExperimentTimer';
 import { DeleteExperimentButton } from '@/components/haas/experiments/DeleteExperimentButton';
 import { ExportDataButton } from "@/app/(HaaS)/projects/[projectId]/experiments/_components/ExportDataButton";
-import { SENSOR_DICTIONARY } from '@/lib/sensor-schemas';
+import { SENSOR_DICTIONARY } from '@/lib/domain/hardware/sensor-schemas';
 import ExperimentAlerts from "@/app/(HaaS)/projects/[projectId]/experiments/_components/ExperimentAlerts";
 import { getExperimentAlertsAction } from '@/app/(HaaS)/logs/actions';
 

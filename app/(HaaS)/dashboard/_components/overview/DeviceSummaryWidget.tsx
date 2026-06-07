@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { SignalHigh } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getDeviceUI } from "@/lib/hardware-map";
-import { DeviceWithProduct, SensorSummary } from "@/lib/data/overview";
+import { DeviceWithProduct, SensorSummary } from '@/lib/domain/overview';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DeviceActionsMenu } from "@/app/(HaaS)/inventory/_components/DeviceActionsMenu";
 import { useMqttStore } from "@/hooks/useMqttStore";

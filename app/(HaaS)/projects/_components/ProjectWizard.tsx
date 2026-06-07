@@ -48,7 +48,7 @@ import { ProjectRole } from "@prisma/client";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
-import { SENSOR_DICTIONARY } from "@/lib/sensor-schemas";
+import { SENSOR_DICTIONARY } from '@/lib/domain/hardware/sensor-schemas';
 
 interface DeviceSetting {
   [key: string]: string | undefined;

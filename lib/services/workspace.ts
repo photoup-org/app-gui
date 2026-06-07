@@ -1,7 +1,7 @@
-import prisma from '@/lib/prisma';
-import { createOrg, generateAuth0InviteTicket, enableOrgConnection } from '@/lib/auth/auth0-management';
+import prisma from '@/lib/core/prisma';
+import { createOrg, generateAuth0InviteTicket, enableOrgConnection } from '@/lib/core/auth/auth0-management';
 import { sendInvitationEmail } from '@/lib/services/email';
-import { createHardwareOrderTx } from '@/lib/repositories/workspace';
+import { createHardwareOrderTx } from '@/lib/domain/repositories/workspace';
 
 /**
  * Reusable service to provision the workspace atomically via Stripe metadata.

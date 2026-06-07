@@ -1,6 +1,6 @@
-import prisma from "@/lib/prisma";
-import * as departmentService from '@/lib/repositories/department';
-import { createOrg, enableOrgConnection, generateAuth0InviteTicket } from "../auth/auth0-management";
+import prisma from '@/lib/core/prisma';
+import * as departmentService from '@/lib/domain/repositories/department';
+import { createOrg, enableOrgConnection, generateAuth0InviteTicket } from '../core/auth/auth0-management';
 import { sendInvitationEmail } from "./email";
 
 export async function handlePostLoginSync(email: string, auth0UserId: string, auth0OrgId: string, picture?: string) {

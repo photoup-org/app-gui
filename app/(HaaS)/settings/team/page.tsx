@@ -1,5 +1,5 @@
-import { getAppSession } from "@/lib/auth/session";
-import { getOrgInvitations } from "@/lib/auth/auth0-management";
+import { getAppSession } from '@/lib/core/auth/session';
+import { getOrgInvitations } from '@/lib/core/auth/auth0-management';
 import {
   Table,
   TableBody,

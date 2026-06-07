@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/core/prisma';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';

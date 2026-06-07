@@ -1,7 +1,7 @@
 "use server";
 
-import prisma from "@/lib/prisma";
-import { getAppSession } from "@/lib/auth/session";
+import prisma from '@/lib/core/prisma';
+import { getAppSession } from '@/lib/core/auth/session';
 
 export async function getExperimentsByProjectIdAction(projectId: string) {
     try {

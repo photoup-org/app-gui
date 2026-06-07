@@ -5,8 +5,8 @@ import {
   getSensorSummary,
   getProjectSummary,
   getGatewaysSummary,
-} from "@/lib/data/overview";
-import { getAppSession } from "@/lib/auth/session";
+} from '@/lib/domain/overview';
+import { getAppSession } from '@/lib/core/auth/session';
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import DashboardRow from "../DashboardRow";
 

@@ -1,6 +1,6 @@
-import { checkNetworkReadiness, getTeamSummary } from "@/lib/data/system";
+import { checkNetworkReadiness, getTeamSummary } from '@/lib/domain/system';
 import { getRecentLogsAction } from "@/app/(HaaS)/logs/actions";
-import { getAppSession } from "@/lib/auth/session";
+import { getAppSession } from '@/lib/core/auth/session';
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import { NetworkTestWidget } from "./NetworkTestWidget";
 import { SystemLogsWidget } from "./SystemLogsWidget";

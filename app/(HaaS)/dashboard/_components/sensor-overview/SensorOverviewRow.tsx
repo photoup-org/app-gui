@@ -2,9 +2,9 @@ import DashboardRow from "../DashboardRow"
 import AlertSummary from "./AlertSummary"
 import CalibrationSummary from "./CalibrationSummary"
 import InventorySummary from "./InventorySummary"
-import { getInventoryStatus, getCalibrationList } from "@/lib/data/maintenance"
+import { getInventoryStatus, getCalibrationList } from '@/lib/domain/maintenance'
 import { getRecentAlertsAction } from "@/app/(HaaS)/logs/actions"
-import { getAppSession } from "@/lib/auth/session"
+import { getAppSession } from '@/lib/core/auth/session'
 import { getUserWorkspaceContext } from "@/lib/services/workspace"
 
 interface SensorOverviewRowProps {

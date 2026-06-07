@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/core/prisma';
 import { Department } from '@prisma/client';
 
 export async function findDepartmentByStripeSubscriptionId(stripeSubscriptionId: string): Promise<Department | null> {

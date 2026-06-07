@@ -1,4 +1,4 @@
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/lib/core/stripe';
 import { Product } from '@/types/stripe';
 
 export async function getStripeProducts(): Promise<Product[]> {

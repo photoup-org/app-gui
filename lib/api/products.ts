@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 import { HardwareProduct as PrismaHardwareProduct } from "@prisma/client";
 
 export type SerializedHardwareProduct = Omit<PrismaHardwareProduct, 'price' | 'createdAt' | 'updatedAt'> & {

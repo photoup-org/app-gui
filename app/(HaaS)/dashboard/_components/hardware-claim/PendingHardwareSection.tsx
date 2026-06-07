@@ -1,5 +1,5 @@
-import { getHardwareSetupProgress } from "@/lib/data/hardware";
-import { getAppSession } from "@/lib/auth/session";
+import { getHardwareSetupProgress } from '@/lib/domain/hardware';
+import { getAppSession } from '@/lib/core/auth/session';
 import { getUserWorkspaceContext } from "@/lib/services/workspace";
 import DeviceRegistrationTracking from "./DeviceRegistrationTracking";
 import { InstallationGuidesCarousel } from "./InstallationGuidesCarousel";

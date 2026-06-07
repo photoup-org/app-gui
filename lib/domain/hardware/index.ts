@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from '@/lib/core/prisma';
 
 export interface HardwareProgress {
     gateways: { total: number; claimed: number; unclaimedIds: string[] };

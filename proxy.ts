@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth0 } from "@/lib/auth/auth0";
-import { getAppSession } from "@/lib/auth/session";
+import { auth0 } from '@/lib/core/auth/auth0';
+import { getAppSession } from '@/lib/core/auth/session';
 
 const AUTH_ROUTES_PREFIX = "/auth";
 const MARKETING_ROOT = "/";
