@@ -5,6 +5,7 @@ import { PlusSquare, ScanLine, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HardwareRegistrationDialog } from "@/components/haas/dashboard/HardwareRegistrationDialog";
 import { useProjectStore } from "@/hooks/useProjectStore";
+import AssistantDrawer from "../ai/AssistantDrawer";
 
 const ROUTE_TITLES: Record<string, string> = {
     '/': 'Visão Geral',
@@ -72,6 +73,7 @@ export function DashboardHeader() {
                 >
                     <Bell size={20} strokeWidth={1.5} />
                 </Button>
+                <AssistantDrawer />
             </div>
         </header>
     );
