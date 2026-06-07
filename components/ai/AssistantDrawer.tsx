@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Bot, User, Loader2, MessageSquare, Send } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,48 @@ import remarkGfm from 'remark-gfm';
 export default function AssistantDrawer() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Resizing state
+  const [drawerWidth, setDrawerWidth] = useState(450);
+  const [isResizing, setIsResizing] = useState(false);
+  const MIN_WIDTH = 320;
+  const MAX_WIDTH = 800;
   // Using a simplified history state for the UI, mapping to Gemini history
   const [messages, setMessages] = useState<{ role: 'user' | 'model'; text: string }[]>([]);
   // We keep the raw gemini history behind the scenes to send back to the API
   const [geminiHistory, setGeminiHistory] = useState<any[]>([]);
   const { state } = useApp();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = window.innerWidth - e.clientX;
+      setDrawerWidth(Math.min(Math.max(newWidth, MIN_WIDTH), MAX_WIDTH));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -66,7 +103,19 @@ export default function AssistantDrawer() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent className="w-[400px] sm:w-[450px] flex flex-col p-0">
+      <SheetContent
+        className="max-w-none! flex flex-col p-0"
+        style={{ width: `${drawerWidth}px`, maxWidth: '100vw' }}
+      >
+        {/* Drag Handle */}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-1.5 z-50 cursor-col-resize hover:bg-blue-500/50 active:bg-blue-500 transition-colors"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setIsResizing(true);
+          }}
+        />
+
         <SheetHeader className="p-4 border-b border-gray-200 dark:border-gray-800 flex flex-row items-center justify-between bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
@@ -110,7 +159,7 @@ export default function AssistantDrawer() {
                   : 'bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-sm'
                   }`}
               >
-                <ReactMarkdown 
+                <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
                     // Render Markdown tables as beautiful Shadcn/Tailwind tables
@@ -124,12 +173,12 @@ export default function AssistantDrawer() {
                     tr: ({ node, ...props }) => <tr className="hover:bg-gray-50/50 dark:hover:bg-gray-900/30 transition-colors" {...props} />,
                     th: ({ node, ...props }) => <th className="px-3 py-2 font-medium" {...props} />,
                     td: ({ node, ...props }) => <td className="px-3 py-2 font-normal text-gray-900 dark:text-gray-100" {...props} />,
-                    
+
                     // Style clean ordered and unordered lists
                     ul: ({ node, ...props }) => <ul className="list-disc pl-5 my-2 space-y-1 text-xs" {...props} />,
                     ol: ({ node, ...props }) => <ol className="list-decimal pl-5 my-2 space-y-1 text-xs" {...props} />,
                     li: ({ node, ...props }) => <li className="text-gray-700 dark:text-gray-300" {...props} />,
-                    
+
                     // Style emphasizes, titles and raw codes
                     strong: ({ node, ...props }) => <strong className="font-semibold text-gray-900 dark:text-gray-100" {...props} />,
                     code: ({ node, ...props }) => <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs font-mono text-red-600 dark:text-red-400" {...props} />,
@@ -162,6 +211,7 @@ export default function AssistantDrawer() {
               </div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input Area */}

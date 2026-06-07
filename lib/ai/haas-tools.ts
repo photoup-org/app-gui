@@ -1,4 +1,3 @@
-import { FunctionDeclaration, SchemaType } from '@google/generative-ai';
 import prisma from '@/lib/core/prisma';
 
 export async function getFleetHealthSummary(tenantId: string) {
@@ -38,11 +37,11 @@ export async function getCurrentBillingTier(tenantId: string) {
     if (!department) {
       return { error: "Tenant not found." };
     }
-    
+
     if (!department.plan) {
-      return { 
+      return {
         status: department.subStatus,
-        message: "No active billing plan assigned." 
+        message: "No active billing plan assigned."
       };
     }
 
@@ -104,7 +103,7 @@ export async function getProjectAndExperimentDetails(tenantId: string, searchStr
         }
       }
     });
-    
+
     return projects.map(p => ({
       projectName: p.name,
       status: p.status,
@@ -166,80 +165,6 @@ export async function getDeviceCalibrationAudit(tenantId: string, serialNumber: 
     return { error: "Failed to fetch device calibration audit." };
   }
 }
-
-
-export const haasFunctionDeclarations: FunctionDeclaration[] = [
-  {
-    name: 'getFleetHealthSummary',
-    description: 'Retrieves a summary of the hardware fleet health. Returns counts of devices grouped by their current status (e.g., ACTIVE, MAINTENANCE, OFFLINE). Always use this to get up-to-date counts of device statuses.',
-    parameters: {
-      type: SchemaType.OBJECT,
-      properties: {},
-    },
-  },
-  {
-    name: 'getCurrentBillingTier',
-    description: 'Retrieves the active HaaS subscription tier and current monthly usage for the organization, including their plan name, sensor limits, current sensor count, and subscription status. Use this to answer questions about billing, plans, limits, and costs.',
-    parameters: {
-      type: SchemaType.OBJECT,
-      properties: {},
-    },
-  },
-  {
-    name: 'getFleetDevices',
-    description: 'Queries the device inventory for the organization. Returns the serial number, asset name, operational status, and associated hardware product metadata. Can optionally filter by status (e.g., ACTIVE, MAINTENANCE, OFFLINE, PENDING_CONNECTION).',
-    parameters: {
-      type: SchemaType.OBJECT,
-      properties: {
-        status: {
-          type: SchemaType.STRING,
-          description: 'Optional status filter (e.g., ACTIVE, MAINTENANCE, OFFLINE, PENDING_CONNECTION)',
-        },
-      },
-    },
-  },
-  {
-    name: 'getProjectAndExperimentDetails',
-    description: 'Searches for projects or specific microalgae cultivation batches/experiments matching the query string. Returns project parameters, running status, start/end dates, and a list of assigned hardware tracking IDs.',
-    parameters: {
-      type: SchemaType.OBJECT,
-      properties: {
-        searchString: {
-          type: SchemaType.STRING,
-          description: 'The search string to find projects or experiments by name',
-        },
-      },
-      required: ['searchString'],
-    },
-  },
-  {
-    name: 'getRecentSystemAlerts',
-    description: 'Fetches the latest system incidents, threshold violations, and alerts. Returns timestamps, associated device serial numbers, alert severity levels, and descriptive messages.',
-    parameters: {
-      type: SchemaType.OBJECT,
-      properties: {
-        limit: {
-          type: SchemaType.NUMBER,
-          description: 'The maximum number of alerts to return (default: 10)',
-        },
-      },
-    },
-  },
-  {
-    name: 'getDeviceCalibrationAudit',
-    description: 'Queries the calibration record history for a given device serial number to ensure GLP compliance. Returns calculated piece-wise coefficients, raw versus reference point metrics, and the timestamp of the last intervention.',
-    parameters: {
-      type: SchemaType.OBJECT,
-      properties: {
-        serialNumber: {
-          type: SchemaType.STRING,
-          description: 'The serial number of the hardware device to audit',
-        },
-      },
-      required: ['serialNumber'],
-    },
-  }
-];
 
 export const tools = {
   getFleetHealthSummary,
