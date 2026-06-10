@@ -26,19 +26,25 @@ export async function POST(req: NextRequest) {
     // We convert deviceId to string format.
     const idStr = String(deviceId);
 
-    // 3. Find device
-    const device = await prisma.device.findUnique({
-      where: { id: idStr },
+    // 3. Find device by serialNumber or DB ID
+    const device = await prisma.device.findFirst({
+      where: {
+        OR: [
+          { serialNumber: idStr },
+          { id: idStr }
+        ]
+      },
     });
 
     if (!device) {
+      console.warn(`[Device Online Webhook] 404: No device found matching hardware ID: ${idStr}`);
       return NextResponse.json({ error: "Device not found" }, { status: 404 });
     }
 
     // 4. Update status if PENDING_CONNECTION
     if (device.status === DeviceStatus.PENDING_CONNECTION) {
       await prisma.device.update({
-        where: { id: idStr },
+        where: { id: device.id },
         data: { status: DeviceStatus.ACTIVE },
       });
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/core/prisma';
 import { z } from 'zod';
+import { writeTelemetry } from '@/lib/db/influx';
 
 const payloadSchema = z.object({
   experimentId: z.string().optional(),
@@ -42,30 +43,35 @@ export async function POST(req: Request) {
       }
     }
 
-    // Flatten the nested data object into individual SensorReading rows
-    const sensorReadingsData = readings.flatMap((reading) => {
-      const timestamp = new Date(reading.timestamp);
-      
-      return Object.entries(reading.data).map(([metricType, value]) => ({
-        deviceId: reading.deviceId,
-        experimentId: experimentId || undefined,
-        timestamp,
-        metricType,
-        value,
-      }));
-    });
-
-    if (sensorReadingsData.length === 0) {
+    if (readings.length === 0) {
       return NextResponse.json({ success: true, count: 0 });
     }
 
-    // Use createMany for bulk insertion
-    const createResult = await prisma.sensorReading.createMany({
-      data: sensorReadingsData,
-      skipDuplicates: true,
+    const uniqueDeviceIds = Array.from(new Set(readings.map(r => r.deviceId)));
+    
+    // Fetch devices to get tenantId (departmentId) and check status
+    const devices = await prisma.device.findMany({
+      where: { id: { in: uniqueDeviceIds } },
+      select: { id: true, status: true, departmentId: true }
     });
 
-    return NextResponse.json({ success: true, count: createResult.count });
+    const deviceMap = new Map(devices.map(d => [d.id, d.departmentId]));
+
+    const points = readings.map((reading) => {
+      const tenantId = deviceMap.get(reading.deviceId) || 'unknown';
+      return {
+        deviceId: reading.deviceId,
+        tenantId,
+        experimentId: experimentId || undefined,
+        timestamp: new Date(reading.timestamp),
+        fields: reading.data
+      };
+    });
+
+    // Write to InfluxDB
+    await writeTelemetry(points);
+
+    return NextResponse.json({ success: true, count: points.length });
   } catch (error) {
     console.error('[Telemetry API] Error inserting readings:', error);
     return NextResponse.json(

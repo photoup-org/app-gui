@@ -25,7 +25,7 @@ export interface SensorReading {
 }
 
 interface DynamicSensorChartProps {
-    experimentId: string;
+    experimentId?: string;
     deviceId: string;
     telemetryData: SensorReading[];
     metricKey: string;
@@ -55,9 +55,15 @@ export default function DynamicSensorChart({
     const liveValuesRaw = useMqttStore(state => state.liveValues[deviceId]);
     const subscribe = useMqttStore(state => state.subscribe);
     const departmentId = useMqttStore(state => state.departmentId);
+    const clearDeviceTelemetry = useMqttStore(state => state.clearDeviceTelemetry);
 
     useEffect(() => {
         if (!deviceId || !departmentId) return;
+
+        // Clear out old historical or transient state data inherited from generic live views
+        if (experimentId && clearDeviceTelemetry) {
+            clearDeviceTelemetry(deviceId);
+        }
 
         // Trigger subscriptions so the client requests data from the broker. 
         // We pass a no-op callback since the global store handles state updates.
@@ -68,13 +74,19 @@ export default function DynamicSensorChart({
             unsubSync();
             unsubRaw();
         };
-    }, [deviceId, departmentId, subscribe]);
+    }, [deviceId, departmentId, subscribe, experimentId, clearDeviceTelemetry]);
 
     const storeChartSeries = storeChartSeriesRaw || [];
     const liveValues = liveValuesRaw || {};
 
     const chartData = [...(telemetryData || []), ...storeChartSeries].filter(
-        reading => !reading.experimentId || reading.experimentId === experimentId
+        reading => {
+            // Filter incoming objects dynamically if we are in an experiment view
+            if (experimentId && reading.experimentId !== experimentId) {
+                return false;
+            }
+            return true;
+        }
     ).slice(-1000);
 
     const metricData = useMemo(() => {

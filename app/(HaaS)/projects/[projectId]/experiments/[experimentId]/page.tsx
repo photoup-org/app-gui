@@ -13,6 +13,7 @@ import { ExportDataButton } from "@/app/(HaaS)/projects/[projectId]/experiments/
 import { SENSOR_DICTIONARY } from '@/lib/domain/hardware/sensor-schemas';
 import ExperimentAlerts from "@/app/(HaaS)/projects/[projectId]/experiments/_components/ExperimentAlerts";
 import { getExperimentAlertsAction } from '@/app/(HaaS)/logs/actions';
+import { getExperimentTelemetry } from '@/lib/db/influx';
 
 export default async function ExperimentDetailsPage({
     params
@@ -28,12 +29,7 @@ export default async function ExperimentDetailsPage({
             project: true,
             devices: {
                 include: {
-                    product: true,
-                    readings: {
-                        where: { experimentId: experimentId },
-                        orderBy: { timestamp: 'desc' },
-                        take: 1000
-                    }
+                    product: true
                 }
             }
         }
@@ -48,19 +44,24 @@ export default async function ExperimentDetailsPage({
     const experimentAlerts = alertsData.alerts;
 
     // Data Transformation
-    const devicesWithTelemetry = experiment.devices.map((device) => {
-        // Reverse readings to be chronological left-to-right
-        const reversedReadings = [...device.readings].reverse();
+    const devicesWithTelemetry = await Promise.all(experiment.devices.map(async (device) => {
+        // Fetch baseline time-series data using our new Flux client tool
+        const telemetry = await getExperimentTelemetry(
+            device.id, 
+            experimentId, 
+            experiment.startDate, 
+            experiment.endDate
+        );
 
         // Resolve schema strictly based on device product SKU using the dictionary
         const schema = SENSOR_DICTIONARY[device.product.sku] || [];
 
         return {
             ...device,
-            telemetry: reversedReadings,
+            telemetry,
             schema
         };
-    });
+    }));
 
     return (
         <div className="max-w-7xl mx-auto p-6 space-y-8 w-full animate-in fade-in duration-500">
