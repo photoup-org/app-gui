@@ -22,7 +22,27 @@ export interface SensorReading {
     value: number;
     timestamp: Date | string;
     experimentId?: string | null;
+    isSaved?: boolean;
 }
+
+const CustomSavedDot = (props: any) => {
+    const { cx, cy, payload } = props;
+
+    if (payload.isSaved) {
+        return (
+            <circle
+                cx={cx}
+                cy={cy}
+                r={4}
+                stroke="#ffffff"
+                strokeWidth={2}
+                fill="#3b82f6"
+                className="drop-shadow-sm"
+            />
+        );
+    }
+    return null;
+};
 
 interface DynamicSensorChartProps {
     experimentId?: string;
@@ -36,6 +56,7 @@ interface DynamicSensorChartProps {
     max: number;
     deviceLabel: string;
     experimentStatus: string;
+    acquisitionFreq?: number;
 }
 
 export default function DynamicSensorChart({
@@ -49,7 +70,8 @@ export default function DynamicSensorChart({
     min,
     max,
     deviceLabel,
-    experimentStatus
+    experimentStatus,
+    acquisitionFreq
 }: DynamicSensorChartProps) {
     const storeChartSeriesRaw = useMqttStore(state => state.chartSeries[deviceId]);
     const liveValuesRaw = useMqttStore(state => state.liveValues[deviceId]);
@@ -79,7 +101,13 @@ export default function DynamicSensorChart({
     const storeChartSeries = storeChartSeriesRaw || [];
     const liveValues = liveValuesRaw || {};
 
-    const chartData = [...(telemetryData || []), ...storeChartSeries].filter(
+    const chartData = [
+        ...(telemetryData || []).map(d => ({ ...d, isSaved: true })),
+        ...storeChartSeries.map(d => ({
+            ...d,
+            isSaved: new Date(d.timestamp).getSeconds() % (acquisitionFreq || 60) === 0
+        }))
+    ].filter(
         reading => {
             // Filter incoming objects dynamically if we are in an experiment view
             if (experimentId && reading.experimentId !== experimentId) {
@@ -179,7 +207,7 @@ export default function DynamicSensorChart({
                                     dataKey="numericValue"
                                     stroke={color}
                                     strokeWidth={2}
-                                    dot={false}
+                                    dot={<CustomSavedDot />}
                                     activeDot={{ r: 4, strokeWidth: 0 }}
                                     isAnimationActive={false}
                                 />
@@ -187,6 +215,11 @@ export default function DynamicSensorChart({
                         </ResponsiveContainer>
                     )}
                 </div>
+                {experimentId && acquisitionFreq && (
+                    <div className="text-[10px] text-muted-foreground mt-2 text-right">
+                        Visualização em tempo real. Os dados são guardados no histórico a cada {acquisitionFreq} segundos.
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

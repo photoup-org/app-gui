@@ -166,13 +166,16 @@ export default async function ExperimentDetailsPage({
                                 );
                             }
 
-                            return device.schema.map(cap => (
+                            return device.schema.map(cap => {
+                                const actualMetricKey = (device.product.sku === 'SENS-PREM-PH' && cap.key === 'temperature') ? 'temp' : cap.key;
+                                
+                                return (
                                 <DynamicSensorChart
                                     key={`${device.id}-${cap.key}`}
                                     experimentId={experiment.id}
                                     deviceId={device.id}
                                     telemetryData={device.telemetry}
-                                    metricKey={cap.key}
+                                    metricKey={actualMetricKey}
                                     chartTitle={cap.label}
                                     unit={cap.unit}
                                     color={cap.color}
@@ -180,8 +183,10 @@ export default async function ExperimentDetailsPage({
                                     max={cap.max}
                                     deviceLabel={`${device.product.name} (${device.serialNumber.slice(-4)})`}
                                     experimentStatus={experiment.status}
+                                    acquisitionFreq={(experiment.settings as any)?.acquisitionFreq}
                                 />
-                            ));
+                                );
+                            });
                         })}
                     </div>
                 )}
