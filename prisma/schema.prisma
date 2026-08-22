@@ -199,11 +199,17 @@ model CalibrationRecord {
   pointsApplied Json?
   oldConfig     Json?
   newConfig     Json?
+  /// Which sensor channel this calibration applied to ("ph", "turbidity", ...).
+  /// Nullable only because rows written before this column existed cannot say;
+  /// every new record sets it. Without it a calibration table can show WHEN a
+  /// device was calibrated but not WHICH probe.
+  metric        String?
 
   device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([deviceId, calibratedAt(sort: Desc)])
+  @@index([deviceId, metric, calibratedAt(sort: Desc)])
 }
 
 model Alert {
