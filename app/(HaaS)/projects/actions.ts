@@ -43,7 +43,9 @@ export async function getProjectEquipmentAction(projectId: string) {
         }
 
         const devices = await prisma.device.findMany({
-            where: { projectId },
+            // Device <-> Project is many-to-many, so membership is a relation filter
+            // rather than a scalar column.
+            where: { projects: { some: { id: projectId } } },
             include: {
                 product: {
                     select: {
