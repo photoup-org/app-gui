@@ -396,7 +396,25 @@ model SystemLog {
   userId       String? // The Auth0 user who triggered the event, if applicable
   user         User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  // Incident lifecycle. A log row is either history (INFO) or a *condition* that
+  // someone has to look at (WARN and above). Only the latter carries these.
+  //
+  // dedupKey collapses a repeating condition into one row: the edge re-raises the
+  // same threshold breach every 60s, so a week-long excursion would otherwise be
+  // ~10k identical rows. Ingest folds a repeat into the newest row with the same
+  // key that nobody has acknowledged yet, bumping occurrences and lastSeenAt.
+  // Acknowledging closes that row, so the next occurrence starts a fresh one -
+  // "I handled it; tell me if it happens again".
+  dedupKey       String?
+  occurrences    Int       @default(1)
+  lastSeenAt     DateTime?
+  acknowledgedAt DateTime?
+  // A display name, not a User FK - matches CalibrationRecord.performedBy. The
+  // acknowledger is only ever rendered, never joined on.
+  acknowledgedBy String?
+
   @@index([departmentId])
+  @@index([departmentId, dedupKey, acknowledgedAt])
   @@index([projectId])
   @@index([experimentId])
   @@index([deviceId])
