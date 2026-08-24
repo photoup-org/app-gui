@@ -230,6 +230,31 @@ model Alert {
   @@index([departmentId, createdAt(sort: Desc)])
 }
 
+/// A browser push endpoint, one row per device someone has opted in on.
+///
+/// Owned in practice by microalgae-app, which is the only app that sends push.
+/// Deliberately carries no relation() to Department or User: wiring those up would
+/// mean adding back-relation fields to two models in an app that has no push
+/// feature at all. The tradeoff is no cascade on department delete - acceptable,
+/// because a subscription is disposable and the push service expires stale
+/// endpoints on its own (a 404/410 from the send is the signal to delete the row).
+model PushSubscription {
+  id           String    @id @default(cuid())
+  departmentId String
+  /// Who opted in. Null only if the row outlives the user record.
+  userId       String?
+  /// The push service URL. Unique: re-subscribing the same browser must update
+  /// the existing row rather than accumulate duplicates that all fire at once.
+  endpoint     String    @unique
+  p256dh       String
+  auth         String
+  userAgent    String?
+  createdAt    DateTime  @default(now())
+  lastUsedAt   DateTime?
+
+  @@index([departmentId])
+}
+
 enum AlertSeverity {
   INFO
   WARNING
